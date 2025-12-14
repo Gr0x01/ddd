@@ -526,10 +526,7 @@ export const db = {
     const client = getSupabaseClient();
     const { data, error } = await client
       .from('cities')
-      .select(`
-        *,
-        restaurants(count)
-      `)
+      .select('*')
       .eq('state_name', state)
       .order('name');
 

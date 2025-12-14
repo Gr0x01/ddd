@@ -5,26 +5,77 @@ import Link from 'next/link';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
-import { generateBreadcrumbSchema, generateItemListSchema, safeStringifySchema } from '@/lib/schema';
+import { generateBreadcrumbSchema, generateItemListSchema, generateCityBusinessSchema, safeStringifySchema } from '@/lib/schema';
 
 interface CityPageProps {
   params: Promise<{ state: string; city: string }>;
 }
 
+/**
+ * Validate slug parameter to prevent injection attacks
+ */
+function validateSlug(slug: string): string {
+  if (!slug || typeof slug !== 'string') {
+    notFound();
+  }
+
+  // Slugs should be lowercase alphanumeric with hyphens only
+  if (!/^[a-z0-9-]+$/.test(slug)) {
+    notFound();
+  }
+
+  // Prevent DOS via huge parameters
+  if (slug.length > 100) {
+    notFound();
+  }
+
+  return slug;
+}
+
 export const revalidate = 3600; // Revalidate every hour
+
+// Pre-render all city pages at build time
+export async function generateStaticParams() {
+  try {
+    const [states, cities] = await Promise.all([
+      db.getStates(),
+      db.getCities(),
+    ]);
+
+    // Map state names to slugs
+    const stateSlugMap = new Map(
+      states.map(state => [state.name, state.slug])
+    );
+
+    // Map cities to route params
+    return cities
+      .filter(city => stateSlugMap.has(city.state_name))
+      .map((city) => ({
+        state: stateSlugMap.get(city.state_name)!,
+        city: city.slug,
+      }));
+  } catch (error) {
+    console.error('Error generating city static params:', error);
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }: CityPageProps): Promise<Metadata> {
   const { state: stateSlug, city: citySlug } = await params;
 
   try {
-    const state = await db.getState(stateSlug);
+    // Validate slugs (will throw notFound() if invalid)
+    const validatedStateSlug = validateSlug(stateSlug);
+    const validatedCitySlug = validateSlug(citySlug);
+
+    const state = await db.getState(validatedStateSlug);
     if (!state) {
       return {
         title: 'City Not Found | Diners, Drive-ins and Dives Locations',
       };
     }
 
-    const city = await db.getCity(state.name, citySlug);
+    const city = await db.getCity(state.name, validatedCitySlug);
     if (!city) {
       return {
         title: 'City Not Found | Diners, Drive-ins and Dives Locations',
@@ -34,9 +85,20 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
     const restaurants = await db.getRestaurantsByCity(city.name, state.abbreviation);
     const openCount = restaurants.filter(r => r.status === 'open').length;
 
+    // Mention top-rated restaurants for richer description
+    const topRated = restaurants
+      .filter(r => r.google_rating && r.google_rating >= 4.5)
+      .sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0))
+      .slice(0, 2);
+
+    const topRatedText = topRated.length > 0
+      ? ` Top picks: ${topRated.map(r => r.name).join(', ')}.`
+      : '';
+
     const title = `${openCount} Diners, Drive-ins and Dives Restaurants in ${city.name}, ${state.abbreviation} | Guy Fieri`;
     const description = city.meta_description ||
-      `Discover ${restaurants.length} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives in ${city.name}, ${state.name}. ${openCount} still open. View photos, ratings, and detailed info.`;
+      `Discover ${restaurants.length} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives in ${city.name}, ${state.name}. ` +
+      `${openCount} still open.${topRatedText} View photos, ratings, and detailed info.`;
 
     return {
       title,
@@ -53,6 +115,11 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
       },
     };
   } catch (error) {
+    // Re-throw Next.js notFound() errors so they can be handled properly
+    if (error && typeof error === 'object' && 'digest' in error) {
+      throw error;
+    }
+
     console.error('City page metadata generation failed:', error);
     return {
       title: 'City Not Found | Diners, Drive-ins and Dives Locations',
@@ -62,16 +129,18 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
 
 export default async function CityPage({ params }: CityPageProps) {
   const { state: stateSlug, city: citySlug } = await params;
+  const validatedStateSlug = validateSlug(stateSlug);
+  const validatedCitySlug = validateSlug(citySlug);
 
   // Fetch state first to get state name
-  const state = await db.getState(stateSlug);
+  const state = await db.getState(validatedStateSlug);
 
   if (!state) {
     notFound();
   }
 
   // Fetch city using state name and city slug
-  const city = await db.getCity(state.name, citySlug);
+  const city = await db.getCity(state.name, validatedCitySlug);
 
   if (!city) {
     notFound();
@@ -93,14 +162,21 @@ export default async function CityPage({ params }: CityPageProps) {
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: '/' },
     { name: 'States', url: '/states' },
-    { name: state.name, url: `/state/${stateSlug}` },
+    { name: state.name, url: `/state/${validatedStateSlug}` },
     { name: city.name },
   ]);
 
   const itemListSchema = generateItemListSchema(
     openRestaurants,
     `DDD Restaurants in ${city.name}, ${state.abbreviation}`,
-    `/city/${stateSlug}/${citySlug}`
+    `/city/${validatedStateSlug}/${validatedCitySlug}`
+  );
+
+  const cityBusinessSchema = generateCityBusinessSchema(
+    city.name,
+    state.name,
+    state.abbreviation,
+    restaurants
   );
 
   return (
@@ -113,6 +189,10 @@ export default async function CityPage({ params }: CityPageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeStringifySchema(itemListSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(cityBusinessSchema) }}
       />
 
       <div className="min-h-screen" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
@@ -127,7 +207,7 @@ export default async function CityPage({ params }: CityPageProps) {
           ]}
           breadcrumbItems={[
             { label: 'States', href: '/states' },
-            { label: state.name, href: `/state/${stateSlug}` },
+            { label: state.name, href: `/state/${validatedStateSlug}` },
             { label: city.name }
           ]}
         />

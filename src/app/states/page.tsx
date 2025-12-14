@@ -96,13 +96,24 @@ export default async function StatesPage() {
     }
   });
 
+  // Helper to generate slug matching states table
+  const generateStateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special chars (periods, commas)
+      .replace(/\s+/g, '-')          // Replace spaces with hyphens
+      .replace(/-+/g, '-')           // Collapse multiple hyphens
+      .replace(/^-|-$/g, '');        // Remove leading/trailing hyphens
+  };
+
   // Build state list with full names and country grouping
   const allStates: StateWithCount[] = Object.entries(restaurantCountByState)
     .filter(([abbr]) => abbr && STATE_INFO[abbr])
     .map(([abbr, count]) => ({
       abbreviation: abbr,
       name: STATE_INFO[abbr].name,
-      slug: abbr.toLowerCase(),
+      // Generate slug from full state name (matches states table)
+      slug: generateStateSlug(STATE_INFO[abbr].name),
       count,
       country: STATE_INFO[abbr].country,
     }));

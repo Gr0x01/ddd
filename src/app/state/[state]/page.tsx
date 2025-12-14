@@ -5,19 +5,56 @@ import Link from 'next/link';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
-import { generateBreadcrumbSchema, generateItemListSchema, safeStringifySchema } from '@/lib/schema';
+import { generateBreadcrumbSchema, generateItemListSchema, generateStateFAQSchema, safeStringifySchema } from '@/lib/schema';
 
 interface StatePageProps {
   params: Promise<{ state: string }>;
 }
 
+/**
+ * Validate slug parameter to prevent injection attacks
+ */
+function validateSlug(slug: string): string {
+  if (!slug || typeof slug !== 'string') {
+    notFound();
+  }
+
+  // Slugs should be lowercase alphanumeric with hyphens only
+  if (!/^[a-z0-9-]+$/.test(slug)) {
+    notFound();
+  }
+
+  // Prevent DOS via huge parameters
+  if (slug.length > 100) {
+    notFound();
+  }
+
+  return slug;
+}
+
 export const revalidate = 3600; // Revalidate every hour
+
+// Pre-render all state pages at build time
+export async function generateStaticParams() {
+  try {
+    const states = await db.getStates();
+    return states.map((state) => ({
+      state: state.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating state static params:', error);
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }: StatePageProps): Promise<Metadata> {
   const { state: stateSlug } = await params;
 
   try {
-    const state = await db.getState(stateSlug);
+    // Validate slug (will throw notFound() if invalid)
+    const validatedSlug = validateSlug(stateSlug);
+
+    const state = await db.getState(validatedSlug);
     if (!state) {
       return {
         title: 'State Not Found | Diners, Drive-ins and Dives Locations',
@@ -31,9 +68,21 @@ export async function generateMetadata({ params }: StatePageProps): Promise<Meta
 
     const openCount = restaurants.filter(r => r.status === 'open').length;
 
+    // Extract popular cuisines for richer description
+    const cuisines = new Set<string>();
+    restaurants.forEach(r => {
+      if ('cuisines' in r && Array.isArray(r.cuisines)) {
+        r.cuisines.forEach((c: any) => cuisines.add(c.name));
+      }
+    });
+    const topCuisines = Array.from(cuisines).slice(0, 3).join(', ');
+
     const title = `${openCount} Diners, Drive-ins and Dives Restaurants in ${state.name} | Guy Fieri`;
     const description = state.meta_description ||
-      `Discover ${restaurants.length} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives in ${state.name}. ${openCount} still open across ${cities.length} cities. View photos, ratings, and detailed info.`;
+      `Discover ${restaurants.length} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives in ${state.name}. ` +
+      `${openCount} still open across ${cities.length} cities. ` +
+      (topCuisines ? `Popular cuisines: ${topCuisines}. ` : '') +
+      `View photos, ratings, and locations.`;
 
     return {
       title,
@@ -50,6 +99,11 @@ export async function generateMetadata({ params }: StatePageProps): Promise<Meta
       },
     };
   } catch (error) {
+    // Re-throw Next.js notFound() errors so they can be handled properly
+    if (error && typeof error === 'object' && 'digest' in error) {
+      throw error;
+    }
+
     console.error('State page metadata generation failed:', error);
     return {
       title: 'State Not Found | Diners, Drive-ins and Dives Locations',
@@ -59,9 +113,10 @@ export async function generateMetadata({ params }: StatePageProps): Promise<Meta
 
 export default async function StatePage({ params }: StatePageProps) {
   const { state: stateSlug } = await params;
+  const validatedSlug = validateSlug(stateSlug);
 
   // Fetch state first to get proper state abbreviation
-  const state = await db.getState(stateSlug);
+  const state = await db.getState(validatedSlug);
 
   if (!state) {
     notFound();
@@ -103,7 +158,20 @@ export default async function StatePage({ params }: StatePageProps) {
   const itemListSchema = generateItemListSchema(
     openRestaurants,
     `DDD Restaurants in ${state.name}`,
-    `/state/${stateSlug}`
+    `/state/${validatedSlug}`
+  );
+
+  const topCities = cities
+    .filter(c => (c.restaurant_count ?? 0) > 0)
+    .sort((a, b) => (b.restaurant_count ?? 0) - (a.restaurant_count ?? 0))
+    .slice(0, 5)
+    .map(c => ({ name: c.name, count: c.restaurant_count ?? 0 }));
+
+  const faqSchema = generateStateFAQSchema(
+    state.name,
+    restaurants.length,
+    openRestaurants.length,
+    topCities
   );
 
   return (
@@ -116,6 +184,10 @@ export default async function StatePage({ params }: StatePageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeStringifySchema(itemListSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(faqSchema) }}
       />
 
       <div className="min-h-screen" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
@@ -157,7 +229,7 @@ export default async function StatePage({ params }: StatePageProps) {
                   .map((city) => (
                     <Link
                       key={city.id}
-                      href={`/city/${stateSlug}/${city.slug}`}
+                      href={`/city/${validatedSlug}/${city.slug}`}
                       className="p-6 rounded-lg block hover:shadow-lg transition-shadow"
                       style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
                     >

@@ -13,24 +13,38 @@ const SITE_DESCRIPTION = 'Find every restaurant featured on Guy Fieri\'s Diners,
 
 /**
  * Sanitize data for safe inclusion in JSON-LD scripts
- * Prevents XSS by escaping dangerous characters
+ * Prevents XSS by escaping dangerous characters and removing control chars
  */
 function sanitizeForJSON(obj: any): any {
+  if (obj === null || obj === undefined) return obj;
+
   if (typeof obj === 'string') {
     return obj
       .replace(/</g, '\\u003c')
       .replace(/>/g, '\\u003e')
+      .replace(/&/g, '\\u0026')        // Escape ampersands
       .replace(/\u2028/g, '\\u2028')
-      .replace(/\u2029/g, '\\u2029');
+      .replace(/\u2029/g, '\\u2029')
+      .replace(/[\x00-\x1F\x7F]/g, ''); // Remove control characters
   }
+
   if (Array.isArray(obj)) {
     return obj.map(sanitizeForJSON);
   }
+
   if (obj && typeof obj === 'object') {
-    return Object.fromEntries(
-      Object.entries(obj).map(([k, v]) => [k, sanitizeForJSON(v)])
-    );
+    // Prevent prototype pollution
+    const sanitized: Record<string, any> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // Skip dangerous prototype keys
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        continue;
+      }
+      sanitized[key] = sanitizeForJSON(value);
+    }
+    return sanitized;
   }
+
   return obj;
 }
 
@@ -332,6 +346,95 @@ export function generateEpisodeSchema(episode: Episode, restaurants: Restaurant[
       name: r.name,
       url: `${SITE_URL}/restaurant/${r.slug}`,
     })),
+  };
+}
+
+/**
+ * LocalBusiness aggregate schema for city pages
+ */
+export function generateCityBusinessSchema(
+  cityName: string,
+  stateName: string,
+  stateAbbr: string,
+  restaurants: Restaurant[]
+): any {
+  const openCount = restaurants.filter(r => r.status === 'open').length;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: `Diners, Drive-ins and Dives Restaurants in ${cityName}`,
+    description: `${openCount} restaurants from Guy Fieri's show in ${cityName}, ${stateName}`,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: cityName,
+      addressRegion: stateAbbr,
+      addressCountry: 'US',
+    },
+    areaServed: {
+      '@type': 'City',
+      name: cityName,
+      containedInPlace: {
+        '@type': 'State',
+        name: stateName,
+      },
+    },
+  };
+}
+
+/**
+ * FAQ schema for state pages
+ */
+export function generateStateFAQSchema(
+  stateName: string,
+  totalRestaurants: number,
+  openRestaurants: number,
+  topCities: Array<{ name: string; count: number }>
+): any {
+  const closedCount = totalRestaurants - openRestaurants;
+  const topCityNames = topCities.slice(0, 3).map(c => c.name).join(', ');
+
+  // Grammar fixes for singular/plural
+  const openText = openRestaurants === 1 ? 'is currently open' : 'are currently open';
+  const closedText = closedCount === 0
+    ? 'All are still operating'
+    : closedCount === 1
+      ? '1 has closed'
+      : `${closedCount} have closed`;
+
+  const cityText = topCityNames
+    ? `The cities with the most restaurants are: ${topCityNames}.`
+    : 'Restaurants are distributed across multiple cities in the state.';
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: `How many Diners, Drive-ins and Dives restaurants are in ${stateName}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `There are ${totalRestaurants} restaurants featured on Guy Fieri's show in ${stateName}. ${openRestaurants} ${openText} and ${closedText}.`,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: `Which cities in ${stateName} have the most DDD restaurants?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: cityText,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: `Are all DDD restaurants in ${stateName} still open?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `No, ${openRestaurants} out of ${totalRestaurants} are still open. We verify status regularly.`,
+        },
+      },
+    ],
   };
 }
 
