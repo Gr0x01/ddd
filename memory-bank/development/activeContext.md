@@ -8,8 +8,8 @@ status: Active
 
 # Active Development Context
 
-**Current Phase:** Phase 1A - Wikipedia Data Import Complete
-**Sprint Goal:** Import recent episodes and deploy MVP with basic data
+**Current Phase:** Phase 2 - Enrichment System Complete
+**Sprint Goal:** Enrich imported restaurants and deploy enriched MVP
 **Timeline:** Week of Dec 14, 2025
 
 ---
@@ -35,12 +35,32 @@ status: Active
    - State pages
    - Homepage
 
-### ❌ NOT Built (Phase 2)
-- No LLM enrichment system
-- No Google Places integration
-- No status verification
-- No descriptions, cuisines, or photos
+### ✅ Completed (Dec 14)
+1. **LLM Enrichment System** (Phase 2)
+   - Full architecture: repositories, services, workflows, facade
+   - OpenAI gpt-4o-mini with Flex tier (50% cost savings)
+   - Tavily web search integration
+   - Google Places API for status verification (with LLM fallback)
+   - Token tracking and cost estimation
+   - Tested and working on sample restaurants
+
+2. **CLI Scripts**
+   - `enrich-restaurants.ts` - Full restaurant enrichment (description, cuisines, price tier, Guy quote)
+   - `verify-status.ts` - Status verification with confidence scoring
+   - `enrich-episodes.ts` - Episode meta description generation
+   - `check-enrichment.ts` - Verification helper
+
+3. **Enrichment Results**
+   - 3 test restaurants fully enriched
+   - Cuisines linked via junction table
+   - Price tiers assigned
+   - Guy Fieri quotes extracted
+   - Status verification working (e.g., Mac & Ernie's detected as closed with 90% confidence)
+
+### ❌ NOT Built (Phase 3)
 - No Playwright tests run
+- No photos uploaded
+- Pages exist but not tested in browser
 
 ---
 
@@ -124,7 +144,11 @@ status: Active
 
 ---
 
-## If We Build Enrichment (Future Work)
+## Enrichment System - COMPLETED ✅
+
+**Status:** Fully built and tested (Dec 14, 2025)
+
+### Architecture Implemented
 
 ### Phase 1: Foundation (2-3 days)
 1. Copy shared utilities from chefs:

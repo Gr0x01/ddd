@@ -123,6 +123,44 @@ Status: Project Inception
 
 ## Detailed Work Log
 
+### December 14, 2025 - Phase 2 Enrichment System Complete
+
+**Afternoon: Enrichment System Built & Tested**
+- ✅ Created CLI scripts for enrichment operations:
+  - `scripts/ingestion/enrich-restaurants.ts` - Full restaurant enrichment
+  - `scripts/ingestion/verify-status.ts` - Status verification with confidence scoring
+  - `scripts/ingestion/enrich-episodes.ts` - Episode meta descriptions
+  - `scripts/ingestion/check-enrichment.ts` - Data verification helper
+- ✅ Fixed database schema alignment issues (cuisine junction table)
+- ✅ Tested enrichment on 3 restaurants:
+  - Mac & Ernie's Roadside Eatery - Enriched + status verified as closed (90% confidence)
+  - Brint's Diner - Enriched with "American, Diner" cuisines
+  - Mad Greek Cafe - Enriched with "Greek" cuisine
+- ✅ Verified all components working:
+  - LLM enrichment (descriptions, cuisines, price tiers, Guy quotes)
+  - Tavily web search integration
+  - Google Places API status verification (with LLM fallback)
+  - Token tracking and cost estimation (~$0.0004 per restaurant enrichment)
+  - Cuisine linking via junction table
+
+**Enrichment System Architecture:**
+- Shared utilities: token-tracker, synthesis-client, result-parser, retry-handler, tavily-client, rate-limiter, logger
+- Repositories: restaurant, episode, city
+- Services: restaurant-enrichment, status-verification, episode-description
+- Workflows: manual-restaurant-addition, refresh-stale-restaurant, restaurant-status-sweep
+- Facade: llm-enricher.ts (public API)
+
+**Cost Metrics:**
+- Restaurant enrichment: ~2,000-2,400 tokens = $0.0004/restaurant
+- Status verification: ~1,800-1,900 tokens = $0.0003/restaurant (with Tavily fallback)
+- Using OpenAI gpt-4o-mini with Flex tier (50% cost savings)
+
+**Next Steps:**
+1. Import more restaurants (40 recent episodes = ~120 restaurants)
+2. Run bulk enrichment on imported data
+3. Run Playwright tests
+4. Deploy to Vercel
+
 ### December 14, 2025 - Phase 1A Data Pipeline Complete
 
 **Morning: Foundation Complete**

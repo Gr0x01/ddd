@@ -7,12 +7,13 @@ Status: Phase 1A - Data Pipeline Complete
 # Quickstart: DDD (Diners, Drive-ins and Dives)
 
 ## Current Status
-- **Phase**: Phase 1A - Data Pipeline Complete ✅
-- **Version**: 0.1.0
+- **Phase**: Phase 2 - Enrichment System Complete ✅
+- **Version**: 0.2.0
 - **Environment**: Development (Ready for deployment)
-- **Focus**: Import recent episodes (2024-2026) → Deploy → SEO indexing
+- **Focus**: Enrich imported restaurants → Test pages → Deploy
 - **Data Available**: 572 episodes, 1,695 restaurants (cached in Supabase)
-- **Test Import**: 1 episode, 3 restaurants successfully imported
+- **Imported**: 3 restaurants with full enrichment
+- **Enrichment Working**: Restaurant enrichment, status verification, episode descriptions
 - **Market**: Targeting 263k+ monthly visitors (based on competitor analysis)
 
 ## What We Actually Have
@@ -22,12 +23,11 @@ Status: Phase 1A - Data Pipeline Complete
 - Database schema with PostGIS
 - Restaurant, city, state pages (not tested)
 - Import scripts that work
+- **Enrichment system (LLM + Tavily + Google Places)**
+- **CLI scripts for enrichment, status verification, episodes**
 
 **❌ NOT Built:**
-- No enrichment system
-- No LLM integration
-- No Google Places
-- No tests run
+- No Playwright tests run
 - No deployment yet
 
 ---
@@ -65,9 +65,12 @@ npx tsx scripts/ingestion/cache-wikipedia.ts              # Cache Wikipedia (onc
 npx tsx scripts/ingestion/import-from-wikipedia.ts --recent  # Import 40 newest episodes
 npx tsx scripts/ingestion/verify-import.ts                # Verify data
 
-# Enrichment (Phase 2 - not built yet)
-# npx tsx scripts/enrich-restaurants.ts     # LLM enrichment (descriptions, cuisines)
-# npx tsx scripts/enrich-google-places.ts   # Google Places verification
+# Enrichment (Phase 2 - ready to use)
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10        # Enrich 10 restaurants
+npx tsx scripts/ingestion/enrich-restaurants.ts --all             # Enrich all pending
+npx tsx scripts/ingestion/verify-status.ts --limit 50             # Verify restaurant status
+npx tsx scripts/ingestion/enrich-episodes.ts --limit 10           # Generate episode SEO descriptions
+npx tsx scripts/ingestion/check-enrichment.ts                     # Verify enriched data
 ```
 
 ---
@@ -106,11 +109,15 @@ npx tsx scripts/ingestion/verify-import.ts                # Verify data
 - ✅ Import script works (tested with 1 episode)
 - ✅ Database schema is ready
 
+**What Works (Added Dec 14):**
+- ✅ Enrichment system fully built and tested
+- ✅ LLM integration (OpenAI gpt-4o-mini with Flex tier)
+- ✅ Tavily web search for restaurant context
+- ✅ Google Places API for status verification (optional)
+- ✅ CLI scripts for all enrichment operations
+
 **What Doesn't Exist:**
-- ❌ No enrichment system
-- ❌ No LLM integration
-- ❌ No Google Places
-- ❌ No tests run
+- ❌ No Playwright tests run
 - ❌ Pages exist but not tested
 - ❌ Not deployed
 

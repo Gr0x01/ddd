@@ -9,17 +9,24 @@ interface CityPageProps {
 export default async function CityPage({ params }: CityPageProps) {
   const { state: stateSlug, city: citySlug } = await params;
 
-  // Fetch city first to get proper city and state names
-  const city = await db.getCity(citySlug, stateSlug);
+  // Fetch state first to get state name
+  const state = await db.getState(stateSlug);
+
+  if (!state) {
+    notFound();
+  }
+
+  // Fetch city using state name and city slug
+  const city = await db.getCity(state.name, citySlug);
 
   if (!city) {
     notFound();
   }
 
-  // Fetch restaurants using actual city and state names from database
+  // Fetch restaurants using city name and state abbreviation
   let restaurants: Restaurant[];
   try {
-    restaurants = await db.getRestaurantsByCity(city.name, city.state_name);
+    restaurants = await db.getRestaurantsByCity(city.name, state.abbreviation);
   } catch (error) {
     console.error('Error fetching restaurants for city:', error);
     restaurants = [];

@@ -1,13 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
-import { env } from './env';
 
 // Supabase client configuration for frontend
 // IMPORTANT: Only uses anonymous key - never expose service role key to client
 function getSupabaseConfig() {
-  return {
-    supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL,
-    supabaseAnonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  };
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required');
+  }
+
+  return { supabaseUrl, supabaseAnonKey };
 }
 
 // Create Supabase client with anonymous key
@@ -35,13 +38,7 @@ function getSupabaseClient() {
 // Export the getter function, not the result
 export { getSupabaseClient as supabase };
 
-// IMPORTANT: Do NOT export supabaseAdmin or service role key in frontend code
-// Server-side operations should use separate admin client in API routes or scripts
-
-// ============================================
-// TYPE DEFINITIONS
-// ============================================
-
+// Type definitions for our database schema
 export interface Episode {
   id: string;
   season: number;
@@ -77,18 +74,19 @@ export interface Restaurant {
   city: string;
   state: string | null;
   zip: string | null;
-  country: string;
+  country: string | null;
   neighborhood: string | null;
   latitude: number | null;
   longitude: number | null;
+  location?: any; // PostGIS geography(POINT, 4326) - auto-generated from lat/lng
 
   // Contact
   phone: string | null;
   website_url: string | null;
-  social_urls: Record<string, string>;
+  social_urls: Record<string, string> | null;
 
   // Hours
-  hours_json: unknown; // JSON structure varies, use unknown for type safety
+  hours_json: Record<string, any> | null;
   hours_notes: string | null;
 
   // Status & Verification
@@ -107,7 +105,7 @@ export interface Restaurant {
 
   // Media
   photo_url: string | null;
-  photos: string[];
+  photos: string[] | null;
 
   // Ratings
   google_rating: number | null;
@@ -121,7 +119,7 @@ export interface Restaurant {
   // Pricing
   price_tier: '$' | '$$' | '$$$' | '$$$$' | null;
 
-  // Enrichment
+  // Enrichment tracking
   enrichment_status: 'pending' | 'in_progress' | 'completed' | 'failed';
   last_enriched_at: string | null;
 
@@ -143,145 +141,54 @@ export interface Dish {
   created_at: string;
 }
 
-export interface State {
-  id: string;
-  slug: string;
-  name: string;
-  abbreviation: string;
-  restaurant_count: number;
-  meta_description: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface City {
   id: string;
-  slug: string;
   name: string;
+  slug: string;
   state_id: string | null;
   state_name: string;
-  restaurant_count: number;
+  restaurant_count?: number;
   meta_description: string | null;
   created_at: string;
   updated_at: string;
 }
 
-// Combined type for restaurant with episodes and cuisines
-export interface RestaurantWithDetails extends Restaurant {
+export interface State {
+  id: string;
+  name: string;
+  slug: string;
+  abbreviation: string;
+  restaurant_count?: number;
+  meta_description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Combined type for restaurant with episode info
+export interface RestaurantWithEpisodes extends Restaurant {
   episodes?: Episode[];
   cuisines?: Cuisine[];
   dishes?: Dish[];
+  first_episode?: Episode | null;
 }
 
-// ============================================
-// DATABASE HELPER FUNCTIONS
-// ============================================
+// Map pin type (compatible with RestaurantMapPins component)
+export interface MapPin {
+  id: string;
+  slug: string;
+  name: string;
+  lat: number;
+  lng: number;
+  city: string;
+  state: string | null;
+  price_tier: string | null;
+  status: string;
+  chef_name: string;
+  chef_slug: string;
+}
 
+// Database helper functions
 export const db = {
-  // Get all restaurants
-  async getRestaurants() {
-    const client = getSupabaseClient();
-    const { data, error } = await client
-      .from('restaurants')
-      .select('*')
-      .eq('is_public', true)
-      .order('name')
-      .limit(5000);
-
-    if (error) throw error;
-    return data as Restaurant[];
-  },
-
-  // Get restaurant by slug with episodes and cuisines
-  async getRestaurant(slug: string): Promise<RestaurantWithDetails | null> {
-    // Validate slug format and length
-    if (!slug || slug.length > 200 || !/^[a-z0-9-]+$/.test(slug)) {
-      console.error('Invalid restaurant slug format:', slug);
-      return null;
-    }
-
-    const client = getSupabaseClient();
-    const { data, error } = await client
-      .from('restaurants')
-      .select(`
-        *,
-        restaurant_episodes(
-          episode:episodes(*)
-        ),
-        restaurant_cuisines(
-          cuisine:cuisines(*)
-        ),
-        dishes(*)
-      `)
-      .eq('slug', slug)
-      .eq('is_public', true)
-      .single();
-
-    if (error) {
-      console.error('Error fetching restaurant:', error);
-      return null;
-    }
-
-    // Transform the data to match our interface
-    type RestaurantQueryResult = Restaurant & {
-      restaurant_episodes?: Array<{ episode: Episode }>;
-      restaurant_cuisines?: Array<{ cuisine: Cuisine }>;
-      dishes?: Dish[];
-    };
-
-    const restaurant = data as RestaurantQueryResult;
-    return {
-      ...restaurant,
-      episodes: restaurant.restaurant_episodes?.map(re => re.episode).filter(Boolean) || [],
-      cuisines: restaurant.restaurant_cuisines?.map(rc => rc.cuisine).filter(Boolean) || [],
-      dishes: restaurant.dishes || []
-    };
-  },
-
-  // Get restaurants by city name and state
-  async getRestaurantsByCity(cityName: string, stateName: string) {
-    const client = getSupabaseClient();
-    const { data, error } = await client
-      .from('restaurants')
-      .select('*')
-      .eq('is_public', true)
-      .eq('city', cityName)
-      .eq('state', stateName)
-      .order('name');
-
-    if (error) {
-      console.error('Error fetching restaurants by city:', error);
-      throw error;
-    }
-    return data as Restaurant[];
-  },
-
-  // Get restaurants by state (accepts abbreviation or full name)
-  async getRestaurantsByState(stateIdentifier: string) {
-    // Validate state identifier length and format
-    if (!stateIdentifier || stateIdentifier.length > 100 || !/^[A-Za-z\s-]+$/.test(stateIdentifier)) {
-      throw new Error('Invalid state identifier format');
-    }
-
-    const client = getSupabaseClient();
-
-    // Query by state field matching either abbreviation or full name
-    // This handles cases where restaurants.state might be 'CA' or 'California'
-    const { data, error } = await client
-      .from('restaurants')
-      .select('*')
-      .eq('is_public', true)
-      .eq('state', stateIdentifier)
-      .order('city')
-      .order('name');
-
-    if (error) {
-      console.error('Error fetching restaurants by state:', error);
-      throw error;
-    }
-    return data as Restaurant[];
-  },
-
   // Get all episodes
   async getEpisodes() {
     const client = getSupabaseClient();
@@ -295,154 +202,172 @@ export const db = {
     return data as Episode[];
   },
 
-  // Get episode by slug with restaurants
+  // Get episode by slug
   async getEpisode(slug: string) {
     const client = getSupabaseClient();
     const { data, error } = await client
       .from('episodes')
       .select(`
         *,
-        restaurant_episodes!inner(
+        restaurants:restaurant_episodes(
           restaurant:restaurants(*)
         )
       `)
       .eq('slug', slug)
       .single();
 
-    if (error) {
-      console.error('Error fetching episode:', error);
-      return null;
-    }
-
-    type EpisodeQueryResult = Episode & {
-      restaurant_episodes?: Array<{ restaurant: Restaurant }>;
-    };
-
-    const episode = data as EpisodeQueryResult;
-    return {
-      ...episode,
-      restaurants: episode.restaurant_episodes?.map(re => re.restaurant).filter(r => r.is_public) || []
-    };
+    if (error) throw error;
+    return data;
   },
 
-  // Get all states with restaurant counts
-  async getStates() {
+  // Get all restaurants
+  async getRestaurants() {
     const client = getSupabaseClient();
     const { data, error } = await client
-      .from('states')
-      .select('*')
+      .from('restaurants')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_episodes(
+          episode:episodes(*)
+        ),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        )
+      `)
+      .eq('is_public', true)
+      .order('name')
+      .limit(5000);
+
+    if (error) throw error;
+    return transformRestaurants(data);
+  },
+
+  // Get restaurants for map (lightweight)
+  async getMapPins(): Promise<MapPin[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('restaurants')
+      .select('id, slug, name, latitude, longitude, city, state, price_tier, status')
+      .eq('is_public', true)
+      .not('latitude', 'is', null)
+      .not('longitude', 'is', null);
+
+    if (error) throw error;
+    return (data as any[]).map(r => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      lat: r.latitude,
+      lng: r.longitude,
+      city: r.city,
+      state: r.state,
+      price_tier: r.price_tier,
+      status: r.status,
+      chef_name: 'Guy Fieri',  // DDD is all Guy Fieri
+      chef_slug: 'guy-fieri'
+    }));
+  },
+
+  // Get restaurants by city (and optionally state)
+  async getRestaurantsByCity(city: string, state?: string) {
+    const client = getSupabaseClient();
+    let query = client
+      .from('restaurants')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_episodes(
+          episode:episodes(*)
+        ),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        )
+      `)
+      .eq('is_public', true)
+      .eq('city', city);
+
+    if (state) {
+      query = query.eq('state', state);
+    }
+
+    const { data, error } = await query.order('name');
+
+    if (error) throw error;
+    return transformRestaurants(data);
+  },
+
+  // Get restaurants by state
+  async getRestaurantsByState(state: string) {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('restaurants')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_episodes(
+          episode:episodes(*)
+        ),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        )
+      `)
+      .eq('is_public', true)
+      .eq('state', state)
+      .order('city')
       .order('name');
 
     if (error) throw error;
-    return data as State[];
+    return transformRestaurants(data);
   },
 
-  // Get state by slug
-  async getState(slug: string) {
-    // Validate slug format and length
-    if (!slug || slug.length > 100 || !/^[a-z-]+$/.test(slug)) {
-      console.error('Invalid state slug format:', slug);
-      return null;
-    }
-
+  // Search restaurants by name or city
+  async searchRestaurants(query: string) {
     const client = getSupabaseClient();
+    const sanitizedQuery = query.replace(/[%_]/g, '\\$&');
     const { data, error } = await client
-      .from('states')
-      .select('*')
-      .eq('slug', slug)
-      .single();
-
-    if (error) {
-      console.error('Error fetching state:', error);
-      return null;
-    }
-    return data as State;
-  },
-
-  // Get cities by state
-  async getCitiesByState(stateSlug: string) {
-    // Validate slug format and length
-    if (!stateSlug || stateSlug.length > 100 || !/^[a-z-]+$/.test(stateSlug)) {
-      throw new Error('Invalid state slug format');
-    }
-
-    const client = getSupabaseClient();
-    const { data: state, error: stateError } = await client
-      .from('states')
-      .select('name, abbreviation')
-      .eq('slug', stateSlug)
-      .single();
-
-    if (stateError || !state) {
-      console.error('Error fetching state for cities:', stateError);
-      return [];
-    }
-
-    // Runtime type validation
-    const stateData = state as Record<string, unknown>;
-    if (typeof stateData.name !== 'string') {
-      console.error('Invalid state data structure - missing name');
-      return [];
-    }
-
-    const stateName = stateData.name;
-    const { data, error } = await client
-      .from('cities')
-      .select('*')
-      .eq('state_name', stateName)
+      .from('restaurants')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_episodes(
+          episode:episodes(*)
+        ),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        )
+      `)
+      .eq('is_public', true)
+      .or(`name.ilike.%${sanitizedQuery}%,city.ilike.%${sanitizedQuery}%`)
       .order('name');
 
-    if (error) {
-      console.error('Error fetching cities:', error);
-      throw error;
-    }
-    return data as City[];
+    if (error) throw error;
+    return transformRestaurants(data);
   },
 
-  // Get city by slug and state
-  async getCity(citySlug: string, stateSlug: string) {
-    // Validate slug formats and lengths
-    if (!citySlug || citySlug.length > 200 || !/^[a-z0-9-]+$/.test(citySlug)) {
-      console.error('Invalid city slug format:', citySlug);
-      return null;
-    }
-    if (!stateSlug || stateSlug.length > 100 || !/^[a-z-]+$/.test(stateSlug)) {
-      console.error('Invalid state slug format:', stateSlug);
-      return null;
-    }
-
+  // Get restaurant by slug
+  async getRestaurant(slug: string) {
     const client = getSupabaseClient();
-    const { data: state, error: stateError } = await client
-      .from('states')
-      .select('name, abbreviation')
-      .eq('slug', stateSlug)
-      .single();
-
-    if (stateError || !state) {
-      console.error('Error fetching state for city:', stateError);
-      return null;
-    }
-
-    // Runtime type validation
-    const stateData = state as Record<string, unknown>;
-    if (typeof stateData.name !== 'string') {
-      console.error('Invalid state data structure - missing name');
-      return null;
-    }
-
-    const stateName = stateData.name;
     const { data, error } = await client
-      .from('cities')
-      .select('*')
-      .eq('slug', citySlug)
-      .eq('state_name', stateName)
+      .from('restaurants')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_episodes(
+          episode:episodes(*)
+        ),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        ),
+        dishes(*)
+      `)
+      .eq('slug', slug)
+      .eq('is_public', true)
       .single();
 
-    if (error) {
-      console.error('Error fetching city:', error);
-      return null;
-    }
-    return data as City;
+    if (error) throw error;
+    const transformed = transformRestaurants([data]);
+    return transformed[0];
   },
 
   // Get stats for homepage
@@ -461,21 +386,143 @@ export const db = {
     };
   },
 
-  // Search restaurants by name
-  async searchRestaurants(query: string) {
+  // Get featured restaurants (for homepage)
+  async getFeaturedRestaurants(limit: number = 12) {
     const client = getSupabaseClient();
-    const sanitizedQuery = query.replace(/[%_]/g, '\\$&');
     const { data, error } = await client
       .from('restaurants')
-      .select('*')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        )
+      `)
       .eq('is_public', true)
-      .ilike('name', `%${sanitizedQuery}%`)
-      .order('name')
-      .limit(50);
+      .eq('status', 'open')
+      .not('google_rating', 'is', null)
+      .not('photo_url', 'is', null)
+      .order('google_rating', { ascending: false })
+      .limit(limit * 3); // Get more than needed for randomization
 
     if (error) throw error;
-    return data as Restaurant[];
-  }
+
+    const restaurants = transformRestaurants(data);
+
+    // Shuffle for randomization
+    for (let i = restaurants.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [restaurants[i], restaurants[j]] = [restaurants[j], restaurants[i]];
+    }
+
+    return restaurants.slice(0, limit);
+  },
+
+  // Get cities with restaurant counts
+  async getCitiesWithCounts() {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('cities')
+      .select(`
+        *,
+        restaurants(count)
+      `)
+      .order('name');
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Get states with restaurant counts
+  async getStatesWithCounts() {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('states')
+      .select(`
+        *,
+        restaurants(count)
+      `)
+      .order('name');
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Get recent episodes
+  async getRecentEpisodes(limit: number = 10) {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('episodes')
+      .select('*')
+      .order('air_date', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data as Episode[];
+  },
+
+  // Get city by slug
+  async getCity(state: string, city: string) {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('cities')
+      .select('*')
+      .eq('state_name', state)
+      .eq('slug', city)
+      .single();
+
+    if (error) throw error;
+    return data as City;
+  },
+
+  // Get state by slug
+  async getState(slug: string) {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('states')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (error) throw error;
+    return data as State;
+  },
+
+  // Get cities by state
+  async getCitiesByState(state: string) {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('cities')
+      .select(`
+        *,
+        restaurants(count)
+      `)
+      .eq('state_name', state)
+      .order('name');
+
+    if (error) throw error;
+    return data;
+  },
 };
 
-export default getSupabaseClient;
+// Helper function to transform restaurant data
+function transformRestaurants(data: any[]): RestaurantWithEpisodes[] {
+  return data.map((r: any) => {
+    const episodes = (r.restaurant_episodes || [])
+      .map((re: any) => re.episode)
+      .filter(Boolean);
+
+    const cuisines = (r.restaurant_cuisines || [])
+      .map((rc: any) => rc.cuisine)
+      .filter(Boolean);
+
+    return {
+      ...r,
+      episodes,
+      cuisines,
+      // Remove nested junction table data
+      restaurant_episodes: undefined,
+      restaurant_cuisines: undefined,
+    };
+  });
+}

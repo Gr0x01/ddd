@@ -16,12 +16,12 @@ export default async function StatePage({ params }: StatePageProps) {
     notFound();
   }
 
-  // Fetch cities and restaurants using state abbreviation
+  // Fetch cities and restaurants using state name/abbreviation
   let cities: City[];
   let restaurants: Restaurant[];
   try {
     [cities, restaurants] = await Promise.all([
-      db.getCitiesByState(stateSlug),
+      db.getCitiesByState(state.name),
       db.getRestaurantsByState(state.abbreviation)
     ]);
   } catch (error) {
@@ -90,8 +90,8 @@ export default async function StatePage({ params }: StatePageProps) {
               </h2>
               <div className="grid md:grid-cols-3 gap-4">
                 {cities
-                  .filter(city => city.restaurant_count > 0)
-                  .sort((a, b) => b.restaurant_count - a.restaurant_count)
+                  .filter(city => (city.restaurant_count ?? 0) > 0)
+                  .sort((a, b) => (b.restaurant_count ?? 0) - (a.restaurant_count ?? 0))
                   .map((city) => (
                     <Link
                       key={city.id}
