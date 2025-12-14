@@ -53,8 +53,8 @@ CREATE TABLE restaurants (
     zip TEXT,
     country TEXT DEFAULT 'US',
     neighborhood TEXT,
-    latitude DOUBLE PRECISION,
-    longitude DOUBLE PRECISION,
+    latitude DOUBLE PRECISION CHECK (latitude IS NULL OR (latitude >= -90 AND latitude <= 90)),
+    longitude DOUBLE PRECISION CHECK (longitude IS NULL OR (longitude >= -180 AND longitude <= 180)),
     location geography(POINT, 4326), -- PostGIS geography for accurate distance calculations
 
     -- Contact
@@ -178,16 +178,16 @@ CREATE TABLE cities (
 -- ============================================
 
 -- Episodes
-CREATE INDEX idx_episodes_slug ON episodes(slug);
+-- Note: slug has UNIQUE constraint which automatically creates index, so no separate index needed
 CREATE INDEX idx_episodes_season ON episodes(season, episode_number);
 CREATE INDEX idx_episodes_air_date ON episodes(air_date DESC);
 
 -- Cuisines
-CREATE INDEX idx_cuisines_slug ON cuisines(slug);
+-- Note: slug has UNIQUE constraint which automatically creates index
 CREATE INDEX idx_cuisines_parent ON cuisines(parent_id);
 
 -- Restaurants
-CREATE INDEX idx_restaurants_slug ON restaurants(slug);
+-- Note: slug has UNIQUE constraint which automatically creates index
 CREATE INDEX idx_restaurants_city ON restaurants(city);
 CREATE INDEX idx_restaurants_state ON restaurants(state);
 CREATE INDEX idx_restaurants_location ON restaurants(city, state, country);
@@ -197,13 +197,13 @@ CREATE INDEX idx_restaurants_is_public ON restaurants(is_public);
 CREATE INDEX idx_restaurants_first_episode ON restaurants(first_episode_id);
 CREATE INDEX idx_restaurants_enrichment_status ON restaurants(enrichment_status);
 
--- PostGIS spatial index for geographic queries
+-- PostGIS spatial index for geographic queries (for Phase 2: road trip planner)
 CREATE INDEX idx_restaurants_geography ON restaurants USING GIST(location);
 
 -- Dishes
 CREATE INDEX idx_dishes_restaurant ON dishes(restaurant_id);
 CREATE INDEX idx_dishes_episode ON dishes(episode_id);
-CREATE INDEX idx_dishes_slug ON dishes(slug);
+-- Note: slug is part of compound UNIQUE constraint, index auto-created
 
 -- Junction tables
 CREATE INDEX idx_restaurant_episodes_restaurant ON restaurant_episodes(restaurant_id);
@@ -212,10 +212,9 @@ CREATE INDEX idx_restaurant_cuisines_restaurant ON restaurant_cuisines(restauran
 CREATE INDEX idx_restaurant_cuisines_cuisine ON restaurant_cuisines(cuisine_id);
 
 -- States and Cities
-CREATE INDEX idx_states_slug ON states(slug);
-CREATE INDEX idx_states_abbreviation ON states(abbreviation);
+-- Note: slug and abbreviation have UNIQUE constraints which automatically create indexes
 CREATE INDEX idx_states_restaurant_count ON states(restaurant_count DESC);
-CREATE INDEX idx_cities_slug ON cities(slug);
+-- Note: cities has compound UNIQUE on (slug, state_name), index auto-created
 CREATE INDEX idx_cities_state_id ON cities(state_id);
 CREATE INDEX idx_cities_restaurant_count ON cities(restaurant_count DESC);
 
@@ -312,17 +311,28 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger to auto-update counts when restaurants change
+-- Optimized to only run when location/visibility fields change
 CREATE OR REPLACE FUNCTION trigger_sync_location_counts()
 RETURNS TRIGGER AS $$
 BEGIN
-  PERFORM sync_state_counts();
-  PERFORM sync_city_counts();
+  -- Only sync if this is a top-level operation (not nested)
+  -- This prevents recursive triggers and reduces overhead
+  IF pg_trigger_depth() = 0 THEN
+    PERFORM sync_state_counts();
+    PERFORM sync_city_counts();
+  END IF;
   RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
+-- Only trigger on INSERT/DELETE or when city/state/is_public fields change
 CREATE TRIGGER restaurants_location_sync
-  AFTER INSERT OR UPDATE OR DELETE ON restaurants
+  AFTER INSERT OR DELETE ON restaurants
+  FOR EACH STATEMENT
+  EXECUTE FUNCTION trigger_sync_location_counts();
+
+CREATE TRIGGER restaurants_location_update_sync
+  AFTER UPDATE OF city, state, is_public ON restaurants
   FOR EACH STATEMENT
   EXECUTE FUNCTION trigger_sync_location_counts();
 

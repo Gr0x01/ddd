@@ -1,17 +1,19 @@
 ---
 Last-Updated: 2025-12-14
 Maintainer: RB
-Status: Initial Setup
+Status: Phase 1A - Foundation + Latest Episodes (SEO Priority)
+Repository: https://github.com/Gr0x01/ddd
 ---
 
 # Quickstart: DDD (Diners, Drive-ins and Dives)
 
 ## Current Status
-- **Phase**: Phase 1A - Foundation + Latest Episodes (Week 1)
+- **Phase**: Phase 1A - Data Pipeline Complete ✅
 - **Version**: 0.1.0
-- **Environment**: Development (Not yet deployed)
-- **Focus**: SEO-first strategy - newest DDD episodes + static pages for Google indexing
-- **Strategy**: Newest-to-oldest episodes (2024-2025 first, then backfill to 2007)
+- **Environment**: Development (Ready for deployment)
+- **Focus**: Import recent episodes (2024-2026) → Deploy → SEO indexing
+- **Data Available**: 572 episodes, 1,695 restaurants (cached in Supabase)
+- **Test Import**: 1 episode, 3 restaurants successfully imported
 - **Market**: Targeting 263k+ monthly visitors (based on competitor analysis)
 
 ## Key Commands
@@ -26,10 +28,14 @@ npm run type-check   # Run TypeScript checks
 npm run test:e2e     # Run Playwright tests
 npm run test:e2e:ui  # Interactive test mode
 
-# Enrichment (when ready)
-npx tsx scripts/harvest-episodes.ts        # Populate episode cache
-npx tsx scripts/extract-from-cache.ts      # Extract restaurants from cache
-npx tsx scripts/enrich-google-places.ts    # Backfill Google Place IDs
+# Data Import (Phase 1)
+npx tsx scripts/ingestion/cache-wikipedia.ts              # Cache Wikipedia (once/week)
+npx tsx scripts/ingestion/import-from-wikipedia.ts --recent  # Import 40 newest episodes
+npx tsx scripts/ingestion/verify-import.ts                # Verify data
+
+# Enrichment (Phase 2 - not built yet)
+# npx tsx scripts/enrich-restaurants.ts     # LLM enrichment (descriptions, cuisines)
+# npx tsx scripts/enrich-google-places.ts   # Google Places verification
 ```
 
 ## Adding a New Episode or Restaurant
