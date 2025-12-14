@@ -3,144 +3,337 @@ title: Enrichment System Quick Reference
 created: 2025-12-14
 last-updated: 2025-12-14
 maintainer: Claude
-status: Design
+status: Active
 ---
 
 # Enrichment System Quick Reference
 
+> **Status:** ACTIVE - Core enrichment implemented and operational
 > **Full Architecture:** See `enrichment-system.md` for complete design details.
 
-## Quick Start
+## Current Implementation Status
 
+### ✅ Implemented & Working
+
+**Core Enrichment Script:** `scripts/ingestion/enrich-restaurants.ts`
+
+**Features:**
+- Episode-aware enrichment (passes episode title, season, episode number to LLM)
+- **Status detection** (`open`, `closed`, `unknown`)
+- **Closure date extraction** (handles `YYYY`, `YYYY-MM`, `YYYY-MM-DD` formats)
+- **Dish extraction** (linked to episodes with Guy's reactions)
+- **Segment notes** (what happened during Guy's visit)
+- **Contact info** (address, phone, website from search results)
+- **Photo storage** (Google Places → Supabase Storage with `--with-photos` flag)
+- **Full-content search** (Tavily with `include_raw_content: true` for complete Wikipedia articles)
+- **Cost tracking** (separate for LLM and Google Places API)
+- **Search caching** (90-day TTL for restaurant searches)
+
+**Database Schema:**
 ```typescript
-import { createClient } from '@supabase/supabase-js';
-import { createLLMEnricher } from '@/scripts/ingestion/processors/llm-enricher';
+restaurants {
+  // Core fields
+  name, slug, city, state, address, phone, website_url
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+  // Enrichment fields
+  description, price_tier, guy_quote
+  status: 'open' | 'closed' | 'unknown'
+  closed_date: DATE
 
-const enricher = createLLMEnricher(supabase);
-```
+  // Episode context
+  first_episode_id, first_air_date
 
----
+  // Media
+  photos: JSONB  // Array of Supabase Storage URLs
+  google_place_id, google_rating, google_review_count
 
-## Common Operations
+  // Tracking
+  enrichment_status: 'pending' | 'completed' | 'failed'
+  last_enriched_at
+}
 
-### 1. Add New Restaurant (Full Enrichment)
+dishes {
+  restaurant_id, episode_id
+  name, slug, description
+  guy_reaction, is_signature_dish
+}
 
-```typescript
-const result = await enricher.workflows.manualRestaurantAddition({
-  restaurantName: "Hodad's",
-  city: "San Diego",
-  state: "California",
-  address: "5010 Newport Ave",      // Optional
-  episodeId: "uuid-here",           // Optional: link to episode
-  skipStatusCheck: false,           // Optional: skip status verification
-  dryRun: false,                    // Optional: test without saving
-});
+restaurant_episodes {
+  restaurant_id, episode_id
+  segment_notes  // What happened during the visit
+}
 
-// Check result
-if (result.success) {
-  console.log(`Restaurant ID: ${result.output.restaurantId}`);
-  console.log(`Cost: $${result.totalCost.estimatedUsd.toFixed(4)}`);
-} else {
-  console.error(`Failed: ${result.errors[0].message}`);
+restaurant_cuisines {
+  restaurant_id, cuisine_id  // Many-to-many
 }
 ```
 
-**Cost:** ~$0.06-$0.14 per restaurant
+**CLI Usage:**
+```bash
+# Basic enrichment (description, cuisines, price, dishes, status)
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10
+
+# With Google Places photos (adds $0.084/restaurant)
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10 --with-photos
+
+# Force re-enrich completed restaurants
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 5 --all
+
+# Dry run (no database writes)
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 3 --dry-run
+```
+
+**Cost Per Restaurant:**
+- LLM (gpt-4o-mini): ~$0.0006
+- Tavily search: ~$0.005 (cached for 90 days)
+- **Total without photos:** ~$0.006
+- Google Places (optional): +$0.084
+- **Total with photos:** ~$0.09
+
+### ❌ Not Yet Implemented
+
+- Workflow orchestration (manualRestaurantAddition, refreshStaleRestaurant)
+- Status verification as standalone operation
+- Episode discovery/backfilling
+- Partial update modes
+- Rollback on failure
+- CLI command interface
 
 ---
 
-### 2. Verify Restaurant Status
+## Quick Start (Current Implementation)
 
-```typescript
-const result = await enricher.verifyRestaurantStatus(
-  "Hodad's",
-  "San Diego",
-  "California",
-  existingPlaceId  // Optional: if already have Google Place ID
-);
+```bash
+# 1. Set environment variables
+OPENAI_API_KEY=sk-...
+TAVILY_API_KEY=tvly-...
+GOOGLE_PLACES_API_KEY=AIza...  # Optional, for photos
+NEXT_PUBLIC_SUPABASE_URL=https://...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
-console.log(`Status: ${result.status}`);        // 'open', 'closed', 'unknown'
-console.log(`Confidence: ${result.confidence}`); // 0.0 to 1.0
-console.log(`Reasoning: ${result.reasoning}`);
+# 2. Run enrichment
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10
 ```
 
-**Cost:** $0.049 (Google Places) OR $0.01 (LLM fallback)
+**What gets extracted:**
+1. Description (2-3 sentences about the restaurant)
+2. Cuisines (e.g., `["American", "BBQ"]`)
+3. Price tier (`$`, `$$`, `$$$`, `$$$$`)
+4. Guy Fieri quote from the episode
+5. Dishes featured in the episode (with Guy's reactions)
+6. Segment notes (what happened during the visit)
+7. Business status (`open`, `closed`, `unknown`)
+8. Closure date (if closed, in `YYYY-MM-DD` format)
+9. Contact info (address, phone, website)
+10. Photos (if `--with-photos` flag used)
 
 ---
 
-### 3. Batch Status Verification
+## Known Issues & Fixes
 
-```typescript
-const result = await enricher.workflows.restaurantStatusSweep({
-  criteria: {
-    notVerifiedInDays: 180,         // Restaurants not verified in 180+ days
-    status: 'unknown',              // Optional: filter by current status
-  },
-  limit: 50,                        // Max restaurants to process
-  minConfidence: 0.75,              // Only update if confidence ≥ 0.75
-  batchSize: 10,                    // Process 10 at a time
-  dryRun: false,
-});
+### ✅ Fixed: Tavily Content Truncation (2025-12-14)
 
-console.log(`Updated: ${result.output.statusUpdated} restaurants`);
-console.log(`Cost: $${result.totalCost.estimatedUsd.toFixed(2)}`);
+**Problem:** Tavily was returning truncated content because `include_raw_content: false`. This caused Wikipedia articles to be cut off mid-sentence, missing critical information like closure dates.
+
+**Example:** Brint's Diner Wikipedia article was truncated to:
+```
+"The restaurant closed permanently in October 20..."  [CUT OFF]
+```
+
+**Impact:** LLM extracted incorrect or missing closure dates (e.g., `2023-10` instead of `2014-10`).
+
+**Fix:** Changed `include_raw_content: true` in `tavily-client.ts` (commit a860c6b)
+
+**Result:** Full Wikipedia content now available to LLM. Brint's Diner correctly shows `closed_date: 2014-10-01`.
+
+**Files Changed:**
+- `scripts/ingestion/enrichment/shared/tavily-client.ts`
+- `supabase/migrations/005_add_search_cache_columns.sql`
+- `scripts/ingestion/invalidate-cache.ts` (utility)
+
+---
+
+## Current Operations (CLI-Based)
+
+### 1. Enrich Pending Restaurants
+
+Enriches restaurants with `enrichment_status = 'pending'` or `description IS NULL`:
+
+```bash
+# Enrich 10 restaurants
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10
+
+# What gets extracted:
+# - Description, cuisines, price tier, Guy quote
+# - Dishes (with Guy's reactions, linked to episode)
+# - Segment notes (what happened during visit)
+# - Status (open/closed/unknown) + closure date
+# - Contact info (address, phone, website)
+```
+
+**Output:**
+```
+🍔 DDD Restaurant Enrichment
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Model: gpt-4o-mini
+Mode: LIVE
+Limit: 10 restaurants
+Photos: NO
+
+Found 10 restaurant(s) to enrich
+
+[1/10] Brint's Diner (Wichita, Kansas)
+      📺 Episode: S1E1 - Classics
+   🔍 Enriching: Brints Diner (Wichita, Kansas)
+      🔍 Tavily search: "Brint's Diner Wichita, Kansas..."
+      ✅ Enriched (American, $, 3 dishes, closed)
+      🏷️  Linking cuisines: American
+      🍽️  Processing 3 dish(es)...
+      ✅ Saved 3 dish(es)
+      📝 Updated segment notes
+      📞 Updated contact info (address, phone)
+      ✅ Enriched: American | $ | 3 dishes | ⚠️  CLOSED (2014-10-01)
+```
+
+**Cost:** ~$0.006/restaurant (LLM + search, cached for 90 days)
+
+---
+
+### 2. Enrich With Photos
+
+Add `--with-photos` flag to download photos from Google Places and upload to Supabase Storage:
+
+```bash
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 5 --with-photos
+```
+
+**Additional output:**
+```
+[1/5] Brint's Diner (Wichita, Kansas)
+      ...
+      📸 Fetching photos from Google Places...
+      ✓ Found place (confidence: 90%)
+      ✅ Uploaded and saved 5 photo(s)
+```
+
+**Cost:** ~$0.09/restaurant (includes $0.084 for Google Places API)
+
+**Storage:** Photos uploaded to `restaurant-photos/{restaurant_id}/{slug}-{n}.jpg`
+
+---
+
+### 3. Force Re-enrichment
+
+Use `--all` flag to re-enrich restaurants that already have `enrichment_status = 'completed'`:
+
+```bash
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 3 --all
+```
+
+**Use cases:**
+- Update descriptions after improving prompts
+- Re-extract dishes with better parsing
+- Fix data after bug fixes (e.g., Tavily truncation)
+
+---
+
+### 4. Dry Run (Preview Changes)
+
+Use `--dry-run` to see what would be enriched without writing to database:
+
+```bash
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 1 --dry-run
+```
+
+**Output:**
+```
+Mode: DRY RUN
+
+[1/1] Brint's Diner (Wichita, Kansas)
+      🔍 DRY RUN - Skipping actual enrichment
 ```
 
 ---
 
-### 4. Refresh Stale Restaurant Data
+### 5. Mark Restaurant for Re-enrichment
 
-```typescript
-const result = await enricher.workflows.refreshStaleRestaurant({
-  restaurantId: "uuid-here",
-  scope: {
-    enrichment: true,    // Re-enrich description, cuisine, price tier
-    status: true,        // Re-verify open/closed status
-    episodes: false,     // Skip episode backfill
-  },
-  dryRun: false,
-});
+Utility script to reset a restaurant's enrichment status:
+
+```bash
+npx tsx scripts/ingestion/mark-for-enrichment.ts "Brint"
+```
+
+**Output:**
+```
+✅ Marked for re-enrichment: Brint's Diner
 ```
 
 ---
 
-### 5. Enrich Specific Field Only
+### 6. Invalidate Search Cache
 
-```typescript
-const result = await enricher.workflows.partialUpdate({
-  mode: 'enrichment',   // 'enrichment' | 'status' | 'episodes' | 'meta'
-  targetId: "uuid-here",
-  targetName: "Hodad's",
-  dryRun: false,
-});
+Clear cached Tavily results to force fresh searches:
+
+```bash
+npx tsx scripts/ingestion/invalidate-cache.ts "Brint"
+```
+
+**Output:**
+```
+✅ Invalidated 1 cache entries for "Brint"
+   - Brint's Diner: Brint's Diner Wichita, Kansas Diners Drive-ins...
+```
+
+**Use cases:**
+- After fixing Tavily configuration (e.g., include_raw_content)
+- When restaurant info changes significantly
+- Testing different search queries
+
+---
+
+## Utility Scripts
+
+### Check Enrichment Status
+
+View detailed enrichment data:
+
+```bash
+npx tsx scripts/ingestion/verify-enrichment-detailed.ts --limit 5
+```
+
+**Output:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📍 Brint's Diner
+Status: completed
+Price: $
+Description: Brint's Diner in Wichita is a nostalgic gem...
+Quote: If you go out to eat with him, he keeps sending...
+Contact: Address=Yes | Phone=Yes | Website=No
+Dishes: 3
+  • Liver and Onions
+  • Cincinnati Spaghetti
+  • Scrambled Eggs ⭐
+Segment Notes: During the segment, Guy Fieri visited...
 ```
 
 ---
 
-## Service-Level Methods (Lower-Level API)
+## Future Operations (Not Yet Implemented)
 
-### Enrich Restaurant (No DB Save)
+These operations require workflow orchestration system (see `enrichment-system.md`):
+
+### ❌ Workflow-Based Operations (Planned)
 
 ```typescript
-const result = await enricher.enrichRestaurantOnly(
-  "Hodad's",
-  "San Diego",
-  "California",
-  { season: 1, episodeNumber: 5 }  // Optional: episode context
-);
-
-if (result.success) {
-  console.log(result.data.description);
-  console.log(result.data.cuisineTypes);    // ["American", "Burgers"]
-  console.log(result.data.priceTier);       // "$" | "$$" | "$$$" | "$$$$"
-  console.log(result.data.guyQuote);        // Optional
-}
+// These APIs don't exist yet - shown for future reference
+await enricher.workflows.manualRestaurantAddition({...});
+await enricher.workflows.restaurantStatusSweep({...});
+await enricher.workflows.refreshStaleRestaurant({...});
+await enricher.workflows.partialUpdate({...});
 ```
+
+**Current alternative:** Use CLI scripts directly (see above)
 
 ---
 
