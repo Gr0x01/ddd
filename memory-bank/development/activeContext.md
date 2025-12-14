@@ -1,15 +1,15 @@
 ---
 title: Active Development Context
 created: 2025-12-14
-last-updated: 2025-12-14
+last-updated: 2025-12-14 (evening)
 maintainer: Claude
 status: Active
 ---
 
 # Active Development Context
 
-**Current Phase:** Phase 2 - Enrichment System Complete
-**Sprint Goal:** Enrich imported restaurants and deploy enriched MVP
+**Current Phase:** Phase 2.5 - Enrichment System Complete + Status Detection
+**Sprint Goal:** Full enrichment operational, ready for batch processing
 **Timeline:** Week of Dec 14, 2025
 
 ---
@@ -35,7 +35,38 @@ status: Active
    - State pages
    - Homepage
 
-### ✅ Completed (Dec 14)
+### ✅ Completed (Dec 14 - Evening Session)
+1. **Status Detection & Closure Tracking**
+   - Added `status` field (`open`, `closed`, `unknown`)
+   - Added `closed_date` field (DATE) with partial date parsing
+   - LLM extracts closure dates from Wikipedia (handles `YYYY`, `YYYY-MM`, `YYYY-MM-DD`)
+   - Example: Brint's Diner correctly identified as closed 2014-10-01
+
+2. **Episode-Aware Enrichment**
+   - Enrichment now receives episode context (title, season, episode number)
+   - Dishes linked to specific episodes
+   - Segment notes capture what happened during Guy's visit
+   - Guy quotes now episode-specific
+
+3. **Contact Info Extraction**
+   - Address, phone, website extracted from Tavily search results
+   - Stored in restaurants table
+   - Example: Brint's Diner → "4834 East Lincoln Street, Wichita, Kansas" + phone
+
+4. **Photo Storage System**
+   - Google Places photo download → Supabase Storage
+   - Photos stored as `restaurant-photos/{restaurant_id}/{slug}-{n}.jpg`
+   - Public URLs saved to `restaurants.photos` JSONB array
+   - Optional `--with-photos` flag (adds $0.084/restaurant)
+
+5. **Critical Bug Fix: Tavily Content Truncation**
+   - **Problem:** `include_raw_content: false` truncated Wikipedia articles
+   - **Impact:** Missed closure dates, incomplete info
+   - **Fix:** Changed to `include_raw_content: true`
+   - **Result:** Full Wikipedia content now available to LLM
+   - Commit: a860c6b
+
+### ✅ Completed (Dec 14 - Morning Session)
 1. **LLM Enrichment System** (Phase 2)
    - Full architecture: repositories, services, workflows, facade
    - OpenAI gpt-4o-mini with Flex tier (50% cost savings)
@@ -49,13 +80,18 @@ status: Active
    - `verify-status.ts` - Status verification with confidence scoring
    - `enrich-episodes.ts` - Episode meta description generation
    - `check-enrichment.ts` - Verification helper
+   - `mark-for-enrichment.ts` - Reset enrichment status for re-processing
+   - `invalidate-cache.ts` - Clear Tavily search cache
 
 3. **Enrichment Results**
    - 3 test restaurants fully enriched
    - Cuisines linked via junction table
    - Price tiers assigned
    - Guy Fieri quotes extracted
-   - Status verification working (e.g., Mac & Ernie's detected as closed with 90% confidence)
+   - **Dishes extracted** (3 per restaurant avg, linked to episodes)
+   - **Segment notes** captured
+   - **Status verified** (open/closed with dates)
+   - **Contact info** saved (address, phone, website)
 
 ### ❌ NOT Built (Phase 3)
 - No Playwright tests run
@@ -66,16 +102,30 @@ status: Active
 
 ## Current Data State
 
-**In Database:**
+**In Database (Enriched):**
 - 1 test episode (S1E1: "Classics")
-- 3 test restaurants (basic info only: name, city, state)
-- All restaurants have status = "unknown"
-- No enrichment has happened
+- 3 test restaurants **FULLY ENRICHED:**
+  - **Brint's Diner** (Wichita, KS) - closed 2014-10-01, 3 dishes, full contact info, 5 photos
+  - **Mac & Ernie's Roadside Eatery** (Tarpley, TX) - status verified
+  - **Mad Greek Cafe** (Baker, CA) - 4 dishes including signature Gyros
+- **Enrichment completeness:**
+  - ✅ Descriptions, cuisines, price tiers
+  - ✅ Guy Fieri quotes (episode-specific)
+  - ✅ Dishes linked to episodes (with reactions)
+  - ✅ Segment notes (what happened during visit)
+  - ✅ Status (open/closed) + closure dates
+  - ✅ Contact info (address, phone, website)
+  - ✅ Photos (Google Places → Supabase Storage)
 
 **Available to Import:**
 - 572 episodes cached in Supabase
 - 1,695 restaurants ready to import
 - 40 recent episodes (2024-2026) for SEO priority
+
+**Enrichment Readiness:**
+- Cost: ~$0.006/restaurant (without photos), ~$0.09/restaurant (with photos)
+- Tavily cache: 90-day TTL (reduces repeat costs)
+- Ready for batch processing of all 1,695 restaurants
 
 ---
 
