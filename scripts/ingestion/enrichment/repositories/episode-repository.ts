@@ -61,14 +61,17 @@ export class EpisodeRepository {
         .eq('id', id);
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `updateDescription failed for episode ${id}: ${error.message}`
+        };
       }
 
       return { success: true, data: undefined };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `updateDescription exception for episode ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -85,18 +88,24 @@ export class EpisodeRepository {
         .single();
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `getById failed for episode ${id}: ${error.message}`
+        };
       }
 
       if (!data) {
-        return { success: false, error: 'Episode not found' };
+        return {
+          success: false,
+          error: `getById failed for episode ${id}: not found`
+        };
       }
 
       return { success: true, data: data as EpisodeRecord };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `getById exception for episode ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -114,14 +123,17 @@ export class EpisodeRepository {
         .order('episode_number', { ascending: true });
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `getAllEpisodes failed: ${error.message}`
+        };
       }
 
       return { success: true, data: (data || []) as EpisodeRecord[] };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `getAllEpisodes exception: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -147,7 +159,10 @@ export class EpisodeRepository {
         .eq('episode_id', id);
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `getEpisodeRestaurants failed for episode ${id}: ${error.message}`
+        };
       }
 
       // Transform the nested structure into flat records
@@ -163,7 +178,7 @@ export class EpisodeRepository {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `getEpisodeRestaurants exception for episode ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -185,14 +200,17 @@ export class EpisodeRepository {
         .eq('id', id);
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `updateSummary failed for episode ${id}: ${error.message}`
+        };
       }
 
       return { success: true, data: undefined };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `updateSummary exception for episode ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -214,14 +232,17 @@ export class EpisodeRepository {
         .eq('id', id);
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `updateCitiesVisited failed for episode ${id}: ${error.message}`
+        };
       }
 
       return { success: true, data: undefined };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `updateCitiesVisited exception for episode ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }

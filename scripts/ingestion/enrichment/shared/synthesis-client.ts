@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { z } from 'zod';
 import { extractJsonFromText } from './result-parser';
 import { TokenUsage } from './token-tracker';
+import { getOpenAILimiter } from './rate-limiter';
 
 export type SynthesisTier = 'accuracy' | 'creative';
 
@@ -53,6 +54,7 @@ function getOpenAIClient(): OpenAI {
     _openaiClient = new OpenAI({
       apiKey,
       defaultHeaders: { 'X-Model-Tier': 'flex' }, // Flex tier for 50% cost savings
+      timeout: 60000, // 60 second timeout
     });
   }
   return _openaiClient;
@@ -66,6 +68,7 @@ function getLocalClient(): OpenAI | null {
     _localClient = new OpenAI({
       baseURL: `${localUrl}/v1`,
       apiKey: 'not-needed',
+      timeout: 60000, // 60 second timeout
     });
   }
   return _localClient;
@@ -149,15 +152,30 @@ export async function synthesize<T>(
     try {
       const start = Date.now();
 
-      const response = await client.chat.completions.create({
-        model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: finalUserPrompt },
-        ],
-        max_tokens: maxTokens,
-        temperature,
-      });
+      // Use rate limiter for OpenAI calls (local calls don't need rate limiting)
+      const rateLimiter = useLocal ? null : getOpenAILimiter();
+
+      const response = rateLimiter
+        ? await rateLimiter.add(async () =>
+            client.chat.completions.create({
+              model,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: finalUserPrompt },
+              ],
+              max_tokens: maxTokens,
+              temperature,
+            })
+          )
+        : await client.chat.completions.create({
+            model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: finalUserPrompt },
+            ],
+            max_tokens: maxTokens,
+            temperature,
+          });
 
       const elapsed = Date.now() - start;
       // Reduce log noise - only log if slow (>5s)
@@ -257,15 +275,30 @@ export async function synthesizeRaw(
   try {
     const start = Date.now();
 
-    const response = await client.chat.completions.create({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: finalUserPrompt },
-      ],
-      max_tokens: maxTokens,
-      temperature,
-    });
+    // Use rate limiter for OpenAI calls (local calls don't need rate limiting)
+    const rateLimiter = useLocal ? null : getOpenAILimiter();
+
+    const response = rateLimiter
+      ? await rateLimiter.add(async () =>
+          client.chat.completions.create({
+            model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: finalUserPrompt },
+            ],
+            max_tokens: maxTokens,
+            temperature,
+          })
+        )
+      : await client.chat.completions.create({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: finalUserPrompt },
+          ],
+          max_tokens: maxTokens,
+          temperature,
+        });
 
     const elapsed = Date.now() - start;
     if (elapsed > 5000) {

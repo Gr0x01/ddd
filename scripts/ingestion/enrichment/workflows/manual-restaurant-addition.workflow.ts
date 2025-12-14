@@ -3,10 +3,11 @@ import { BaseWorkflow } from './base-workflow';
 import { CostEstimate, ValidationResult } from '../types/workflow-types';
 import { RestaurantEnrichmentService } from '../services/restaurant-enrichment-service';
 import { StatusVerificationService } from '../services/status-verification-service';
-import { RestaurantRepository } from '../repositories/restaurant-repository';
+import { RestaurantRepository, RestaurantRecord } from '../repositories/restaurant-repository';
 import { TokenTracker } from '../shared/token-tracker';
 import { configure as configureSynthesis } from '../shared/synthesis-client';
 import { isValidUUID } from '../shared/input-sanitizer';
+import { estimateTokenCost } from '../shared/pricing-config';
 
 export interface ManualRestaurantAdditionInput {
   restaurantId: string;
@@ -32,6 +33,7 @@ export class ManualRestaurantAdditionWorkflow extends BaseWorkflow<ManualRestaur
   private enrichmentService: RestaurantEnrichmentService;
   private statusService: StatusVerificationService;
   private restaurantRepo: RestaurantRepository;
+  private cachedRestaurant?: RestaurantRecord;
 
   constructor(
     supabase: SupabaseClient,
@@ -83,15 +85,13 @@ export class ManualRestaurantAdditionWorkflow extends BaseWorkflow<ManualRestaur
     const estimatedTokens = enrichmentTokens + statusTokens;
     const maxTokens = 3000;
 
-    const inputCostPer1M = 0.15;
-    const outputCostPer1M = 0.60;
-    const avgCostPer1M = (inputCostPer1M + outputCostPer1M) / 2;
+    const model = 'gpt-4o-mini';
 
     return {
       estimatedTokens,
-      estimatedUsd: (estimatedTokens / 1_000_000) * avgCostPer1M,
+      estimatedUsd: estimateTokenCost({ prompt: estimatedTokens / 2, completion: estimatedTokens / 2 }, model),
       maxTokens,
-      maxUsd: (maxTokens / 1_000_000) * avgCostPer1M,
+      maxUsd: estimateTokenCost({ prompt: maxTokens / 2, completion: maxTokens / 2 }, model),
     };
   }
 
@@ -115,6 +115,9 @@ export class ManualRestaurantAdditionWorkflow extends BaseWorkflow<ManualRestaur
         const errorMsg = 'error' in result ? result.error : 'Restaurant not found';
         throw new Error(`Restaurant not found: ${errorMsg}`);
       }
+
+      // Cache the restaurant data to avoid duplicate fetch
+      this.cachedRestaurant = result.data;
 
       this.completeStep(verifyStep, undefined, { restaurantFound: true });
     } catch (error) {
@@ -171,9 +174,8 @@ export class ManualRestaurantAdditionWorkflow extends BaseWorkflow<ManualRestaur
     // Step 3: Verify restaurant status
     const statusStep = this.startStep('Verify restaurant status (open/closed)');
     try {
-      // Get Google Place ID if it exists
-      const restaurantData = await this.restaurantRepo.getById(input.restaurantId);
-      const googlePlaceId = restaurantData.success ? restaurantData.data.google_place_id : null;
+      // Use cached restaurant data from step 1
+      const googlePlaceId = this.cachedRestaurant?.google_place_id || null;
 
       const result = await this.statusService.verifyStatus(
         input.restaurantId,

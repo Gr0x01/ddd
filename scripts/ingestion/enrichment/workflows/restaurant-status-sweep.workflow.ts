@@ -5,6 +5,8 @@ import { StatusVerificationService } from '../services/status-verification-servi
 import { RestaurantRepository } from '../repositories/restaurant-repository';
 import { TokenTracker } from '../shared/token-tracker';
 import { configure as configureSynthesis } from '../shared/synthesis-client';
+import { estimateTokenCost } from '../shared/pricing-config';
+import PQueue from 'p-queue';
 
 export interface RestaurantStatusSweepInput {
   restaurantIds?: string[];
@@ -139,15 +141,13 @@ export class RestaurantStatusSweepWorkflow extends BaseWorkflow<RestaurantStatus
     const estimatedTokens = actualCount * tokensPerRestaurant;
     const maxTokens = actualCount * 1200;
 
-    const inputCostPer1M = 0.15;
-    const outputCostPer1M = 0.60;
-    const avgCostPer1M = (inputCostPer1M + outputCostPer1M) / 2;
+    const model = 'gpt-4o-mini';
 
     return {
       estimatedTokens,
-      estimatedUsd: (estimatedTokens / 1_000_000) * avgCostPer1M,
+      estimatedUsd: estimateTokenCost({ prompt: estimatedTokens / 2, completion: estimatedTokens / 2 }, model),
       maxTokens,
-      maxUsd: (maxTokens / 1_000_000) * avgCostPer1M,
+      maxUsd: estimateTokenCost({ prompt: maxTokens / 2, completion: maxTokens / 2 }, model),
     };
   }
 
@@ -213,9 +213,12 @@ export class RestaurantStatusSweepWorkflow extends BaseWorkflow<RestaurantStatus
       return output;
     }
 
-    // Step 2: Process restaurants in batches
+    // Step 2: Process restaurants in batches with parallel execution
     const batchSize = input.batchSize || 10;
     const minConfidence = input.minConfidence ?? 0.7;
+
+    // Use p-queue for controlled concurrency within each batch
+    const batchQueue = new PQueue({ concurrency: batchSize });
 
     for (let i = 0; i < restaurants.length; i += batchSize) {
       const batch = restaurants.slice(i, i + batchSize);
@@ -224,61 +227,64 @@ export class RestaurantStatusSweepWorkflow extends BaseWorkflow<RestaurantStatus
       const stepNum = this.startStep(`Verify batch ${batchNum}/${totalBatches} (${batch.length} restaurants)`);
 
       try {
+        // Process batch in parallel with concurrency control
         const results = await Promise.allSettled(
-          batch.map(async (restaurant) => {
-            const result = await this.statusService.verifyStatus(
-              restaurant.id,
-              restaurant.name,
-              restaurant.city,
-              restaurant.state || undefined,
-              restaurant.google_place_id
-            );
-
-            output.totalProcessed++;
-
-            if (!result.success) {
-              output.totalFailed++;
-              return { restaurant, result, updated: false };
-            }
-
-            // Skip if confidence too low or status is unknown
-            if (result.confidence < minConfidence || result.status === 'unknown') {
-              output.totalSkipped++;
-              return { restaurant, result, updated: false };
-            }
-
-            // Skip if status hasn't changed
-            if (result.status === restaurant.status) {
-              output.totalSkipped++;
-              return { restaurant, result, updated: false };
-            }
-
-            // Update status in database
-            if (!input.dryRun) {
-              const updateResult = await this.restaurantRepo.updateStatus(
+          batch.map((restaurant) =>
+            batchQueue.add(async () => {
+              const result = await this.statusService.verifyStatus(
                 restaurant.id,
-                result.status,
-                result.confidence,
-                result.reason
+                restaurant.name,
+                restaurant.city,
+                restaurant.state || undefined,
+                restaurant.google_place_id
               );
 
-              if (!updateResult.success) {
+              output.totalProcessed++;
+
+              if (!result.success) {
                 output.totalFailed++;
                 return { restaurant, result, updated: false };
               }
-            }
 
-            output.totalUpdated++;
-            output.updates.push({
-              restaurantId: restaurant.id,
-              restaurantName: restaurant.name,
-              oldStatus: restaurant.status,
-              newStatus: result.status,
-              confidence: result.confidence,
-            });
+              // Skip if confidence too low or status is unknown
+              if (result.confidence < minConfidence || result.status === 'unknown') {
+                output.totalSkipped++;
+                return { restaurant, result, updated: false };
+              }
 
-            return { restaurant, result, updated: true };
-          })
+              // Skip if status hasn't changed
+              if (result.status === restaurant.status) {
+                output.totalSkipped++;
+                return { restaurant, result, updated: false };
+              }
+
+              // Update status in database
+              if (!input.dryRun) {
+                const updateResult = await this.restaurantRepo.updateStatus(
+                  restaurant.id,
+                  result.status,
+                  result.confidence,
+                  result.reason
+                );
+
+                if (!updateResult.success) {
+                  output.totalFailed++;
+                  return { restaurant, result, updated: false };
+                }
+              }
+
+              output.totalUpdated++;
+              output.updates.push({
+                restaurantId: restaurant.id,
+                restaurantName: restaurant.name,
+                oldStatus: restaurant.status,
+                newStatus: result.status,
+                confidence: result.confidence,
+              });
+
+              return { restaurant, result, updated: true };
+            })
+          )
         );
 
         const fulfilled = results.filter((r) => r.status === 'fulfilled').length;

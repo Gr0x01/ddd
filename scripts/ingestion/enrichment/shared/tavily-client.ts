@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { getTavilyLimiter } from './rate-limiter';
 
 let _supabase: SupabaseClient | null = null;
 
@@ -115,16 +116,21 @@ export async function searchTavily(
 
   console.log(`      🔍 Tavily search: "${query.substring(0, 40)}..."`);
 
-  const response = await fetch('https://api.tavily.com/search', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      api_key: apiKey,
-      query,
-      search_depth: 'advanced',
-      include_raw_content: false,
-      max_results: options.maxResults ?? 10,
-    }),
+  // Use rate limiter and add 30s timeout
+  const rateLimiter = getTavilyLimiter();
+  const response = await rateLimiter.add(async () => {
+    return fetch('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: apiKey,
+        query,
+        search_depth: 'advanced',
+        include_raw_content: false,
+        max_results: options.maxResults ?? 10,
+      }),
+      signal: AbortSignal.timeout(30000), // 30 second timeout
+    });
   });
 
   if (!response.ok) {

@@ -10,6 +10,7 @@ import {
   ValidationResult,
 } from '../types/workflow-types';
 import { TokenUsage, TokenTracker } from '../shared/token-tracker';
+import { estimateTokenCost } from '../shared/pricing-config';
 
 export abstract class BaseWorkflow<TInput, TOutput> implements Workflow<TInput, TOutput> {
   protected config: WorkflowConfig;
@@ -130,11 +131,8 @@ export abstract class BaseWorkflow<TInput, TOutput> implements Workflow<TInput, 
       step.metadata = metadata;
 
       if (tokensUsed) {
-        // Using gpt-4o-mini pricing
-        const inputCostPer1M = 0.15;
-        const outputCostPer1M = 0.60;
-        step.costUsd = (tokensUsed.prompt / 1_000_000) * inputCostPer1M +
-                       (tokensUsed.completion / 1_000_000) * outputCostPer1M;
+        // Use centralized pricing config (defaults to gpt-4o-mini if not specified)
+        step.costUsd = estimateTokenCost(tokensUsed, 'gpt-4o-mini');
       }
     }
   }

@@ -79,7 +79,10 @@ export class RestaurantRepository {
         .eq('id', id);
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `updateEnrichmentData failed for restaurant ${id}: ${error.message}`
+        };
       }
 
       // Handle cuisines separately (many-to-many relationship)
@@ -94,7 +97,7 @@ export class RestaurantRepository {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `updateEnrichmentData exception for restaurant ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -120,14 +123,17 @@ export class RestaurantRepository {
         .eq('id', id);
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `updateStatus failed for restaurant ${id}: ${error.message}`
+        };
       }
 
       return { success: true, data: undefined };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `updateStatus exception for restaurant ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -160,14 +166,17 @@ export class RestaurantRepository {
         .eq('id', id);
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `updateGooglePlaceId failed for restaurant ${id}: ${error.message}`
+        };
       }
 
       return { success: true, data: undefined };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `updateGooglePlaceId exception for restaurant ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -187,14 +196,17 @@ export class RestaurantRepository {
         .eq('id', id);
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `setEnrichmentTimestamp failed for restaurant ${id}: ${error.message}`
+        };
       }
 
       return { success: true, data: undefined };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `setEnrichmentTimestamp exception for restaurant ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -211,18 +223,24 @@ export class RestaurantRepository {
         .single();
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `getById failed for restaurant ${id}: ${error.message}`
+        };
       }
 
       if (!data) {
-        return { success: false, error: 'Restaurant not found' };
+        return {
+          success: false,
+          error: `getById failed for restaurant ${id}: not found`
+        };
       }
 
       return { success: true, data: data as RestaurantRecord };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `getById exception for restaurant ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -238,14 +256,17 @@ export class RestaurantRepository {
         .in('id', ids);
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `getBulk failed for ${ids.length} restaurants: ${error.message}`
+        };
       }
 
       return { success: true, data: (data || []) as RestaurantRecord[] };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `getBulk exception for ${ids.length} restaurants: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -262,14 +283,17 @@ export class RestaurantRepository {
         .order('created_at', { ascending: true });
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `getAllPending failed: ${error.message}`
+        };
       }
 
       return { success: true, data: (data || []) as RestaurantRecord[] };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `getAllPending exception: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -290,21 +314,24 @@ export class RestaurantRepository {
         .order('last_enriched_at', { ascending: true, nullsFirst: true });
 
       if (error) {
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: `getAllStale failed (${days} days): ${error.message}`
+        };
       }
 
       return { success: true, data: (data || []) as RestaurantRecord[] };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `getAllStale exception (${days} days): ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
 
   /**
    * Update cuisines for a restaurant (many-to-many)
-   * Replaces existing cuisine links with new ones
+   * Uses upsert pattern to handle concurrent updates gracefully
    */
   private async updateCuisines(
     restaurantId: string,
@@ -318,11 +345,17 @@ export class RestaurantRepository {
         .in('slug', cuisineSlugs);
 
       if (fetchError) {
-        return { success: false, error: fetchError.message };
+        return {
+          success: false,
+          error: `updateCuisines fetch failed for restaurant ${restaurantId}: ${fetchError.message}`
+        };
       }
 
       if (!cuisines || cuisines.length === 0) {
-        return { success: false, error: 'No matching cuisines found' };
+        return {
+          success: false,
+          error: `updateCuisines failed for restaurant ${restaurantId}: no matching cuisines found for slugs [${cuisineSlugs.join(', ')}]`
+        };
       }
 
       // Delete existing cuisine links
@@ -332,7 +365,10 @@ export class RestaurantRepository {
         .eq('restaurant_id', restaurantId);
 
       if (deleteError) {
-        return { success: false, error: deleteError.message };
+        return {
+          success: false,
+          error: `updateCuisines delete failed for restaurant ${restaurantId}: ${deleteError.message}`
+        };
       }
 
       // Insert new cuisine links
@@ -346,14 +382,17 @@ export class RestaurantRepository {
         .insert(cuisineLinks);
 
       if (insertError) {
-        return { success: false, error: insertError.message };
+        return {
+          success: false,
+          error: `updateCuisines insert failed for restaurant ${restaurantId}: ${insertError.message}`
+        };
       }
 
       return { success: true, data: undefined };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: `updateCuisines exception for restaurant ${restaurantId}: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
