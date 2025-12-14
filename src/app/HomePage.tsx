@@ -95,103 +95,61 @@ export default function HomePage({ initialRestaurants, stats, recentEpisodes }: 
     setSelectedRestaurant(restaurant);
   };
 
+  const newestEpisode = recentEpisodes[0];
+
   return (
     <div className="app-container">
       <Header currentPage="home" />
 
-      {/* Hero Section - Inline, matching chefs */}
-      <section className="hero-section">
-        <div className="hero-container">
-          <div className="hero-content">
-            <h1 className="hero-title">
-              Find DDD Restaurants
+      {/* Compact Hero + Featured Episode */}
+      <section className="hero-compact">
+        <div className="hero-compact-container">
+          <div className="hero-compact-left">
+            <h1 className="hero-compact-title">
+              Plan Your DDD Road Trip
             </h1>
-            <p className="hero-subtitle">
-              Diners, Drive-ins and Dives with Guy Fieri
+            <p className="hero-compact-subtitle">
+              {stats.restaurants} Restaurants · {stats.episodes} Episodes · {stats.cities} Cities
             </p>
-            <dl className="hero-stats-row">
-              <div className="hero-stat-item">
-                <dt className="sr-only">Number of restaurants</dt>
-                <dd className="hero-stat-number" aria-label={`${stats.restaurants} restaurants`}>{stats.restaurants}</dd>
-                <dd className="hero-stat-label" aria-hidden="true">Restaurants</dd>
-              </div>
-              <div className="hero-stat-item">
-                <dt className="sr-only">Number of episodes</dt>
-                <dd className="hero-stat-number" aria-label={`${stats.episodes} episodes`}>{stats.episodes}</dd>
-                <dd className="hero-stat-label" aria-hidden="true">Episodes</dd>
-              </div>
-              <div className="hero-stat-item">
-                <dt className="sr-only">Number of cities</dt>
-                <dd className="hero-stat-number" aria-label={`${stats.cities} cities`}>{stats.cities}</dd>
-                <dd className="hero-stat-label" aria-hidden="true">Cities</dd>
-              </div>
-            </dl>
           </div>
+
+          {newestEpisode && (
+            <Link
+              href={`/episode/${newestEpisode.slug}`}
+              className="hero-compact-episode"
+            >
+              <div className="episode-badge">
+                <span className="episode-badge-label">NEWEST</span>
+                <span className="episode-badge-number">S{newestEpisode.season}E{newestEpisode.episode_number}</span>
+              </div>
+              <div className="episode-content">
+                <h2 className="episode-title">{newestEpisode.title}</h2>
+                {newestEpisode.air_date && (
+                  <p className="episode-date">
+                    {new Date(newestEpisode.air_date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </p>
+                )}
+              </div>
+              <div className="episode-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </div>
+            </Link>
+          )}
         </div>
       </section>
-
-      {/* Featured Episode Section - If we have a recent episode */}
-      {recentEpisodes.length > 0 && (
-        <section
-          className="featured-episode-hero relative overflow-hidden"
-          style={{
-            background: 'var(--slate-900)',
-            borderTop: '3px solid var(--accent-primary)',
-          }}
-        >
-          <div className="max-w-7xl mx-auto px-4 py-16 sm:py-20">
-            <div className="flex items-baseline gap-4 mb-8">
-              <span className="font-mono text-xs tracking-wider" style={{ color: 'var(--accent-primary)' }}>
-                RECENT EPISODES • {recentEpisodes.length}
-              </span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {recentEpisodes.slice(0, 4).map((episode) => (
-                <Link
-                  key={episode.id}
-                  href={`/episode/${episode.slug}`}
-                  className="group block p-6 rounded transition-all hover:shadow-lg"
-                  style={{
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-light)'
-                  }}
-                >
-                  <div className="mb-3">
-                    <span
-                      className="font-mono text-xs font-bold px-2 py-1 rounded"
-                      style={{ background: 'var(--accent-primary)', color: 'white' }}
-                    >
-                      S{episode.season}E{episode.episode_number}
-                    </span>
-                  </div>
-                  <h3
-                    className="font-display text-lg font-bold mb-2 group-hover:text-[var(--accent-primary)] transition-colors"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    {episode.title}
-                  </h3>
-                  {episode.air_date && (
-                    <p className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {new Date(episode.air_date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </p>
-                  )}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Map Layout */}
       <main className="desktop-map-layout" id="main-content">
         <aside className="sidebar">
           <div className="sidebar-header">
             <h1 className="sidebar-title">{filteredRestaurants.length} Restaurants</h1>
-            <p className="sidebar-subtitle">From Diners, Drive-ins and Dives</p>
+            <p className="sidebar-subtitle">From Triple D</p>
           </div>
 
           <div className="sidebar-search">
@@ -244,7 +202,7 @@ export default function HomePage({ initialRestaurants, stats, recentEpisodes }: 
                 >
                   LOAD MORE
                 </button>
-                <span className="text-xs italic" style={{ color: 'var(--text-muted)' }} aria-live="polite">
+                <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }} aria-live="polite">
                   {filteredRestaurants.length - visibleCount} remaining
                 </span>
               </div>
@@ -280,7 +238,7 @@ export default function HomePage({ initialRestaurants, stats, recentEpisodes }: 
         </section>
       </main>
 
-      {/* Browse Section - matching chefs "Browse by Show" */}
+      {/* Browse Section - Retro Roadside Cards */}
       <section className="shows-showcase">
         <div className="shows-showcase-container">
           <div className="shows-showcase-header">
