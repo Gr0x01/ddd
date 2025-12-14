@@ -1,22 +1,86 @@
 ---
 title: Active Development Context
 created: 2025-12-14
-last-updated: 2025-12-14 (evening - SEO complete)
+last-updated: 2025-12-15 (road trip planner MVP)
 maintainer: Claude
 status: Active
 ---
 
 # Active Development Context
 
-**Current Phase:** Phase 3 - SEO Infrastructure Complete ✅
-**Sprint Goal:** Test pages → Deploy with full SEO
-**Timeline:** Week of Dec 14, 2025
+**Current Phase:** Road Trip Planner - Functional MVP Complete
+**Sprint Goal:** Refine UI/UX to match existing design system
+**Timeline:** Week of Dec 15, 2025
 
 ---
 
 ## What We Actually Built Today
 
-### ✅ Completed
+### ✅ Road Trip Planner - Functional MVP (Dec 15, 2025)
+
+**Status:** Basic functionality working, needs design refinement
+
+**Completed:**
+1. **Backend Infrastructure**
+   - Database migration (003_roadtrip_schema.sql) with PostGIS support
+   - `route_cache` table with 30-day TTL
+   - `get_restaurants_near_route()` function for spatial queries
+   - Google Directions API integration (server-side only)
+   - Route caching by place IDs (currently not optimized - calls API every time)
+   - API endpoint with Zod validation
+
+2. **Frontend Components**
+   - `/roadtrip` page with search form, map, and restaurant list
+   - MapLibre GL JS (free, zero-cost alternative to Mapbox)
+   - CartoDB free basemap tiles (no API key required)
+   - Interactive route display with start/end markers
+   - Restaurant markers with click-to-select
+   - Example route buttons (SF→LA, NYC→Boston, Chicago→Milwaukee)
+   - Configurable search radius (5-25 miles)
+
+3. **Security & Performance**
+   - XSS-safe popup rendering (DOM methods, not HTML strings)
+   - Proper marker cleanup (prevents memory leaks)
+   - Input validation with Zod
+   - Server-side API key protection
+
+**Known Issues:**
+1. **Cache Not Optimized:** Currently calls Google Directions API on EVERY search, then checks cache
+   - Need to either: (a) cache by text strings, or (b) geocode first to get place IDs
+   - Burning unnecessary API calls (~$5 per 1k requests after 40k free/month)
+
+2. **Design Mismatch:** Uses ZERO existing design styles or components
+   - Doesn't match homepage, restaurant pages, or any existing UI
+   - Needs complete styling overhaul to fit the site's aesthetic
+   - Components need to use existing Tailwind patterns
+   - Form elements don't match site style
+   - Map container styling is generic
+
+3. **Missing Features:**
+   - No loading states during route calculation
+   - No error messages for invalid locations
+   - No "clear route" button
+   - No route distance/duration display
+   - No mobile optimization (desktop-first approach)
+
+**Next Steps (Priority Order):**
+1. **Fix Cache Logic** - Make it actually check cache before calling Google API
+2. **Design System Integration** - Match existing site styling
+3. **Error Handling** - Add user-friendly error messages
+4. **Loading States** - Show spinners during API calls
+5. **Mobile Polish** - Ensure responsive behavior
+
+**Technical Debt:**
+- Route caching inefficiency (wastes API calls)
+- Generic UI components (need design system integration)
+- No error boundaries
+- No loading skeletons
+
+**Commit:** `337132d` - feat: Add road trip planner with MapLibre GL JS
+
+---
+
+### ✅ Completed (Previous Work)
 1. **Wikipedia Data Pipeline**
    - Cache table in Supabase
    - Tavily integration to fetch Wikipedia episode list (one-time, 7-day cache)
@@ -162,46 +226,64 @@ status: Active
 
 ## Next Steps (Priority Order)
 
-**Phase 4: Testing & Deployment**
+**Immediate Focus: Road Trip Planner Refinement**
 
-### Immediate Next Steps (Recommended)
+### Phase 1: Fix Cache Optimization (High Priority)
+**Goal:** Stop burning Google API calls on every search
+
+**Options:**
+1. **Text-based caching** (simpler, good enough)
+   - Normalize input strings ("San Francisco, CA" → "san francisco ca")
+   - Cache by normalized origin+destination pair
+   - Pros: Simple, no extra API calls
+   - Cons: "SF" and "San Francisco" won't hit same cache
+
+2. **Geocoding first** (more robust)
+   - Use Google Geocoding API to get place IDs first
+   - Check cache with those IDs
+   - Only call Directions if not cached
+   - Pros: Better cache hit rate
+   - Cons: Extra API call ($5/1k requests)
+
+**Decision needed:** Which approach to implement?
+
+### Phase 2: Design System Integration (Critical for Launch)
+**Goal:** Make road trip planner match existing site aesthetic
+
+**Tasks:**
+1. Audit existing design patterns:
+   - Review homepage, restaurant pages, city pages
+   - Document color scheme, typography, spacing
+   - Identify reusable components
+
+2. Redesign components:
+   - SearchForm: Match existing form styles
+   - RestaurantList: Use existing card patterns
+   - RouteMap: Better container styling
+   - Page header: Match site navigation
+
+3. Add consistent elements:
+   - Loading states (spinners/skeletons)
+   - Error messages (toast notifications?)
+   - Empty states (no results messaging)
+
+4. Responsive polish:
+   - Mobile-first breakpoints
+   - Touch-friendly controls
+   - Map height adjustments
+
+### Phase 3: Missing Features
+1. Loading states during API calls
+2. Error handling for invalid locations
+3. "Clear route" button
+4. Display route distance/duration
+5. Better mobile UX
+
+### Phase 4: Testing & Deployment (Unchanged)
 1. **Run Playwright Tests**
-   - Test all page types (restaurant, city, state, cuisine)
-   - Verify SEO pages (/still-open, /closed, /cuisines)
-   - Check sitemap.xml and robots.txt generation
-   - Validate structured data with Google Rich Results Test
-
 2. **Import More Data (Optional)**
-   - Current: 3 restaurants fully enriched
-   - Option A: Deploy with 3 restaurants to test infrastructure
-   - Option B: Import + enrich 40 recent episodes first (~120 restaurants)
-   - Option C: Import all 1,695 restaurants (takes hours, $10-170 in API costs)
-
 3. **Deploy to Vercel**
-   - Set environment variables
-   - Deploy main branch
-   - Verify production build
-   - Test live sitemap and robots.txt
-
 4. **Post-Launch SEO**
-   - Submit sitemap to Google Search Console
-   - Submit sitemap to Bing Webmaster Tools
-   - Monitor indexing progress
-   - Start enriching remaining restaurants
-
-### Option A: Launch Minimal (Fastest)
-- Deploy with 3 enriched restaurants NOW
-- Get site live and indexed
-- Enrich remaining restaurants incrementally
-- **Timeline:** 1-2 hours
-- **Cost:** $0 (already done)
-
-### Option B: Launch with Recent Episodes (Balanced)
-- Import 40 recent episodes (2024-2026)
-- Enrich ~120 restaurants before launch
-- Deploy with fresh, relevant content
-- **Timeline:** 6-12 hours
-- **Cost:** ~$7-20 (enrichment)
 
 ---
 
