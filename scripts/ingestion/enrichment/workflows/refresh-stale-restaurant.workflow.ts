@@ -149,6 +149,12 @@ export class RefreshStaleRestaurantWorkflow extends BaseWorkflow<RefreshStaleRes
         }
 
         if (!input.dryRun && result.description) {
+          // Parse city/state from address if available
+          const { parseAddress } = await import('../shared/address-parser');
+          const { city: parsedCity, state: parsedState } = result.address
+            ? parseAddress(result.address)
+            : { city: undefined, state: undefined };
+
           const updateResult = await this.restaurantRepo.updateEnrichmentData(
             input.restaurantId,
             {
@@ -156,6 +162,12 @@ export class RefreshStaleRestaurantWorkflow extends BaseWorkflow<RefreshStaleRes
               cuisines: result.cuisines || undefined,
               price_tier: result.price_tier as any,
               guy_quote: result.guy_quote,
+              address: result.address,
+              phone: result.phone,
+              website_url: result.website,
+              // Enriched location data overwrites Wikipedia-parsed data
+              city: parsedCity,
+              state: parsedState,
             }
           );
 

@@ -238,10 +238,21 @@ async function main() {
             }
           }
 
-          // Save contact info (new!)
+          // Save contact info and parse location (new!)
           if (result.address || result.phone || result.website) {
+            const { parseAddress } = await import('./enrichment/shared/address-parser');
+
             const contactUpdate: any = {};
-            if (result.address) contactUpdate.address = result.address;
+            if (result.address) {
+              contactUpdate.address = result.address;
+
+              // Parse city/state from address - enriched data overwrites Wikipedia data
+              const { city: parsedCity, state: parsedState } = parseAddress(result.address);
+              if (parsedCity) contactUpdate.city = parsedCity;
+              if (parsedState) contactUpdate.state = parsedState;
+
+              console.log(`      📍 Parsed location: ${parsedCity}, ${parsedState}`);
+            }
             if (result.phone) contactUpdate.phone = result.phone;
             if (result.website) contactUpdate.website_url = result.website;
 

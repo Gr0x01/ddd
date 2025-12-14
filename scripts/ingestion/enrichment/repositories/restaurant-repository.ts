@@ -11,6 +11,11 @@ export interface RestaurantEnrichmentData {
   cuisines?: string[]; // cuisine slugs to link
   price_tier?: '$' | '$$' | '$$$' | '$$$$';
   guy_quote?: string;
+  address?: string | null;
+  phone?: string | null;
+  website_url?: string | null;
+  city?: string; // Parsed from address
+  state?: string | null; // Parsed from address
 }
 
 // Restaurant status update data
@@ -71,6 +76,22 @@ export class RestaurantRepository {
       }
       if (data.guy_quote !== undefined) {
         updateData.guy_quote = data.guy_quote;
+      }
+      if (data.address !== undefined) {
+        updateData.address = data.address;
+      }
+      if (data.phone !== undefined) {
+        updateData.phone = data.phone;
+      }
+      if (data.website_url !== undefined) {
+        updateData.website_url = data.website_url;
+      }
+      // Enriched location data overwrites Wikipedia-parsed data
+      if (data.city !== undefined) {
+        updateData.city = data.city;
+      }
+      if (data.state !== undefined) {
+        updateData.state = data.state;
       }
 
       const { error } = await this.supabase
