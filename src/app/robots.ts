@@ -5,7 +5,7 @@ import { MetadataRoute } from 'next';
  * Guides search engine crawlers on what to index
  */
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://trimpdmap.com';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.tripledmap.com';
 
   return {
     rules: [

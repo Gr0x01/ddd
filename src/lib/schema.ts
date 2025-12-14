@@ -8,7 +8,7 @@
 import { Restaurant, Episode } from './supabase';
 
 const SITE_NAME = 'Diners, Drive-ins and Dives Locations';
-const SITE_URL = 'https://trimpdmap.com';
+const SITE_URL = 'https://www.tripledmap.com';
 const SITE_DESCRIPTION = 'Find every restaurant featured on Guy Fieri\'s Diners, Drive-ins and Dives. Interactive map, photos, ratings, and detailed info.';
 
 /**

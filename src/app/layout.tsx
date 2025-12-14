@@ -10,7 +10,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://trimpdmap.com';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.tripledmap.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -59,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <PlausibleProvider domain="trimpdmap.com" />
+        <PlausibleProvider domain="tripledmap.com" />
         <link rel="preconnect" href="https://clktrvyieegouggrpfaj.supabase.co" />
         <link rel="dns-prefetch" href="https://lh3.googleusercontent.com" />
         <link rel="dns-prefetch" href="https://upload.wikimedia.org" />

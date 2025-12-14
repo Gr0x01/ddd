@@ -6,7 +6,7 @@ import { db } from '@/lib/supabase';
  * This helps search engines discover and index all restaurant, city, state pages
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://trimpdmap.com';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.tripledmap.com';
 
   try {
     // Fetch all data in parallel
