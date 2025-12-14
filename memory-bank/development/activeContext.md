@@ -1,229 +1,278 @@
 ---
-Last-Updated: 2025-12-14
-Maintainer: RB
-Status: Phase 1A - Foundation Complete (Ready for Data)
+title: Active Development Context
+created: 2025-12-14
+last-updated: 2025-12-14
+maintainer: Claude
+status: Active
 ---
 
-# Active Context: DDD (Diners, Drive-ins and Dives)
+# Active Development Context
 
-## Current Status
-- **Phase**: Phase 1A - Data Pipeline Complete ✅
-- **Mode**: Ready for bulk import and deployment
-- **Focus**: Import recent episodes (2024-2026) → Deploy to Vercel → SEO indexing
-- **Code Quality**: 9.8/10 (Production Ready)
-- **Data**: 1 test episode imported successfully (3 restaurants)
-- **Blocker**: None - ready for production import
+**Current Sprint:** LLM Enrichment System Architecture Design
+**Sprint Goal:** Complete enrichment system design adapted from chefs project
+**Timeline:** Week of Dec 14, 2025
 
-## Phase Progress Tracker
+---
 
-### ✅ Phase 1A: Foundation + Latest Episodes (Week 1) - FOUNDATION COMPLETE
-**Goal**: Database + 50-100 newest restaurants + static pages deployed for Google indexing
+## Sprint Focus
 
-**Foundation:**
-- [x] Next.js 14 project initialization with TypeScript
-- [x] Supabase project setup with PostGIS extension
-- [x] Database schema implementation (all tables)
-- [x] Environment variables configured
-- [x] Two comprehensive code reviews completed
-- [x] All critical security and type safety issues fixed
+### Primary Objective
+Design and document a production-ready LLM enrichment system for DDD restaurant data, adapting the proven architecture from the chefs project.
 
-**Latest Episode Data (2024-2025):**
-- [x] Database migration applied (cache table added)
-- [x] Wikipedia episode list cached in Supabase (Tavily → cache table)
-- [x] Episode parser built (572 episodes, 1,695 restaurants extracted)
-- [x] Import script tested (1 episode, 3 restaurants imported successfully)
-- [ ] **NEXT:** Import recent 40 episodes (2024-2026) - ~120 restaurants
-- [ ] Deploy to Vercel with initial data
-- [ ] Phase 2: Build enrichment pipeline (LLM descriptions, Google Places verification)
+### Success Criteria
+- [x] Architecture document created (`architecture/enrichment-system.md`)
+- [x] Quick reference guide created (`architecture/enrichment-reference.md`)
+- [x] Directory structure defined
+- [x] Implementation phases outlined
+- [x] Cost estimation completed
+- [ ] Phase 1 implementation (copy shared utilities from chefs)
+- [ ] Phase 2 implementation (repositories)
 
-**Static Pages (SSG for SEO):**
-- [x] Restaurant detail pages (`/restaurant/[slug]`)
-- [x] City landing pages (`/city/[state]/[city]`)
-- [x] State landing pages (`/state/[state]`)
-- [x] Homepage with restaurant browse/list
-- [x] Basic styling with Tailwind
+---
 
-**Deployment:**
-- [ ] Deploy to Vercel
-- [ ] Verify all pages render correctly
-- [ ] Submit sitemap to Google Search Console
-- [ ] Monitor indexing status
+## Current Work
 
-### ⏳ Phase 1B: Interactive Features (Week 2)
-**Goal**: Add client-side interactivity (map, filters, search)
+### Enrichment System Design (Completed)
 
-- [ ] Leaflet map integration
-- [ ] Restaurant markers on map
-- [ ] Client-side filtering (city, state, cuisine)
-- [ ] Search functionality (basic text search)
-- [ ] Mobile optimization
-- [ ] Performance tuning
+**Architecture Layers:**
+1. **Shared Utilities** - Token tracking, LLM client, result parsing (copy from chefs)
+2. **Repositories** - Database access layer (DDD-specific)
+3. **Services** - Business logic (enrichment, status verification, episode discovery)
+4. **Workflows** - Multi-step orchestration with rollback support
+5. **Facade** - Simplified public API
 
-### ⏳ Phase 2: Road Trip Planner (Week 3-4)
-**Goal**: Unique differentiator - route-based discovery
+**Key Design Decisions:**
+- Use OpenAI gpt-4o-mini with Flex tier (50% cost savings)
+- Google Places API as primary status source, LLM as fallback
+- Tavily Search for web context
+- Repository pattern for all database access
+- Workflow orchestration with automatic rollback
+- Cost tracking and estimation built-in
 
-- [ ] Google Directions API integration
-- [ ] Point A → Point B route interface
-- [ ] PostGIS route distance calculations
-- [ ] Restaurants along route display
-- [ ] Shareable road trip URLs (`/roadtrip/[slug]`)
-- [ ] Road trip page SEO optimization
+**Reference:**
+- Full design: `memory-bank/architecture/enrichment-system.md`
+- Quick reference: `memory-bank/architecture/enrichment-reference.md`
+- Source: `/Users/rb/Documents/coding_projects/chefs/scripts/ingestion/enrichment/`
 
-### ⏳ Phase 3: Historical Backfill (Ongoing)
-**Goal**: Progressively add older episodes (newest → oldest)
+### Cost Analysis
 
-**2023-2022 Seasons:**
-- [ ] Collect episode data
-- [ ] Add restaurants (~100-150 more)
-- [ ] Deploy updated pages
+**Per-Restaurant Enrichment:**
+- Enrichment (description, cuisine, price): ~1,500 tokens = $0.03
+- Status verification (Google Places): $0.049
+- Status verification (LLM fallback): ~500 tokens = $0.01
+- Episode discovery: ~1,000 tokens = $0.02
+- **Total: $0.06-$0.14 per restaurant**
 
-**2021-2020 Seasons:**
-- [ ] Collect episode data
-- [ ] Add restaurants (~100-150 more)
-- [ ] Deploy updated pages
+**1,000 Restaurants:**
+- LLM: ~$60
+- Tavily: ~$5
+- Google Places: ~$49
+- **Total: ~$114**
 
-**2019-2018 Seasons:**
-- [ ] Continue backfill process
-- [ ] Target: 500+ total restaurants
+---
 
-**2017-Earlier (to 2007):**
-- [ ] Complete historical backfill
-- [ ] Target: 1,000-1,500 total restaurants
+## Next Steps
 
-### ⏳ Phase 4: Enrichment & Polish (Ongoing)
-**Goal**: Enhance data quality and user experience
+### Phase 1: Foundation (2-3 days)
+1. Copy shared utilities from chefs:
+   - `token-tracker.ts` (update pricing)
+   - `synthesis-client.ts` (set skipLocal: true)
+   - `result-parser.ts` (no changes)
+   - `retry-handler.ts` (no changes)
+   - `tavily-client.ts` (adapt queries)
+   - `workflow-types.ts` (no changes)
+   - `base-workflow.ts` (update pricing)
 
-- [ ] LLM enrichment pipeline (descriptions, cuisines)
-- [ ] Google Places API integration (status verification)
-- [ ] Open/closed status system with "Last verified" dates
-- [ ] Photo collection and storage
-- [ ] Google/Yelp ratings import
-- [ ] Episode pages with featured restaurants
-- [ ] Cuisine filtering system
-- [ ] "Near me" geolocation feature
+2. Test utilities:
+   - Token tracking accuracy
+   - Cost estimation
+   - LLM client with Flex tier
 
-### Database Schema Design (Detailed)
+### Phase 2: Repositories (2-3 days)
+1. Implement `restaurant-repository.ts`:
+   - createRestaurant() with duplicate detection
+   - updateEnrichmentData()
+   - updateStatus()
+   - updateGooglePlaceData()
+   - getStaleRestaurants()
 
-**Core Tables:**
+2. Implement `episode-repository.ts`:
+   - getEpisodeBySeason()
+   - linkRestaurantToEpisode()
 
-**restaurants** (Primary entity)
-- Basic: name, slug, address, city, state, zip, country, neighborhood
-- Location: latitude, longitude (PostGIS geography type for geo queries)
-- Contact: phone, website_url, social_urls (jsonb)
-- Hours: hours_json, hours_notes
-- Status: status (open/closed/unknown), last_verified, verification_source
-- Episode: first_episode_id, first_air_date
-- Content: description, dishes_featured[], guy_quote
-- Media: photo_url, photos[] (jsonb)
-- Ratings: google_rating, yelp_rating, google_review_count
-- SEO: meta_description
-- Enrichment: enrichment_status, last_enriched_at
+3. Implement `city-repository.ts`:
+   - ensureCityExists()
 
-**episodes**
-- Basic: season, episode_number, title, slug
-- Meta: air_date, description, meta_description
-- Content: episode_summary, cities_visited[]
+4. Write unit tests for repositories
 
-**cuisines** (categories for filtering)
-- Basic: name, slug, description, meta_description
-- Hierarchy: parent_id (optional, for subcategories like "BBQ" → "Texas BBQ")
+### Phase 3: Services (3-4 days)
+1. Implement `google-places-service.ts`
+2. Implement `restaurant-enrichment-service.ts`
+3. Implement `status-verification-service.ts`
+4. Implement `episode-discovery-service.ts` (if needed)
+5. Test services with real API calls
 
-**dishes** (Guy's featured dishes)
-- Basic: name, slug, description
-- Link: restaurant_id, episode_id
-- Content: guy_reaction, is_signature_dish
+### Phase 4: Workflows (3-4 days)
+1. Implement `manual-restaurant-addition.workflow.ts`
+2. Implement `refresh-stale-restaurant.workflow.ts`
+3. Implement `restaurant-status-sweep.workflow.ts`
+4. Implement `partial-update.workflow.ts`
+5. Test workflows end-to-end
 
-**Junction Tables:**
-- `restaurant_cuisines` - Many-to-many (restaurant_id, cuisine_id)
-- `restaurant_episodes` - Many-to-many (restaurant_id, episode_id, segment_notes)
+### Phase 5: Facade & CLI (2-3 days)
+1. Implement `llm-enricher.ts` facade
+2. Create CLI scripts
+3. Integration testing
+4. Documentation
 
-**Reference Data:**
-- `states` - US states (name, abbreviation, slug, meta_description, restaurant_count)
-- `cities` - Cities (name, slug, state_id, meta_description, restaurant_count)
+---
 
-**Database Views:**
-- `restaurants_full` - Restaurants with cuisines, episodes, city/state aggregated
-- `city_stats` - Cities with restaurant counts, open/closed breakdown
-- `state_stats` - States with restaurant counts
-- `episode_restaurants` - Episodes with all restaurants listed
+## Blockers
 
-## Tech Stack (Inherited from Chefs)
-- **Frontend**: Next.js 14, React 18, Tailwind CSS
-- **Backend**: Next.js API routes, Supabase PostgreSQL
-- **Maps**: Leaflet.js with OpenStreetMap
-- **LLM**: OpenAI gpt-4o-mini (Flex tier)
-- **Search**: Tavily API for web data
-- **Analytics**: PostHog
-- **Testing**: Playwright E2E
-- **Deployment**: Vercel
+**None currently.**
 
-## Data Strategy
-Following the chefs project enrichment model:
-1. **Episode Data Collection**: Scrape/parse episode lists from Food Network
-2. **Restaurant Discovery**: Extract restaurant names and locations from episode data
-3. **Enrichment**: Use Tavily + OpenAI to gather details (cuisine, price, description)
-4. **Verification**: Google Places API for status and place IDs
-5. **Photos**: Scrape from Google Places or restaurant websites
+**Potential Blockers:**
+- Google Places API key access (needed for status verification)
+- Tavily API key access (needed for web search)
+- OpenAI API key access (needed for LLM enrichment)
 
-## Current Sprint Focus
+**Mitigation:**
+- All services gracefully degrade if API keys unavailable
+- LLM-only fallback for status verification
 
-### Phase 1: MVP Foundation (2-3 weeks)
-**Database & Data:**
-- [ ] Design and implement full schema with PostGIS
-- [ ] Initial data scrape (Wikipedia episode lists)
-- [ ] Manual data entry for first 50-100 restaurants
-- [ ] Set up enrichment pipeline
+---
 
-**Core Pages:**
-- [ ] Homepage with map + search + browse
-- [ ] Restaurant pages with status badges, episodes, dishes
-- [ ] City pages with local restaurants + map
-- [ ] State pages with all cities
-- [ ] **Road Trip Planner** - Point A → Point B with route and restaurants
+## Open Questions
 
-**Technical:**
-- [ ] Next.js 14 initialization
-- [ ] Supabase with PostGIS extension
-- [ ] Leaflet map integration
-- [ ] Google Directions API setup (for road trips)
+1. **Episode Discovery Scope:**
+   - Do we need automatic episode discovery from web sources?
+   - Or are episodes manually curated from official DDD sources?
+   - **Decision Needed:** Impacts whether to implement EpisodeDiscoveryService
 
-### Key Differentiators in MVP
-1. **Open/Closed Status** - "Last verified: [date]" trust signal
-2. **Road Trip Feature** - Shareable URLs like `/roadtrip/austin-to-houston`
-3. **Interactive Map** - Filterable, fast, mobile-friendly
-4. **City/State SEO Pages** - Landing pages for geographic searches
+2. **Enrichment Priority:**
+   - Which restaurants to enrich first?
+   - New restaurants vs. stale restaurants vs. popular cities?
+   - **Decision Needed:** Impacts workflow prioritization
 
-## Key Scripts (Built)
-**Data Import (Phase 1):**
-- `scripts/ingestion/cache-wikipedia.ts` ✅ - Cache Wikipedia episodes in Supabase (via Tavily)
-- `scripts/ingestion/parse-wikipedia.ts` ✅ - Parse cached Wikipedia data (no API calls)
-- `scripts/ingestion/import-from-wikipedia.ts` ✅ - Import episodes/restaurants to database
-- `scripts/ingestion/verify-import.ts` ✅ - Verify imported data
-- `scripts/db/add-cache-table.ts` ✅ - Add cache table to database
+3. **Caching Strategy:**
+   - Should we cache Tavily search results?
+   - Should we cache Google Places lookups?
+   - **Decision Needed:** Could save 60-80% on API costs
 
-**Enrichment (Phase 2 - Not Built Yet):**
-- `scripts/enrich-restaurants.ts` - LLM enrichment for restaurant data
-- `scripts/enrich-google-places.ts` - Backfill Google Place IDs
-- `scripts/verify-status.ts` - Check if restaurants are still open
+4. **Batch Size:**
+   - How many restaurants to process in one sweep?
+   - What rate limits to respect?
+   - **Decision Needed:** Impacts workflow configuration
 
-**Commands:**
-```bash
-# Cache Wikipedia (run weekly to refresh)
-npx tsx scripts/ingestion/cache-wikipedia.ts
+---
 
-# Import 1 episode for testing
-npx tsx scripts/ingestion/import-from-wikipedia.ts --limit 1
+## Recent Decisions
 
-# Import recent episodes (2024-2026)
-npx tsx scripts/ingestion/import-from-wikipedia.ts --recent
+### LLM Model Selection
+**Decision:** Use OpenAI gpt-4o-mini with Flex tier
+**Rationale:**
+- 50% cost savings vs. standard pricing
+- Proven reliability in chefs project
+- No need for local LLM complexity
+- Flex tier: $0.075/1M input, $0.30/1M output
 
-# Import all 572 episodes
-npx tsx scripts/ingestion/import-from-wikipedia.ts --all
+### Status Verification Strategy
+**Decision:** Google Places as primary, LLM as fallback
+**Rationale:**
+- Google Places more reliable for business status
+- LLM fallback ensures coverage even without API key
+- Confidence scoring allows for manual review of low-confidence results
 
-# Verify import
-npx tsx scripts/ingestion/verify-import.ts
-```
+### Architecture Pattern
+**Decision:** Copy architecture from chefs project
+**Rationale:**
+- Proven in production
+- Well-tested and documented
+- Similar domain (restaurants + enrichment)
+- Reduces risk and development time
 
-## Reference Projects
-- **chefs**: `/Users/rb/Documents/coding_projects/chefs` (primary reference)
-- **shark-tank**: `/Users/rb/Documents/coding_projects/shark-tank` (secondary reference)
+---
+
+## Technical Debt
+
+**None yet - still in design phase**
+
+**Future Considerations:**
+- Caching layer for API results
+- Queue system for background enrichment
+- Admin UI for manual review
+- Cost monitoring dashboard
+- Performance optimization (batch processing, parallel API calls)
+
+---
+
+## Testing Strategy
+
+**Unit Tests:**
+- Repository methods (mocked Supabase)
+- Service LLM prompts and schema validation
+- Workflow step orchestration
+
+**Integration Tests:**
+- Full workflow execution with test database
+- API integration (Tavily, Google Places, OpenAI)
+- Cost tracking accuracy
+
+**E2E Tests:**
+- Manual restaurant addition flow
+- Status verification sweep
+- Stale restaurant refresh
+
+---
+
+## Environment Setup
+
+**Required:**
+- `OPENAI_API_KEY` - OpenAI API key
+- `TAVILY_API_KEY` - Tavily Search API key
+- `SUPABASE_URL` - Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key
+
+**Optional:**
+- `GOOGLE_PLACES_API_KEY` - Google Places API key (recommended)
+
+---
+
+## Performance Targets
+
+**Enrichment Speed:**
+- Single restaurant: ~3-5 seconds
+- Batch of 10: ~30-45 seconds
+- Batch of 100: ~5-7 minutes
+
+**Cost Targets:**
+- Stay under $0.15 per restaurant (full enrichment)
+- Monthly budget: ~$150-$200 for 1,000 restaurants
+
+**Quality Targets:**
+- 95%+ successful enrichment rate
+- 90%+ status verification confidence
+- <5% manual review queue size
+
+---
+
+## Sprint Retrospective (Pending)
+
+**What Went Well:**
+- TBD after Phase 1 implementation
+
+**What Could Improve:**
+- TBD after Phase 1 implementation
+
+**Action Items:**
+- TBD after Phase 1 implementation
+
+---
+
+## Related Documents
+
+- **Architecture Design:** `architecture/enrichment-system.md`
+- **Quick Reference:** `architecture/enrichment-reference.md`
+- **Project Overview:** `core/quickstart.md`
+- **Tech Stack:** `architecture/techStack.md`
+- **Progress Log:** `development/progress.md`
