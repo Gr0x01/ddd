@@ -70,7 +70,11 @@ export default function AboutPage() {
               How often is the data updated?
             </h2>
             <p className="font-ui text-lg leading-relaxed mb-6" style={{ color: 'var(--text-secondary)' }}>
-              Restaurant information is checked regularly for closures, relocations, and other changes. If you notice something's wrong or outdated, feel free to reach out. We're always working to keep things accurate.
+              Restaurant information is checked regularly for closures, relocations, and other changes. If you notice something's wrong or outdated, contact us at{' '}
+              <a href="mailto:info@tripledmap.com" className="font-semibold hover:underline" style={{ color: 'var(--accent-primary)' }}>
+                info@tripledmap.com
+              </a>
+              . We're always working to keep things accurate.
             </p>
             <Link
               href="/"

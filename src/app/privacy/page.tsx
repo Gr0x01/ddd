@@ -153,7 +153,11 @@ export default function PrivacyPage() {
               </h2>
               <p className="font-ui" style={{ color: 'var(--text-secondary)' }}>
                 If you have questions about this Privacy Policy or our data practices, please
-                contact us through our website.
+                email us at{' '}
+                <a href="mailto:info@tripledmap.com" className="font-semibold hover:underline" style={{ color: 'var(--accent-primary)' }}>
+                  info@tripledmap.com
+                </a>
+                .
               </p>
             </section>
           </div>
