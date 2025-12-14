@@ -1,16 +1,16 @@
 ---
 Last-Updated: 2025-12-15
 Maintainer: RB
-Status: Phase 3 Complete - Ready for Deployment ✅
+Status: Phase 4 - Live & Indexing 🚀
 ---
 
 # Quickstart: DDD (Diners, Drive-ins and Dives)
 
 ## Current Status
-- **Phase**: Phase 3 Complete - Ready for Deployment ✅
-- **Version**: 0.3.0
-- **Environment**: Development (SEO ready for deployment)
-- **Focus**: Run tests → Deploy to production
+- **Phase**: Phase 4 - Live & Being Indexed 🚀
+- **Version**: 0.4.0
+- **Environment**: Production (deployed and indexing)
+- **Focus**: Build interactive map with filtering
 - **Data Available**: 572 episodes, 1,541 restaurants (all imported)
 - **Enriched**: 1,541 restaurants (100.0%) with full LLM enrichment ✅
 - **Status Verified**: 1,151 open, 390 closed, 0 unknown (100% verified!) 🎉
@@ -19,7 +19,7 @@ Status: Phase 3 Complete - Ready for Deployment ✅
 
 ## What We Actually Have
 
-**✅ Built:**
+**✅ Built & Deployed:**
 - Wikipedia data pipeline (cache → parse → import)
 - Database schema with PostGIS
 - Restaurant, city, state, cuisine pages
@@ -28,12 +28,18 @@ Status: Phase 3 Complete - Ready for Deployment ✅
 - **CLI scripts for enrichment, status verification, episodes**
 - **Complete SEO infrastructure (sitemap, robots.txt, metadata)**
 - **High-value SEO pages (/still-open, /closed, /cuisines)**
-- **1,539 restaurants fully enriched** (descriptions, cuisines, prices, dishes, Guy quotes)
-- **Interactive map** (Leaflet with filtering)
+- **1,541 restaurants fully enriched** (100% complete, 0 unknown)
+- **App deployed and indexing** 🚀
 
-**❌ NOT Built:**
-- No Playwright tests run
-- No deployment yet
+**🚧 In Progress:**
+- Interactive map with filtering (basic map exists, needs enhancement)
+- Playwright tests (not yet run)
+
+**📍 Map Components (Existing):**
+- `src/components/RestaurantMap.tsx` - Main Leaflet map component
+- `src/components/RestaurantMapPins.tsx` - Map pins with clustering
+- `src/components/restaurant/MiniMap.tsx` - Restaurant detail mini-map
+- `src/app/api/restaurants/map-pins/route.ts` - Lightweight pins API
 
 ---
 
@@ -149,34 +155,38 @@ npx tsx scripts/ingestion/check-enrichment.ts                     # Verify enric
 - ✅ Total cost: $6.78 for full enrichment
 - ✅ Total time: ~15 minutes for all 1,541 restaurants
 
+**What Works (Added Dec 15 - Deployment):**
+- ✅ **App deployed to production!**
+- ✅ **Sitemap submitted to search engines**
+- ✅ **Site being indexed by Google**
+
 **What Doesn't Exist:**
-- ❌ No Playwright tests run
-- ❌ Pages exist but not tested in browser
-- ❌ Not deployed
+- ❌ No Playwright tests run yet
+- ❌ Full-featured interactive map (basic exists, needs filtering/clustering)
 
-## Next Decision
+## Next Steps (Phase 4)
 
-**Option 1: Quick Launch (Recommended)**
+**Priority 1: Interactive Map** 🗺️
+Build full-featured map experience:
+- Filter by cuisine, price, status
+- Cluster markers for performance
+- Search/filter integration
+- Route planning (future)
+
+**Priority 2: Testing**
 ```bash
-# Import recent data
-npx tsx scripts/ingestion/import-from-wikipedia.ts --recent
-
-# Test pages
+# Run Playwright tests
 npm run test:e2e
 
-# Deploy to Vercel
-# (user handles this)
+# Visual testing during development
+npm run test:e2e:ui
 ```
 
-**Option 2: Build Enrichment First**
-- Takes 2-3 weeks to build full enrichment
-- Delays launch
-- Better initial data quality
-
-**Option 3: Hybrid**
-- Deploy basic data NOW
-- Build enrichment later
-- Progressive enhancement
+**Priority 3: Monitor Indexing**
+- Track Google Search Console
+- Monitor ranking progress
+- Identify high-performing pages
+- Add more content to top pages
 
 ---
 
