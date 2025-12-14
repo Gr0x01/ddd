@@ -188,6 +188,28 @@ export interface MapPin {
   chef_slug: string;
 }
 
+// Route cache type
+export interface RouteCache {
+  id: string;
+  origin_place_id: string;
+  destination_place_id: string;
+  origin_text: string;
+  destination_text: string;
+  polyline: string;
+  polyline_points: Array<{ lat: number; lng: number }>;
+  distance_meters: number;
+  duration_seconds: number;
+  route_geography: any;
+  hit_count: number;
+  created_at: string;
+  expires_at: string;
+}
+
+// Restaurant with distance from route
+export interface RestaurantNearRoute extends Restaurant {
+  distance_miles: number;
+}
+
 // Database helper functions
 export const db = {
   // Get all episodes
@@ -606,7 +628,7 @@ export const db = {
   // Get restaurants by cuisine
   async getRestaurantsByCuisine(cuisineSlug: string) {
     const client = getSupabaseClient();
-    const { data, error } = await client
+    const { data, error} = await client
       .from('restaurants')
       .select(`
         *,
@@ -620,6 +642,109 @@ export const db = {
 
     if (error) throw error;
     return data as Restaurant[];
+  },
+
+  // ============================================
+  // ROAD TRIP PLANNER METHODS
+  // ============================================
+
+  // Find cached route by place IDs
+  async findCachedRoute(
+    originPlaceId: string,
+    destinationPlaceId: string
+  ): Promise<RouteCache | null> {
+    const client = getSupabaseClient();
+
+    // TODO: Regenerate Supabase types after running migration 003
+    const { data, error } = await client
+      .from('route_cache')
+      .select('*')
+      .eq('origin_place_id', originPlaceId)
+      .eq('destination_place_id', destinationPlaceId)
+      .gte('expires_at', new Date().toISOString())
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // Not found
+      throw error;
+    }
+
+    // Update access tracking
+    await client
+      .from('route_cache')
+      // @ts-expect-error - route_cache table not in generated types yet
+      .update({
+        last_accessed_at: new Date().toISOString(),
+        // @ts-expect-error
+        hit_count: data.hit_count + 1
+      })
+      // @ts-expect-error
+      .eq('id', data.id);
+
+    return data as RouteCache;
+  },
+
+  // Save route to cache
+  async saveRoute(
+    origin: string,
+    destination: string,
+    directionsResponse: {
+      polyline: string;
+      polylinePoints: Array<{ lat: number; lng: number }>;
+      distanceMeters: number;
+      durationSeconds: number;
+      originPlaceId: string;
+      destinationPlaceId: string;
+      bounds: any;
+    }
+  ): Promise<string> {
+    const client = getSupabaseClient();
+
+    // Convert polyline points to PostGIS LINESTRING
+    const linestring = `LINESTRING(${directionsResponse.polylinePoints
+      .map((p) => `${p.lng} ${p.lat}`)
+      .join(',')})`;
+
+    // TODO: Regenerate Supabase types after running migration 003
+    const { data, error } = await client
+      .from('route_cache')
+      // @ts-expect-error - route_cache table not in generated types yet
+      .insert({
+        origin_place_id: directionsResponse.originPlaceId,
+        destination_place_id: directionsResponse.destinationPlaceId,
+        origin_text: origin,
+        destination_text: destination,
+        polyline: directionsResponse.polyline,
+        polyline_points: directionsResponse.polylinePoints,
+        distance_meters: directionsResponse.distanceMeters,
+        duration_seconds: directionsResponse.durationSeconds,
+        route_geography: linestring,
+        google_response: directionsResponse
+      })
+      .select('id')
+      .single();
+
+    if (error) throw error;
+    // @ts-expect-error - data type unknown until types are regenerated
+    return data.id;
+  },
+
+  // Get restaurants near a cached route
+  async getRestaurantsNearRoute(
+    routeId: string,
+    radiusMiles: number = 10
+  ): Promise<RestaurantNearRoute[]> {
+    const client = getSupabaseClient();
+
+    // TODO: Regenerate Supabase types after running migration 003
+    // @ts-expect-error - get_restaurants_near_route function not in generated types yet
+    const { data, error } = await client.rpc('get_restaurants_near_route', {
+      route_id: routeId,
+      radius_miles: radiusMiles
+    });
+
+    if (error) throw error;
+    return data as RestaurantNearRoute[];
   },
 };
 
