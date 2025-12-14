@@ -310,6 +310,7 @@ export function generateEpisodeSchema(episode: Episode, restaurants: Restaurant[
     '@context': 'https://schema.org',
     '@type': 'TVEpisode',
     name: episode.title,
+    url: `${SITE_URL}/episode/${episode.slug}`,
     episodeNumber: episode.episode_number,
     partOfSeason: {
       '@type': 'TVSeason',

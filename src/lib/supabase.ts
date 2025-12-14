@@ -204,7 +204,7 @@ export const db = {
   },
 
   // Get episode by slug
-  async getEpisode(slug: string) {
+  async getEpisode(slug: string): Promise<Episode | null> {
     const client = getSupabaseClient();
     const { data, error } = await client
       .from('episodes')
@@ -217,8 +217,11 @@ export const db = {
       .eq('slug', slug)
       .single();
 
-    if (error) throw error;
-    return data;
+    if (error) {
+      if (error.code === 'PGRST116') return null; // Not found
+      throw error;
+    }
+    return data as Episode;
   },
 
   // Get all restaurants
@@ -344,6 +347,35 @@ export const db = {
 
     if (error) throw error;
     return transformRestaurants(data);
+  },
+
+  // Get restaurants by episode ID
+  async getRestaurantsByEpisode(episodeId: string): Promise<Restaurant[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('restaurant_episodes')
+      .select(`
+        restaurant:restaurants(
+          *,
+          first_episode:episodes!first_episode_id(*),
+          restaurant_episodes(
+            episode:episodes(*)
+          ),
+          restaurant_cuisines(
+            cuisine:cuisines(*)
+          )
+        )
+      `)
+      .eq('episode_id', episodeId);
+
+    if (error) throw error;
+
+    // Extract restaurants from junction table and transform
+    const restaurants = (data as Array<{ restaurant: any }>)
+      .map((item) => item.restaurant)
+      .filter((r): r is NonNullable<typeof r> => r !== null);
+
+    return transformRestaurants(restaurants);
   },
 
   // Get restaurant by slug
