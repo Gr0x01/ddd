@@ -45,6 +45,11 @@ export async function generateMetadata({ params }: RestaurantPageProps): Promise
       ? restaurant.description.substring(0, 160)
       : `${restaurant.name} in ${restaurant.city}${restaurant.state ? `, ${restaurant.state}` : ''} - Featured on Guy Fieri's Diners, Drive-ins and Dives.${ratingText}${priceText}`;
 
+    // Filter photos to only include valid URL strings
+    const validPhotos = (restaurant.photos || [])
+      .filter((photo): photo is string => typeof photo === 'string' && photo.startsWith('http'));
+    const firstPhoto = validPhotos[0];
+
     return {
       title: `${restaurant.name} - ${restaurant.city} | Diners, Drive-ins and Dives`,
       description,
@@ -52,13 +57,13 @@ export async function generateMetadata({ params }: RestaurantPageProps): Promise
         title: `${restaurant.name} | Guy Fieri's Diners, Drive-ins and Dives`,
         description,
         type: 'website',
-        images: restaurant.photos?.[0] ? [restaurant.photos[0]] : undefined,
+        images: firstPhoto ? [firstPhoto] : undefined,
       },
       twitter: {
         card: 'summary_large_image',
         title: `${restaurant.name} | Diners, Drive-ins and Dives`,
         description,
-        images: restaurant.photos?.[0] ? [restaurant.photos[0]] : undefined,
+        images: firstPhoto ? [firstPhoto] : undefined,
       },
     };
   } catch {

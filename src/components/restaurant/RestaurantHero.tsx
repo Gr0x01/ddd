@@ -53,7 +53,10 @@ interface RestaurantHeroProps {
 export function RestaurantHero({ restaurant, breadcrumbItems }: RestaurantHeroProps) {
   const status = getRestaurantStatus(restaurant.status);
 
-  const photos = (restaurant.photos || []).filter(Boolean);
+  // Filter photos to only include valid URL strings (not Google Places photo reference objects)
+  const photos = (restaurant.photos || [])
+    .filter(Boolean)
+    .filter((photo): photo is string => typeof photo === 'string' && photo.startsWith('http'));
   const photoCount = photos.length;
 
   const fullAddress = [

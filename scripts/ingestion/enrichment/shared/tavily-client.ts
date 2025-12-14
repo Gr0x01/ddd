@@ -55,7 +55,8 @@ async function getCachedResults(queryHash: string): Promise<TavilyResponse | nul
   const { data, error } = await getSupabase()
     .from('cache')
     .select('*')
-    .eq('query_hash', queryHash)
+    .eq('cache_key', queryHash)
+    .eq('cache_type', 'tavily')
     .or('expires_at.is.null,expires_at.gt.now()')
     .order('fetched_at', { ascending: false })
     .limit(1)
@@ -63,9 +64,10 @@ async function getCachedResults(queryHash: string): Promise<TavilyResponse | nul
 
   if (error || !data) return null;
 
+  const cacheData = data.data as any;
   return {
-    results: data.results as TavilyResult[],
-    query: data.query,
+    results: cacheData.results as TavilyResult[],
+    query: cacheData.query,
     fromCache: true,
     cachedAt: new Date(data.fetched_at),
   };
@@ -81,18 +83,26 @@ async function cacheResults(
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + ttlDays);
 
-  await getSupabase().from('cache').insert({
-    entity_type: options.entityType,
-    entity_id: options.entityId || null,
-    entity_name: options.entityName || null,
-    query,
-    query_hash: queryHash,
-    results,
-    result_count: results.length,
-    source: 'tavily',
+  const { error } = await getSupabase().from('cache').insert({
+    cache_key: queryHash,
+    cache_type: 'tavily',
+    data: {
+      query,
+      results,
+      result_count: results.length,
+    },
+    metadata: {
+      entity_type: options.entityType,
+      entity_id: options.entityId || null,
+      entity_name: options.entityName || null,
+    },
     fetched_at: new Date().toISOString(),
     expires_at: expiresAt.toISOString(),
   });
+
+  if (error) {
+    console.error(`      ⚠️  Cache insert failed: ${error.message}`);
+  }
 }
 
 export async function searchTavily(

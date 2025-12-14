@@ -19,6 +19,8 @@ export interface PlaceDetails {
   websiteUri?: string;
   photos?: PlacePhoto[];
   businessStatus?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface PlacePhoto {
@@ -141,6 +143,7 @@ export function createGooglePlacesService(config: GooglePlacesConfig) {
       'websiteUri',
       'businessStatus',
       'photos',
+      'location', // lat/lng coordinates
     ];
 
     const fieldMask = fields.join(',');
@@ -187,6 +190,8 @@ export function createGooglePlacesService(config: GooglePlacesConfig) {
       websiteUri: response.websiteUri,
       businessStatus: response.businessStatus,
       photos,
+      latitude: response.location?.latitude,
+      longitude: response.location?.longitude,
     };
   }
 

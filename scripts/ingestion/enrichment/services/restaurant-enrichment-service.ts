@@ -3,6 +3,7 @@ import { TokenTracker, TokenUsage } from '../shared/token-tracker';
 import { searchRestaurant, combineSearchResultsCompact } from '../shared/search-client';
 import { synthesize } from '../shared/synthesis-client';
 import { sanitizeRestaurantName, sanitizeLocation } from '../shared/input-sanitizer';
+import { createGooglePlacesService, GooglePlacesService, PlaceDetails } from './google-places-service';
 
 const DishSchema = z.object({
   name: z.string().describe('Name of the dish'),
@@ -45,6 +46,13 @@ export interface RestaurantEnrichmentResult {
   address: string | null;
   phone: string | null;
   website: string | null;
+  // Google Places data
+  google_place_id: string | null;
+  google_rating: number | null;
+  google_review_count: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  photos: any[] | null;
   tokensUsed: TokenUsage;
   success: boolean;
   error?: string;
@@ -91,7 +99,15 @@ Response format:
 }`;
 
 export class RestaurantEnrichmentService {
-  constructor(private tokenTracker: TokenTracker) {}
+  private placesService: GooglePlacesService | null = null;
+
+  constructor(private tokenTracker: TokenTracker) {
+    // Initialize Google Places if API key is available
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    if (apiKey) {
+      this.placesService = createGooglePlacesService({ apiKey });
+    }
+  }
 
   async enrichRestaurant(
     restaurantId: string,
@@ -112,12 +128,31 @@ export class RestaurantEnrichmentService {
     console.log(`   🔍 Enriching: ${safeName} (${location})`);
 
     try {
-      // Search for restaurant information (use original values for search, not sanitized)
+      // Step 1: Get Google Places data (authoritative source for address, phone, website, ratings)
+      let placeDetails: PlaceDetails | null = null;
+      if (this.placesService) {
+        try {
+          const placeMatch = await this.placesService.findPlaceId(name, city, state);
+          if (placeMatch.placeId && placeMatch.confidence >= 0.7) {
+            console.log(`      📍 Google Places match: ${placeMatch.matchedName} (${(placeMatch.confidence * 100).toFixed(0)}% confidence)`);
+            placeDetails = await this.placesService.getPlaceDetails(placeMatch.placeId);
+          } else if (placeMatch.placeId) {
+            console.log(`      ⚠️  Low confidence Google Places match: ${placeMatch.matchedName} (${(placeMatch.confidence * 100).toFixed(0)}%)`);
+          } else {
+            console.log(`      ⚠️  No Google Places match found`);
+          }
+        } catch (err) {
+          console.log(`      ⚠️  Google Places lookup failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+
+      // Step 2: Search for restaurant information (use original values for search, not sanitized)
       const searchResult = await searchRestaurant(name, city, state, restaurantId);
       const searchContext = combineSearchResultsCompact([searchResult], 8000);
 
       if (!searchContext || searchContext.length < 50) {
         console.log(`      ⚠️  No search results for ${safeName}`);
+        // Use Google Places data if available
         return {
           restaurantId,
           description: null,
@@ -126,11 +161,17 @@ export class RestaurantEnrichmentService {
           guy_quote: null,
           dishes: null,
           segment_notes: null,
-          status: null,
+          status: placeDetails?.businessStatus === 'OPERATIONAL' ? 'open' : placeDetails?.businessStatus === 'CLOSED_PERMANENTLY' ? 'closed' : null,
           closed_date: null,
-          address: null,
+          address: placeDetails?.formattedAddress || null,
           phone: null,
-          website: null,
+          website: placeDetails?.websiteUri || null,
+          google_place_id: placeDetails?.placeId || null,
+          google_rating: placeDetails?.rating || null,
+          google_review_count: placeDetails?.userRatingsTotal || null,
+          latitude: null,
+          longitude: null,
+          photos: placeDetails?.photos || null,
           tokensUsed: { prompt: 0, completion: 0, total: 0 },
           success: true,
           error: 'No search results found',
@@ -174,6 +215,7 @@ Return ONLY JSON.`;
       this.tokenTracker.trackUsage(result.usage);
 
       if (!result.success || !result.data) {
+        // Use Google Places data if available
         return {
           restaurantId,
           description: null,
@@ -182,11 +224,17 @@ Return ONLY JSON.`;
           guy_quote: null,
           dishes: null,
           segment_notes: null,
-          status: null,
+          status: placeDetails?.businessStatus === 'OPERATIONAL' ? 'open' : placeDetails?.businessStatus === 'CLOSED_PERMANENTLY' ? 'closed' : null,
           closed_date: null,
-          address: null,
+          address: placeDetails?.formattedAddress || null,
           phone: null,
-          website: null,
+          website: placeDetails?.websiteUri || null,
+          google_place_id: placeDetails?.placeId || null,
+          google_rating: placeDetails?.rating || null,
+          google_review_count: placeDetails?.userRatingsTotal || null,
+          latitude: null,
+          longitude: null,
+          photos: placeDetails?.photos || null,
           tokensUsed: result.usage,
           success: false,
           error: result.error,
@@ -194,6 +242,13 @@ Return ONLY JSON.`;
       }
 
       console.log(`      ✅ Enriched (${result.data.cuisines.join(', ')}, ${result.data.price_tier}, ${result.data.dishes?.length || 0} dishes, ${result.data.status})`);
+
+      // Merge Google Places data (prefer Google for contact info and status)
+      const mergedStatus = placeDetails?.businessStatus === 'OPERATIONAL'
+        ? 'open'
+        : placeDetails?.businessStatus === 'CLOSED_PERMANENTLY'
+          ? 'closed'
+          : result.data.status;
 
       return {
         restaurantId,
@@ -203,11 +258,19 @@ Return ONLY JSON.`;
         guy_quote: result.data.guy_quote,
         dishes: result.data.dishes,
         segment_notes: result.data.segment_notes,
-        status: result.data.status,
+        status: mergedStatus,
         closed_date: result.data.closed_date,
-        address: result.data.address,
-        phone: result.data.phone,
-        website: result.data.website,
+        // Prefer Google Places data for contact info (more authoritative)
+        address: placeDetails?.formattedAddress || result.data.address,
+        phone: result.data.phone, // Keep LLM phone for now (Google doesn't always have it)
+        website: placeDetails?.websiteUri || result.data.website,
+        // Google Places exclusive data
+        google_place_id: placeDetails?.placeId || null,
+        google_rating: placeDetails?.rating || null,
+        google_review_count: placeDetails?.userRatingsTotal || null,
+        latitude: placeDetails?.latitude || null,
+        longitude: placeDetails?.longitude || null,
+        photos: placeDetails?.photos || null,
         tokensUsed: result.usage,
         success: true,
       };
@@ -228,6 +291,12 @@ Return ONLY JSON.`;
         address: null,
         phone: null,
         website: null,
+        google_place_id: null,
+        google_rating: null,
+        google_review_count: null,
+        latitude: null,
+        longitude: null,
+        photos: null,
         tokensUsed: { prompt: 0, completion: 0, total: 0 },
         success: false,
         error: msg,

@@ -54,7 +54,7 @@ export async function searchRestaurant(
   restaurantId?: string
 ): Promise<SearchResult> {
   const location = state ? `${city}, ${state}` : city;
-  const query = `${restaurantName} ${location} Diners Drive-ins Dives Guy Fieri cuisine menu featured`;
+  const query = `${restaurantName} ${location} Diners Drive-ins Dives Guy Fieri restaurant address phone website menu cuisine`;
   return executeSearch(query, 'restaurant', restaurantId, restaurantName);
 }
 
