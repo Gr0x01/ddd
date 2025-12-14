@@ -1,18 +1,19 @@
 ---
-Last-Updated: 2025-12-14
+Last-Updated: 2025-12-15
 Maintainer: RB
-Status: Phase 3 - SEO Complete ✅
+Status: Phase 3 Complete - Ready for Deployment ✅
 ---
 
 # Quickstart: DDD (Diners, Drive-ins and Dives)
 
 ## Current Status
-- **Phase**: Phase 3 - SEO & Infrastructure Complete ✅
+- **Phase**: Phase 3 Complete - Ready for Deployment ✅
 - **Version**: 0.3.0
 - **Environment**: Development (SEO ready for deployment)
-- **Focus**: Test pages → Deploy → Start enriching restaurants
-- **Data Available**: 572 episodes, 1,695 restaurants (cached in Supabase)
-- **Imported**: 3 restaurants with full enrichment
+- **Focus**: Run tests → Deploy to production
+- **Data Available**: 572 episodes, 1,541 restaurants (all imported)
+- **Enriched**: 1,541 restaurants (100.0%) with full LLM enrichment ✅
+- **Status Verified**: 1,151 open, 390 closed, 0 unknown (100% verified!) 🎉
 - **SEO Ready**: Sitemap, robots.txt, high-value pages, full metadata
 - **Market**: Targeting 263k+ monthly visitors (based on competitor analysis)
 
@@ -27,6 +28,8 @@ Status: Phase 3 - SEO Complete ✅
 - **CLI scripts for enrichment, status verification, episodes**
 - **Complete SEO infrastructure (sitemap, robots.txt, metadata)**
 - **High-value SEO pages (/still-open, /closed, /cuisines)**
+- **1,539 restaurants fully enriched** (descriptions, cuisines, prices, dishes, Guy quotes)
+- **Interactive map** (Leaflet with filtering)
 
 **❌ NOT Built:**
 - No Playwright tests run
@@ -131,6 +134,20 @@ npx tsx scripts/ingestion/check-enrichment.ts                     # Verify enric
 - ✅ XSS-protected JSON-LD structured data
 - ✅ ISR caching on all dynamic pages
 - ✅ Database-level aggregations (no N+1 queries)
+
+**What Works (Added Dec 15 - Morning):**
+- ✅ **100% enrichment complete!** All 1,541 restaurants enriched
+- ✅ **100% status verified!** 1,151 open, 390 closed, 0 unknown 🎉
+- ✅ Parallel enrichment (50 concurrent workers)
+- ✅ Fixed Tavily rate limiter (900/min instead of 30/min)
+- ✅ Fixed closed date parsing (handles invalid LLM responses)
+- ✅ Manual corrections applied:
+  - The Kitchen → Portsmouth, NH (open)
+  - Wrigleyville Grill → San Antonio, TX (open, not Chicago!)
+  - Bubba's Diner, Los Tapatios, Town Talk Diner → closed
+  - The Pie Dump → open
+- ✅ Total cost: $6.78 for full enrichment
+- ✅ Total time: ~15 minutes for all 1,541 restaurants
 
 **What Doesn't Exist:**
 - ❌ No Playwright tests run

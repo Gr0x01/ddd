@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import PQueue from 'p-queue';
 import { createLLMEnricher } from './enrichment/llm-enricher';
 import { createGooglePlacesService } from './enrichment/services/google-places-service';
 
@@ -36,12 +37,16 @@ async function main() {
   const dryRun = args.includes('--dry-run');
   const forceAll = args.includes('--all');
   const withPhotos = args.includes('--with-photos');
+  const concurrency = args.includes('--concurrency')
+    ? parseInt(args[args.indexOf('--concurrency') + 1], 10)
+    : 50;
 
   console.log('\n🍔 DDD Restaurant Enrichment');
   console.log('━'.repeat(50));
   console.log(`Model: ${enricher.getModelName()}`);
   console.log(`Mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
   console.log(`Limit: ${limit} restaurants`);
+  console.log(`Concurrency: ${concurrency} parallel`);
   console.log(`Photos: ${withPhotos ? (googlePlaces ? 'YES (Google Places)' : 'SKIPPED (no API key)') : 'NO'}`);
   console.log('');
 
@@ -81,25 +86,29 @@ async function main() {
   let failCount = 0;
   const startTime = Date.now();
 
-  for (let i = 0; i < restaurants.length; i++) {
-    const restaurant = restaurants[i] as any;
-    const num = `[${i + 1}/${restaurants.length}]`;
+  // Create queue for parallel processing
+  const queue = new PQueue({ concurrency });
 
-    // Extract episode data (first episode if multiple)
-    const episodeLink = restaurant.restaurant_episodes?.[0];
-    const episode = episodeLink?.episodes;
+  // Process restaurants in parallel
+  const tasks = restaurants.map((restaurant: any, i: number) =>
+    queue.add(async () => {
+      const num = `[${i + 1}/${restaurants.length}]`;
 
-    console.log(`${num} ${restaurant.name} (${restaurant.city}${restaurant.state ? ', ' + restaurant.state : ''})`);
-    if (episode) {
-      console.log(`      📺 Episode: S${episode.season}E${episode.episode_number} - ${episode.title}`);
-    }
+      // Extract episode data (first episode if multiple)
+      const episodeLink = restaurant.restaurant_episodes?.[0];
+      const episode = episodeLink?.episodes;
 
-    if (dryRun) {
-      console.log('      🔍 DRY RUN - Skipping actual enrichment');
-      continue;
-    }
+      console.log(`${num} ${restaurant.name} (${restaurant.city}${restaurant.state ? ', ' + restaurant.state : ''})`);
+      if (episode) {
+        console.log(`      📺 Episode: S${episode.season}E${episode.episode_number} - ${episode.title}`);
+      }
 
-    try {
+      if (dryRun) {
+        console.log('      🔍 DRY RUN - Skipping actual enrichment');
+        return;
+      }
+
+      try {
       const result = await enricher.enrichRestaurant(
         restaurant.id,
         restaurant.name,
@@ -123,20 +132,21 @@ async function main() {
         // Add status and closed_date if present
         if (result.status) {
           updateData.status = result.status;
-          if (result.closed_date) {
+          if (result.closed_date && result.closed_date !== 'YYYY-MM-DD' && result.closed_date !== 'unknown') {
             // Parse partial dates to PostgreSQL date format
             // "2014" -> "2014-01-01", "2014-10" -> "2014-10-01", "2014-10-15" -> "2014-10-15"
             const dateParts = result.closed_date.split('-');
-            if (dateParts.length === 1) {
+            if (dateParts.length === 1 && dateParts[0].match(/^\d{4}$/)) {
               // Only year: YYYY -> YYYY-01-01
               updateData.closed_date = `${dateParts[0]}-01-01`;
-            } else if (dateParts.length === 2) {
+            } else if (dateParts.length === 2 && dateParts[0].match(/^\d{4}$/) && dateParts[1].match(/^\d{2}$/)) {
               // Year and month: YYYY-MM -> YYYY-MM-01
               updateData.closed_date = `${dateParts[0]}-${dateParts[1]}-01`;
-            } else {
+            } else if (dateParts.length === 3 && dateParts[0].match(/^\d{4}$/) && dateParts[1].match(/^\d{2}$/) && dateParts[2].match(/^\d{2}$/)) {
               // Full date: YYYY-MM-DD
               updateData.closed_date = result.closed_date;
             }
+            // If it doesn't match any valid format, don't set closed_date
           }
         }
 
@@ -370,16 +380,15 @@ async function main() {
         failCount++;
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.log(`      ❌ Error: ${msg}`);
-      failCount++;
-    }
+        const msg = err instanceof Error ? err.message : String(err);
+        console.log(`      ❌ Error: ${msg}`);
+        failCount++;
+      }
+    })
+  );
 
-    // Small delay to avoid rate limits
-    if (i < restaurants.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-  }
+  // Wait for all tasks to complete
+  await Promise.all(tasks);
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
   const tokens = enricher.getTotalTokensUsed();

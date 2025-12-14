@@ -5,11 +5,11 @@ import PQueue from 'p-queue';
  * Uses p-queue for concurrency control
  */
 
-// Tavily: 1,000 requests/month = ~33/day, conservative 1 req/2s
+// Tavily: 1,000 requests/minute, use 90% capacity = 900/min
 const tavilyQueue = new PQueue({
-  interval: 2000, // 2 seconds
-  intervalCap: 1, // 1 request per interval
-  concurrency: 1,
+  interval: 60000, // 1 minute
+  intervalCap: 900, // 900 requests per minute
+  concurrency: 50, // Allow 50 concurrent requests
 });
 
 // OpenAI Tier 5: 10,000 RPM = 166/second, conservative 50/second
