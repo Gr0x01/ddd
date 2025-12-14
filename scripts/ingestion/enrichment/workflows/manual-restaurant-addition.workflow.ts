@@ -6,6 +6,7 @@ import { StatusVerificationService } from '../services/status-verification-servi
 import { RestaurantRepository } from '../repositories/restaurant-repository';
 import { TokenTracker } from '../shared/token-tracker';
 import { configure as configureSynthesis } from '../shared/synthesis-client';
+import { isValidUUID } from '../shared/input-sanitizer';
 
 export interface ManualRestaurantAdditionInput {
   restaurantId: string;
@@ -55,8 +56,8 @@ export class ManualRestaurantAdditionWorkflow extends BaseWorkflow<ManualRestaur
   validate(input: ManualRestaurantAdditionInput): ValidationResult {
     const errors: string[] = [];
 
-    if (!input.restaurantId || input.restaurantId.length !== 36) {
-      errors.push('Invalid restaurant ID (must be UUID)');
+    if (!input.restaurantId || !isValidUUID(input.restaurantId)) {
+      errors.push('Invalid restaurant ID (must be valid UUID v4)');
     }
 
     if (!input.name || input.name.trim().length === 0) {

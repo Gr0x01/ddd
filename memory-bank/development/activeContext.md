@@ -8,31 +8,84 @@ status: Active
 
 # Active Development Context
 
-**Current Sprint:** LLM Enrichment System Architecture Design
-**Sprint Goal:** Complete enrichment system design adapted from chefs project
+**Current Phase:** Phase 1A - Wikipedia Data Import Complete
+**Sprint Goal:** Import recent episodes and deploy MVP with basic data
 **Timeline:** Week of Dec 14, 2025
 
 ---
 
-## Sprint Focus
+## What We Actually Built Today
 
-### Primary Objective
-Design and document a production-ready LLM enrichment system for DDD restaurant data, adapting the proven architecture from the chefs project.
+### ✅ Completed
+1. **Wikipedia Data Pipeline**
+   - Cache table in Supabase
+   - Tavily integration to fetch Wikipedia episode list (one-time, 7-day cache)
+   - Parser to extract 572 episodes, 1,695 restaurants from cached data
+   - Import script with --limit, --recent, --all flags
+   - Successfully tested: 1 episode, 3 restaurants imported
 
-### Success Criteria
-- [x] Architecture document created (`architecture/enrichment-system.md`)
-- [x] Quick reference guide created (`architecture/enrichment-reference.md`)
-- [x] Directory structure defined
-- [x] Implementation phases outlined
-- [x] Cost estimation completed
-- [ ] Phase 1 implementation (copy shared utilities from chefs)
-- [ ] Phase 2 implementation (repositories)
+2. **Database Schema**
+   - Episodes, restaurants, junction tables
+   - PostGIS for geographic data
+   - Cache table for API responses
+
+3. **Pages (Not Tested)**
+   - Restaurant detail pages
+   - City pages
+   - State pages
+   - Homepage
+
+### ❌ NOT Built (Phase 2)
+- No LLM enrichment system
+- No Google Places integration
+- No status verification
+- No descriptions, cuisines, or photos
+- No Playwright tests run
 
 ---
 
-## Current Work
+## Current Data State
 
-### Enrichment System Design (Completed)
+**In Database:**
+- 1 test episode (S1E1: "Classics")
+- 3 test restaurants (basic info only: name, city, state)
+- All restaurants have status = "unknown"
+- No enrichment has happened
+
+**Available to Import:**
+- 572 episodes cached in Supabase
+- 1,695 restaurants ready to import
+- 40 recent episodes (2024-2026) for SEO priority
+
+---
+
+## Next Steps (Priority Order)
+
+### Option 1: Deploy MVP with Basic Data
+1. Import recent 40 episodes (2024-2026) - ~120 restaurants
+2. Run Playwright tests on pages
+3. Deploy to Vercel
+4. Submit to Google Search Console
+5. **Result:** Live site with basic restaurant data, no enrichment
+
+### Option 2: Build Enrichment Before Deploy
+1. Build LLM enrichment system (descriptions, cuisines)
+2. Integrate Google Places API (status, addresses, ratings)
+3. Enrich imported restaurants
+4. Then deploy
+5. **Result:** Delayed launch but richer data
+
+### Option 3: Hybrid Approach
+1. Import + deploy basic data NOW (fast SEO indexing)
+2. Build enrichment system in background
+3. Enrich data incrementally after launch
+4. **Result:** Fast launch, progressive enhancement
+
+---
+
+## Previous Work (For Reference)
+
+### Enrichment System Design (NOT IMPLEMENTED)
 
 **Architecture Layers:**
 1. **Shared Utilities** - Token tracking, LLM client, result parsing (copy from chefs)
@@ -71,7 +124,7 @@ Design and document a production-ready LLM enrichment system for DDD restaurant 
 
 ---
 
-## Next Steps
+## If We Build Enrichment (Future Work)
 
 ### Phase 1: Foundation (2-3 days)
 1. Copy shared utilities from chefs:

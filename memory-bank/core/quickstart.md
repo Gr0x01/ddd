@@ -1,60 +1,49 @@
 ---
-title: DDD Memory Bank - Quickstart
-created: 2025-12-14
-last-updated: 2025-12-14
-maintainer: Claude
-status: Active
+Last-Updated: 2025-12-14
+Maintainer: RB
+Status: Phase 1A - Data Pipeline Complete
 ---
 
-# Memory Bank Quickstart
+# Quickstart: DDD (Diners, Drive-ins and Dives)
 
-**One-page situational awareness for the DDD (Diners, Drive-ins and Dives) restaurant directory app.**
+## Current Status
+- **Phase**: Phase 1A - Data Pipeline Complete ✅
+- **Version**: 0.1.0
+- **Environment**: Development (Ready for deployment)
+- **Focus**: Import recent episodes (2024-2026) → Deploy → SEO indexing
+- **Data Available**: 572 episodes, 1,695 restaurants (cached in Supabase)
+- **Test Import**: 1 episode, 3 restaurants successfully imported
+- **Market**: Targeting 263k+ monthly visitors (based on competitor analysis)
 
----
+## What We Actually Have
 
-## What This Project Is
+**✅ Built:**
+- Wikipedia data pipeline (cache → parse → import)
+- Database schema with PostGIS
+- Restaurant, city, state pages (not tested)
+- Import scripts that work
 
-A Next.js 15 app with Supabase backend for browsing DDD restaurants by city, state, cuisine, and episode. Phase 1 (MVP+) focuses on solid foundations with enriched restaurant data via LLM-powered ingestion.
-
-**Live URL:** TBD (Vercel deployment pending)
-
-**Repository:** Local only (no git remote yet)
-
-**Status:** Active Development - Phase 1: Core Features
+**❌ NOT Built:**
+- No enrichment system
+- No LLM integration
+- No Google Places
+- No tests run
+- No deployment yet
 
 ---
 
 ## Tech Stack
 
-- **Frontend:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
-- **Backend:** Supabase (PostgreSQL + PostGIS + RLS)
-- **Enrichment:** OpenAI gpt-4o-mini (Flex tier), Tavily Search, Google Places API
-- **Deployment:** Vercel (Next.js) + Supabase Cloud
-- **Testing:** Playwright (E2E)
+- **Frontend:** Next.js 14, React 18, TypeScript, Tailwind CSS
+- **Backend:** Supabase (PostgreSQL + PostGIS)
+- **Data Source:** Wikipedia (via Tavily, cached in Supabase)
+- **Deployment:** Vercel (planned)
+- **Testing:** Playwright (not run yet)
 
-**Key Dependencies:**
-- `@supabase/ssr` - Server-side Supabase client
-- `openai` - LLM enrichment
-- `zod` - Schema validation
-- `@playwright/test` - E2E testing
-
----
-
-## Current Phase: Phase 1 - Core Features
-
-**Goal:** Solid MVP+ with enriched restaurant data, browse by location/cuisine, working search
-
-**Active Work:**
-- LLM enrichment system design (adapting from chefs project)
-- Database schema refinement
-- City/state browse pages
-- Restaurant detail pages
-
-**Completed:**
-- Database schema with PostGIS
-- Initial project structure
-- Supabase integration
-- Environment configuration
+**Future (Phase 2):**
+- OpenAI gpt-4o-mini for descriptions
+- Google Places API for status/addresses
+- Tavily for web search
 
 ---
 
@@ -62,205 +51,97 @@ A Next.js 15 app with Supabase backend for browsing DDD restaurants by city, sta
 
 ```bash
 # Development
-npm run dev                    # Start dev server (localhost:3000)
-npm run build                  # Production build
-npm run start                  # Production server
-
-# Database
-npx supabase db reset          # Reset local DB + run migrations
-npx supabase migration new     # Create new migration
-npx supabase gen types         # Generate TypeScript types
+npm run dev          # Start development server (localhost:3000)
+npm run build        # Build for production
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript checks
 
 # Testing
-npm run test:e2e              # Run Playwright tests (headless)
-npm run test:e2e:ui           # Run Playwright tests (UI mode)
-npm run test:e2e:debug        # Debug Playwright tests
+npm run test:e2e     # Run Playwright tests
+npm run test:e2e:ui  # Interactive test mode
 
-# Enrichment (future)
-npm run enrich -- add         # Add restaurant with LLM enrichment
-npm run enrich -- status      # Batch verify restaurant status
-npm run enrich -- refresh     # Refresh stale restaurant data
+# Data Import (Phase 1)
+npx tsx scripts/ingestion/cache-wikipedia.ts              # Cache Wikipedia (once/week)
+npx tsx scripts/ingestion/import-from-wikipedia.ts --recent  # Import 40 newest episodes
+npx tsx scripts/ingestion/verify-import.ts                # Verify data
+
+# Enrichment (Phase 2 - not built yet)
+# npx tsx scripts/enrich-restaurants.ts     # LLM enrichment (descriptions, cuisines)
+# npx tsx scripts/enrich-google-places.ts   # Google Places verification
 ```
 
 ---
 
-## Directory Structure
+## What We Built
 
-```
-ddd/
-├── src/
-│   ├── app/                   # Next.js 15 App Router
-│   │   ├── page.tsx          # Homepage (city grid)
-│   │   ├── state/            # State browse pages
-│   │   ├── city/             # City browse pages
-│   │   └── restaurant/       # Restaurant detail pages
-│   ├── components/           # React components
-│   ├── lib/                  # Utilities
-│   │   ├── supabase.ts      # Supabase client
-│   │   └── env.ts           # Environment config
-├── supabase/
-│   └── migrations/          # SQL migrations
-├── scripts/
-│   └── ingestion/
-│       └── enrichment/      # LLM enrichment system (in design)
-├── memory-bank/             # Project memory and documentation
-│   ├── core/               # Must-read startup context
-│   ├── development/        # Active engineering focus
-│   └── architecture/       # System design and patterns
-├── tests/
-│   └── e2e/                # Playwright tests
-└── package.json
-```
+**Data Pipeline:**
+- `scripts/ingestion/cache-wikipedia.ts` - Fetch Wikipedia via Tavily, cache in Supabase
+- `scripts/ingestion/parse-wikipedia.ts` - Parse 572 episodes from cache
+- `scripts/ingestion/import-from-wikipedia.ts` - Import to database
+- `scripts/ingestion/verify-import.ts` - Verify data integrity
+
+**Database:**
+- `supabase/migrations/001_initial_schema.sql` - Full schema with PostGIS
+- `supabase/migrations/002_add_cache_table.sql` - Cache for API responses
+
+**Pages (Not Tested):**
+- `src/app/page.tsx` - Homepage with stats
+- `src/app/restaurant/[slug]/page.tsx` - Restaurant details
+- `src/app/city/[state]/[city]/page.tsx` - City browse
+- `src/app/state/[state]/page.tsx` - State browse
+
+**What We DON'T Have:**
+- No enrichment system
+- No LLM descriptions
+- No Google Places integration
+- No tests run
 
 ---
 
-## Environment Variables
+## Current Reality Check
 
+**What Works:**
+- ✅ Wikipedia data cached in Supabase
+- ✅ 572 episodes, 1,695 restaurants parsed
+- ✅ Import script works (tested with 1 episode)
+- ✅ Database schema is ready
+
+**What Doesn't Exist:**
+- ❌ No enrichment system
+- ❌ No LLM integration
+- ❌ No Google Places
+- ❌ No tests run
+- ❌ Pages exist but not tested
+- ❌ Not deployed
+
+## Next Decision
+
+**Option 1: Quick Launch (Recommended)**
 ```bash
-# Supabase (required)
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+# Import recent data
+npx tsx scripts/ingestion/import-from-wikipedia.ts --recent
 
-# LLM Enrichment (for ingestion, not runtime)
-OPENAI_API_KEY=sk-...
-TAVILY_API_KEY=tvly-...
-GOOGLE_PLACES_API_KEY=AIza...
-```
-
-**Files:**
-- `.env.local` - Development environment variables
-- `.env.production` - Production environment variables (Vercel)
-
----
-
-## Database Schema (Simplified)
-
-**Core Tables:**
-- `restaurants` - Restaurant records with PostGIS location data
-- `episodes` - DDD episode metadata
-- `restaurant_episodes` - Junction table (many-to-many)
-- `cuisines` - Cuisine types (American, BBQ, Italian, etc.)
-- `restaurant_cuisines` - Junction table
-- `cities` - City metadata with restaurant counts
-- `states` - State metadata with restaurant counts
-
-**Key Features:**
-- PostGIS for geographic queries (radius search, road trip planner)
-- RLS policies for public read access
-- Automated triggers for restaurant counts
-- Enrichment tracking (last_enriched_at, enrichment_status)
-
-**Full Schema:** `supabase/migrations/001_initial_schema.sql`
-
----
-
-## Enrichment System (In Design)
-
-**Purpose:** LLM-powered discovery and enhancement of restaurant data
-
-**Architecture Layers:**
-1. **Facade:** `llm-enricher.ts` - Simplified public API
-2. **Workflows:** Multi-step orchestration (manual addition, status sweep, refresh stale)
-3. **Services:** Single-purpose business logic (enrichment, status verification, episode discovery)
-4. **Repositories:** Database access layer (restaurant, episode, city)
-5. **Shared Utilities:** Token tracking, LLM client, result parsing, retry handling
-
-**Reference:**
-- Design: `memory-bank/architecture/enrichment-system.md`
-- Quick Reference: `memory-bank/architecture/enrichment-reference.md`
-- Source: `/Users/rb/Documents/coding_projects/chefs/scripts/ingestion/enrichment/`
-
-**Cost:** ~$0.06-$0.14 per restaurant (full enrichment)
-
----
-
-## Active Context
-
-**Current Sprint:** LLM enrichment system architecture design
-
-**Blockers:** None
-
-**Next Steps:**
-1. Implement enrichment repositories
-2. Implement enrichment services (Google Places, Tavily + LLM)
-3. Implement workflows (manual addition, status sweep)
-4. Create facade interface
-5. Build CLI scripts for common operations
-
-**See:** `memory-bank/development/activeContext.md` for detailed sprint goals
-
----
-
-## Key Decisions
-
-1. **Solo Dev MVP+:** Prioritize working solutions over perfect architecture
-2. **PostgreSQL + PostGIS:** Enable geographic queries (radius search, road trip planner)
-3. **Server Components First:** Use Next.js 15 Server Components for data fetching
-4. **RLS for Security:** Row Level Security policies instead of API middleware
-5. **LLM Enrichment:** Use OpenAI gpt-4o-mini (Flex tier) for 50% cost savings
-6. **Google Places Primary:** Use Google Places API as primary status source, LLM as fallback
-
----
-
-## Common Tasks
-
-### Add a New Restaurant (Manual, Future)
-```bash
-npm run enrich -- add \
-  --name "Hodad's" \
-  --city "San Diego" \
-  --state "California" \
-  --episode "S01E01"
-```
-
-### Reset Database
-```bash
-npx supabase db reset
-```
-
-### Generate TypeScript Types
-```bash
-npx supabase gen types typescript --local > src/lib/database.types.ts
-```
-
-### Run Tests
-```bash
+# Test pages
 npm run test:e2e
+
+# Deploy to Vercel
+# (user handles this)
 ```
 
----
+**Option 2: Build Enrichment First**
+- Takes 2-3 weeks to build full enrichment
+- Delays launch
+- Better initial data quality
 
-## Useful Links
-
-- **Supabase Dashboard:** https://supabase.com/dashboard
-- **Vercel Dashboard:** https://vercel.com/dashboard (pending deployment)
-- **OpenAI Pricing:** https://openai.com/pricing
-- **Tavily Docs:** https://docs.tavily.com/
-- **Google Places API:** https://developers.google.com/maps/documentation/places
-
----
-
-## Getting Help
-
-**Memory Bank Navigation:**
-1. Read this file first (quickstart.md)
-2. Check `development/activeContext.md` for current sprint
-3. Review `architecture/techStack.md` for stack details
-4. See `architecture/enrichment-system.md` for enrichment design
-5. Use `architecture/enrichment-reference.md` for API examples
-
-**When Stuck:**
-- Check `development/progress.md` for what's been completed
-- Review database schema: `supabase/migrations/001_initial_schema.sql`
-- Search codebase for existing patterns before creating new ones
+**Option 3: Hybrid**
+- Deploy basic data NOW
+- Build enrichment later
+- Progressive enhancement
 
 ---
 
-## Project Health
+## Documentation
 
-**Build:** ✅ Passing
-**Tests:** ✅ Passing (E2E suite in development)
-**Type Safety:** ✅ Strict TypeScript
-**Database:** ✅ Migrations up-to-date
-**Deployment:** ⏸️ Pending (Vercel setup needed)
+- `development/activeContext.md` - What we actually built
+- `development/progress.md` - Today's work log
+- `supabase/migrations/` - Database schema

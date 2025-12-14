@@ -3,6 +3,7 @@ import { TokenTracker, TokenUsage } from '../shared/token-tracker';
 import { searchStatus, combineSearchResultsCompact, SearchResult } from '../shared/search-client';
 import { synthesize } from '../shared/synthesis-client';
 import { createGooglePlacesService } from '../../services/google-places';
+import { sanitizeRestaurantName, sanitizeLocation } from '../shared/input-sanitizer';
 
 const RestaurantStatusSchema = z.object({
   status: z.enum(['open', 'closed', 'unknown']),
