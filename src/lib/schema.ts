@@ -11,10 +11,102 @@ const SITE_NAME = 'Triple D Map';
 const SITE_URL = 'https://trimpdmap.com';
 const SITE_DESCRIPTION = 'Find every restaurant featured on Guy Fieri\'s Diners, Drive-ins and Dives. Interactive map, photos, ratings, and detailed info.';
 
+// Type definitions for Schema.org structured data
+interface SchemaOrgBase {
+  '@context': string;
+  '@type': string | string[];
+}
+
+interface SchemaOrgOrganization extends SchemaOrgBase {
+  '@type': 'Organization';
+  name: string;
+  url: string;
+  logo: string;
+  description: string;
+  sameAs?: string[];
+}
+
+interface SchemaOrgWebSite extends SchemaOrgBase {
+  '@type': 'WebSite';
+  name: string;
+  url: string;
+  description: string;
+  potentialAction?: {
+    '@type': string;
+    target: {
+      '@type': string;
+      urlTemplate: string;
+    };
+    'query-input': string;
+  };
+}
+
+interface SchemaOrgPostalAddress {
+  '@type': 'PostalAddress';
+  streetAddress?: string;
+  addressLocality?: string;
+  addressRegion?: string;
+  postalCode?: string;
+  addressCountry?: string;
+}
+
+interface SchemaOrgGeoCoordinates {
+  '@type': 'GeoCoordinates';
+  latitude: number;
+  longitude: number;
+}
+
+interface SchemaOrgAggregateRating {
+  '@type': 'AggregateRating';
+  ratingValue: number;
+  reviewCount: number;
+  bestRating: number;
+  worstRating: number;
+}
+
+interface SchemaOrgRestaurant extends SchemaOrgBase {
+  '@type': ['Restaurant', 'LocalBusiness'];
+  name: string;
+  description: string;
+  url: string;
+  address: SchemaOrgPostalAddress;
+  geo?: SchemaOrgGeoCoordinates;
+  telephone?: string;
+  sameAs?: string[];
+  aggregateRating?: SchemaOrgAggregateRating;
+  priceRange?: string;
+  image?: string[];
+  servesCuisine?: string[];
+}
+
+interface SchemaOrgBreadcrumbListItem {
+  '@type': 'ListItem';
+  position: number;
+  name: string;
+  item?: string;
+}
+
+interface SchemaOrgBreadcrumbList extends SchemaOrgBase {
+  '@type': 'BreadcrumbList';
+  itemListElement: SchemaOrgBreadcrumbListItem[];
+}
+
+interface SchemaOrgItemList extends SchemaOrgBase {
+  '@type': 'ItemList';
+  name: string;
+  url: string;
+  numberOfItems: number;
+  itemListElement: Array<{
+    '@type': 'ListItem';
+    position: number;
+    item: Record<string, any>;
+  }>;
+}
+
 /**
  * Organization schema for the site itself
  */
-export function generateOrganizationSchema() {
+export function generateOrganizationSchema(): SchemaOrgOrganization {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -31,7 +123,7 @@ export function generateOrganizationSchema() {
 /**
  * WebSite schema with SearchAction for search functionality
  */
-export function generateWebSiteSchema() {
+export function generateWebSiteSchema(): SchemaOrgWebSite {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -52,8 +144,8 @@ export function generateWebSiteSchema() {
 /**
  * Restaurant/LocalBusiness schema for individual restaurant pages
  */
-export function generateRestaurantSchema(restaurant: Restaurant) {
-  const schema: any = {
+export function generateRestaurantSchema(restaurant: Restaurant): SchemaOrgRestaurant {
+  const schema: SchemaOrgRestaurant = {
     '@context': 'https://schema.org',
     '@type': ['Restaurant', 'LocalBusiness'],
     name: restaurant.name,
@@ -83,8 +175,9 @@ export function generateRestaurantSchema(restaurant: Restaurant) {
     schema.telephone = restaurant.phone;
   }
 
+  // Link to restaurant's external website using sameAs (not url - that's for our page)
   if (restaurant.website_url) {
-    schema.url = restaurant.website_url;
+    schema.sameAs = [restaurant.website_url];
   }
 
   // Add ratings if available (requires reviewCount for Google rich snippets)
@@ -114,13 +207,8 @@ export function generateRestaurantSchema(restaurant: Restaurant) {
     schema.servesCuisine = restaurantWithCuisines.cuisines.map((c: any) => c.name);
   }
 
-  // Add opening hours status
-  if (restaurant.status === 'open') {
-    schema.openingHoursSpecification = {
-      '@type': 'OpeningHoursSpecification',
-      // Note: Add actual hours when available in restaurant.hours_json
-    };
-  }
+  // Note: openingHoursSpecification removed - only add when actual hours data is available
+  // Empty openingHoursSpecification triggers validation warnings
 
   return schema;
 }
@@ -130,7 +218,7 @@ export function generateRestaurantSchema(restaurant: Restaurant) {
  */
 export function generateBreadcrumbSchema(
   items: Array<{ name: string; url?: string }>
-) {
+): SchemaOrgBreadcrumbList {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -150,7 +238,7 @@ export function generateItemListSchema(
   restaurants: Restaurant[],
   listName: string,
   listUrl: string
-) {
+): SchemaOrgItemList {
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
