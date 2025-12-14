@@ -40,21 +40,25 @@ export function createLLMEnricher(
   let totalTokensUsed: TokenUsage = { prompt: 0, completion: 0, total: 0 };
 
   /**
-   * Enrich a single restaurant with description, cuisines, price tier, and Guy quote
+   * Enrich a single restaurant with description, cuisines, price tier, Guy quote, dishes, segment notes, and contact info
    */
   async function enrichRestaurant(
     id: string,
     name: string,
     city: string,
     state: string | null,
-    episodeTitle?: string
+    episodeTitle?: string,
+    season?: number,
+    episodeNumber?: number
   ) {
     const result = await restaurantEnrichmentService.enrichRestaurant(
       id,
       name,
       city,
       state || undefined,
-      episodeTitle
+      episodeTitle,
+      season,
+      episodeNumber
     );
 
     totalTokensUsed.prompt += result.tokensUsed.prompt;

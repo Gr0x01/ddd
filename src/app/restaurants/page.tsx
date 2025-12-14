@@ -8,9 +8,9 @@ export default async function RestaurantsPage() {
 
   return (
     <>
-      <Header />
-      <main className="min-h-screen p-8" style={{ background: 'var(--bg-primary)' }}>
-        <div className="max-w-6xl mx-auto">
+      <div className="min-h-screen" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
+        <Header currentPage="restaurants" />
+        <main id="main-content" className="max-w-6xl mx-auto px-4 py-12">
           <div className="mb-8">
             <h1 className="font-display text-5xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
               All DDD Restaurants
@@ -33,8 +33,8 @@ export default async function RestaurantsPage() {
               </p>
             </div>
           )}
-        </div>
-      </main>
+        </main>
+      </div>
       <Footer />
     </>
   );

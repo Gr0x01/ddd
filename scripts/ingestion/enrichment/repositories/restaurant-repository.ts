@@ -330,6 +330,204 @@ export class RestaurantRepository {
   }
 
   /**
+   * Create a dish for a restaurant
+   */
+  async createDish(
+    restaurantId: string,
+    episodeId: string | null,
+    dish: {
+      name: string;
+      description: string | null;
+      guy_reaction: string | null;
+      is_signature_dish: boolean;
+    }
+  ): Promise<Result<{ id: string }>> {
+    try {
+      const slug = dish.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+      const { data, error } = await this.supabase
+        .from('dishes')
+        .upsert(
+          {
+            restaurant_id: restaurantId,
+            episode_id: episodeId,
+            name: dish.name,
+            slug,
+            description: dish.description,
+            guy_reaction: dish.guy_reaction,
+            is_signature_dish: dish.is_signature_dish,
+          },
+          { onConflict: 'restaurant_id,slug' }
+        )
+        .select('id')
+        .single();
+
+      if (error) {
+        return {
+          success: false,
+          error: `createDish failed for restaurant ${restaurantId}: ${error.message}`
+        };
+      }
+
+      if (!data) {
+        return {
+          success: false,
+          error: `createDish failed for restaurant ${restaurantId}: no data returned`
+        };
+      }
+
+      return { success: true, data: { id: data.id } };
+    } catch (error) {
+      return {
+        success: false,
+        error: `createDish exception for restaurant ${restaurantId}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
+   * Update segment notes for a restaurant-episode junction
+   */
+  async updateSegmentNotes(
+    restaurantId: string,
+    episodeId: string,
+    segmentNotes: string
+  ): Promise<Result<void>> {
+    try {
+      const { error } = await this.supabase
+        .from('restaurant_episodes')
+        .update({ segment_notes: segmentNotes })
+        .eq('restaurant_id', restaurantId)
+        .eq('episode_id', episodeId);
+
+      if (error) {
+        return {
+          success: false,
+          error: `updateSegmentNotes failed for restaurant ${restaurantId}, episode ${episodeId}: ${error.message}`
+        };
+      }
+
+      return { success: true, data: undefined };
+    } catch (error) {
+      return {
+        success: false,
+        error: `updateSegmentNotes exception for restaurant ${restaurantId}, episode ${episodeId}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
+   * Update contact info for a restaurant
+   */
+  async updateContactInfo(
+    id: string,
+    data: {
+      address?: string;
+      phone?: string;
+      website_url?: string;
+    }
+  ): Promise<Result<void>> {
+    try {
+      const updateData: Record<string, unknown> = {
+        updated_at: new Date().toISOString(),
+      };
+
+      if (data.address !== undefined) {
+        updateData.address = data.address;
+      }
+      if (data.phone !== undefined) {
+        updateData.phone = data.phone;
+      }
+      if (data.website_url !== undefined) {
+        updateData.website_url = data.website_url;
+      }
+
+      const { error } = await this.supabase
+        .from('restaurants')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) {
+        return {
+          success: false,
+          error: `updateContactInfo failed for restaurant ${id}: ${error.message}`
+        };
+      }
+
+      return { success: true, data: undefined };
+    } catch (error) {
+      return {
+        success: false,
+        error: `updateContactInfo exception for restaurant ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
+   * Update photos for a restaurant
+   */
+  async updatePhotos(
+    id: string,
+    photos: string[]
+  ): Promise<Result<void>> {
+    try {
+      const { error } = await this.supabase
+        .from('restaurants')
+        .update({
+          photos,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id);
+
+      if (error) {
+        return {
+          success: false,
+          error: `updatePhotos failed for restaurant ${id}: ${error.message}`
+        };
+      }
+
+      return { success: true, data: undefined };
+    } catch (error) {
+      return {
+        success: false,
+        error: `updatePhotos exception for restaurant ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
+   * Update hours for a restaurant
+   */
+  async updateHours(
+    id: string,
+    hours: Record<string, string>
+  ): Promise<Result<void>> {
+    try {
+      const { error } = await this.supabase
+        .from('restaurants')
+        .update({
+          hours_json: hours,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id);
+
+      if (error) {
+        return {
+          success: false,
+          error: `updateHours failed for restaurant ${id}: ${error.message}`
+        };
+      }
+
+      return { success: true, data: undefined };
+    } catch (error) {
+      return {
+        success: false,
+        error: `updateHours exception for restaurant ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
    * Update cuisines for a restaurant (many-to-many)
    * Uses upsert pattern to handle concurrent updates gracefully
    */

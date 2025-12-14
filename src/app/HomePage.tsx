@@ -7,8 +7,6 @@ import { RestaurantWithEpisodes, MapPin, Episode } from '@/lib/supabase';
 import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
-import { HeroSection } from '@/components/homepage/HeroSection';
-import { BrowseSection } from '@/components/homepage/BrowseSection';
 import { Search } from 'lucide-react';
 
 interface HomePageProps {
@@ -75,131 +73,326 @@ export default function HomePage({ initialRestaurants, stats, recentEpisodes }: 
     return filtered;
   }, [restaurants, deferredSearchQuery, selectedPriceRange]);
 
-  const visibleRestaurants = filteredRestaurants.slice(0, visibleCount);
+  const filteredPins = useMemo(() => {
+    let filtered = mapPins;
+
+    if (deferredSearchQuery) {
+      const query = deferredSearchQuery.toLowerCase();
+      filtered = filtered.filter(pin =>
+        pin.name.toLowerCase().includes(query) ||
+        pin.city.toLowerCase().includes(query)
+      );
+    }
+
+    if (selectedPriceRange !== 'all') {
+      filtered = filtered.filter(pin => pin.price_tier === selectedPriceRange);
+    }
+
+    return filtered;
+  }, [deferredSearchQuery, selectedPriceRange, mapPins]);
+
+  const handleRestaurantClick = (restaurant: RestaurantWithEpisodes) => {
+    setSelectedRestaurant(restaurant);
+  };
 
   return (
-    <>
-      <Header />
-      <main>
-        <HeroSection
-          stats={stats}
-          onSearchFocus={() => searchInputRef.current?.focus()}
-        />
+    <div className="app-container">
+      <Header currentPage="home" />
 
-        {/* Map + Search Section */}
-        <section className="map-section">
-          <div className="map-container">
-            <div className="map-wrapper">
-              {!isMapLoading && (
-                <RestaurantMapPins
-                  pins={mapPins}
-                  selectedPinId={selectedRestaurant?.id}
-                  onPinSelect={(pin) => {
-                    const restaurant = restaurants.find(r => r.id === pin.id);
-                    setSelectedRestaurant(restaurant || null);
-                  }}
-                  isLoading={isMapLoading}
-                />
-              )}
+      {/* Hero Section - Inline, matching chefs */}
+      <section className="hero-section">
+        <div className="hero-container">
+          <div className="hero-content">
+            <h1 className="hero-title">
+              Find DDD Restaurants
+            </h1>
+            <p className="hero-subtitle">
+              Diners, Drive-ins and Dives with Guy Fieri
+            </p>
+            <dl className="hero-stats-row">
+              <div className="hero-stat-item">
+                <dt className="sr-only">Number of restaurants</dt>
+                <dd className="hero-stat-number" aria-label={`${stats.restaurants} restaurants`}>{stats.restaurants}</dd>
+                <dd className="hero-stat-label" aria-hidden="true">Restaurants</dd>
+              </div>
+              <div className="hero-stat-item">
+                <dt className="sr-only">Number of episodes</dt>
+                <dd className="hero-stat-number" aria-label={`${stats.episodes} episodes`}>{stats.episodes}</dd>
+                <dd className="hero-stat-label" aria-hidden="true">Episodes</dd>
+              </div>
+              <div className="hero-stat-item">
+                <dt className="sr-only">Number of cities</dt>
+                <dd className="hero-stat-number" aria-label={`${stats.cities} cities`}>{stats.cities}</dd>
+                <dd className="hero-stat-label" aria-hidden="true">Cities</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Episode Section - If we have a recent episode */}
+      {recentEpisodes.length > 0 && (
+        <section
+          className="featured-episode-hero relative overflow-hidden"
+          style={{
+            background: 'var(--slate-900)',
+            borderTop: '3px solid var(--accent-primary)',
+          }}
+        >
+          <div className="max-w-7xl mx-auto px-4 py-16 sm:py-20">
+            <div className="flex items-baseline gap-4 mb-8">
+              <span className="font-mono text-xs tracking-wider" style={{ color: 'var(--accent-primary)' }}>
+                RECENT EPISODES • {recentEpisodes.length}
+              </span>
             </div>
-
-            <div className="map-sidebar">
-              <div className="search-header">
-                <div className="search-container">
-                  <Search className="search-icon" size={20} />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Search restaurants, cities..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="search-input"
-                  />
-                </div>
-
-                <select
-                  value={selectedPriceRange}
-                  onChange={(e) => setSelectedPriceRange(e.target.value)}
-                  className="price-filter"
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {recentEpisodes.slice(0, 4).map((episode) => (
+                <Link
+                  key={episode.id}
+                  href={`/episode/${episode.slug}`}
+                  className="group block p-6 rounded transition-all hover:shadow-lg"
+                  style={{
+                    background: 'var(--bg-secondary)',
+                    border: '1px solid var(--border-light)'
+                  }}
                 >
-                  <option value="all">All Prices</option>
-                  <option value="$">$ - Budget</option>
-                  <option value="$$">$$ - Moderate</option>
-                  <option value="$$$">$$$ - Upscale</option>
-                  <option value="$$$$">$$$$ - Fine Dining</option>
-                </select>
-              </div>
-
-              <div className="results-header">
-                <h2>{filteredRestaurants.length} Restaurants</h2>
-              </div>
-
-              <div className="restaurant-list">
-                {isLoading ? (
-                  <div className="loading-state">Loading restaurants...</div>
-                ) : visibleRestaurants.length === 0 ? (
-                  <div className="empty-state">
-                    <p>No restaurants found</p>
+                  <div className="mb-3">
+                    <span
+                      className="font-mono text-xs font-bold px-2 py-1 rounded"
+                      style={{ background: 'var(--accent-primary)', color: 'white' }}
+                    >
+                      S{episode.season}E{episode.episode_number}
+                    </span>
                   </div>
-                ) : (
-                  <>
-                    {visibleRestaurants.map((restaurant) => (
-                      <div
-                        key={restaurant.id}
-                        onMouseEnter={() => setHoveredRestaurant(restaurant.id)}
-                        onMouseLeave={() => setHoveredRestaurant(null)}
-                      >
-                        <RestaurantCardCompact restaurant={restaurant} />
-                      </div>
-                    ))}
-
-                    {visibleCount < filteredRestaurants.length && (
-                      <button
-                        onClick={() => setVisibleCount(prev => prev + 20)}
-                        className="load-more-button"
-                      >
-                        Load more ({filteredRestaurants.length - visibleCount} remaining)
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
+                  <h3
+                    className="font-display text-lg font-bold mb-2 group-hover:text-[var(--accent-primary)] transition-colors"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {episode.title}
+                  </h3>
+                  {episode.air_date && (
+                    <p className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+                      {new Date(episode.air_date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </p>
+                  )}
+                </Link>
+              ))}
             </div>
           </div>
         </section>
+      )}
 
-        {/* Browse Section */}
-        <BrowseSection stats={stats} />
+      {/* Map Layout */}
+      <main className="desktop-map-layout" id="main-content">
+        <aside className="sidebar">
+          <div className="sidebar-header">
+            <h1 className="sidebar-title">{filteredRestaurants.length} Restaurants</h1>
+            <p className="sidebar-subtitle">From Diners, Drive-ins and Dives</p>
+          </div>
 
-        {/* Recent Episodes */}
-        {recentEpisodes.length > 0 && (
-          <section className="recent-episodes-section">
-            <div className="container">
-              <h2>Recent Episodes</h2>
-              <div className="episode-grid">
-                {recentEpisodes.map((episode) => (
-                  <Link
-                    key={episode.id}
-                    href={`/episode/${episode.slug}`}
-                    className="episode-card"
-                  >
-                    <div className="episode-number">
-                      S{episode.season}E{episode.episode_number}
-                    </div>
-                    <h3>{episode.title}</h3>
-                    {episode.air_date && (
-                      <p className="episode-date">
-                        {new Date(episode.air_date).toLocaleDateString()}
-                      </p>
-                    )}
-                  </Link>
-                ))}
+          <div className="sidebar-search">
+            <label htmlFor="restaurant-search" className="sr-only">
+              Search restaurants and cities
+            </label>
+            <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input
+              ref={searchInputRef}
+              id="restaurant-search"
+              type="text"
+              placeholder="Search restaurants, cities..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="sidebar-search-input"
+              aria-label="Search restaurants and cities"
+            />
+          </div>
+
+          <div className="restaurant-list">
+            {filteredRestaurants.slice(0, visibleCount).map((restaurant, index) => (
+              <div
+                key={restaurant.id}
+                className={`homepage-card-wrapper ${selectedRestaurant?.id === restaurant.id ? 'selected' : ''} ${hoveredRestaurant === restaurant.id ? 'hovered' : ''}`}
+                onClick={() => handleRestaurantClick(restaurant)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleRestaurantClick(restaurant);
+                  }
+                }}
+                onMouseEnter={() => setHoveredRestaurant(restaurant.id)}
+                onMouseLeave={() => setHoveredRestaurant(null)}
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${restaurant.name} in ${restaurant.city}`}
+              >
+                <RestaurantCardCompact restaurant={restaurant} index={index} />
               </div>
-            </div>
-          </section>
-        )}
+            ))}
+            {visibleCount < filteredRestaurants.length && (
+              <div className="px-4 pb-4 flex flex-col items-center gap-2">
+                <button
+                  onClick={() => setVisibleCount(prev => Math.min(prev + 20, filteredRestaurants.length))}
+                  className="load-more-button"
+                  aria-label={`Load ${Math.min(20, filteredRestaurants.length - visibleCount)} more restaurants`}
+                >
+                  LOAD MORE
+                </button>
+                <span className="text-xs italic" style={{ color: 'var(--text-muted)' }} aria-live="polite">
+                  {filteredRestaurants.length - visibleCount} remaining
+                </span>
+              </div>
+            )}
+          </div>
+        </aside>
+
+        <section className="map-section">
+          <div className="map-filters-overlay">
+            <label htmlFor="price-filter" className="sr-only">
+              Filter by price range
+            </label>
+            <select
+              id="price-filter"
+              value={selectedPriceRange}
+              onChange={(e) => setSelectedPriceRange(e.target.value)}
+              className="map-filter-select"
+              aria-label="Filter restaurants by price range"
+            >
+              <option value="all">All Prices</option>
+              <option value="$">$</option>
+              <option value="$$">$$</option>
+              <option value="$$$">$$$</option>
+              <option value="$$$$">$$$$</option>
+            </select>
+          </div>
+
+          <RestaurantMapPins
+            pins={filteredPins}
+            selectedPinId={selectedRestaurant?.id}
+            isLoading={isMapLoading}
+          />
+        </section>
       </main>
+
+      {/* Browse Section - matching chefs "Browse by Show" */}
+      <section className="shows-showcase">
+        <div className="shows-showcase-container">
+          <div className="shows-showcase-header">
+            <div className="shows-showcase-title-group">
+              <h2 className="shows-showcase-title">Browse Locations</h2>
+            </div>
+          </div>
+          <div className="shows-showcase-grid">
+            <Link
+              href="/states"
+              className="shows-showcase-card"
+              style={{ animationDelay: '0ms' }}
+            >
+              <div className="shows-showcase-card-accent" />
+              <div className="shows-showcase-card-content">
+                <div className="shows-showcase-card-header">
+                  <h3 className="shows-showcase-card-name">By State</h3>
+                </div>
+                <div className="shows-showcase-card-stats">
+                  <div className="shows-showcase-stat">
+                    <span className="shows-showcase-stat-value">{stats.restaurants}</span>
+                    <span className="shows-showcase-stat-label">Restaurants</span>
+                  </div>
+                </div>
+                <div className="shows-showcase-card-cta">
+                  <span>Explore</span>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/episodes"
+              className="shows-showcase-card"
+              style={{ animationDelay: '80ms' }}
+            >
+              <div className="shows-showcase-card-accent" />
+              <div className="shows-showcase-card-content">
+                <div className="shows-showcase-card-header">
+                  <h3 className="shows-showcase-card-name">By Episode</h3>
+                </div>
+                <div className="shows-showcase-card-stats">
+                  <div className="shows-showcase-stat">
+                    <span className="shows-showcase-stat-value">{stats.episodes}</span>
+                    <span className="shows-showcase-stat-label">Episodes</span>
+                  </div>
+                </div>
+                <div className="shows-showcase-card-cta">
+                  <span>Explore</span>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/restaurants"
+              className="shows-showcase-card"
+              style={{ animationDelay: '160ms' }}
+            >
+              <div className="shows-showcase-card-accent" />
+              <div className="shows-showcase-card-content">
+                <div className="shows-showcase-card-header">
+                  <h3 className="shows-showcase-card-name">All Restaurants</h3>
+                </div>
+                <div className="shows-showcase-card-stats">
+                  <div className="shows-showcase-stat">
+                    <span className="shows-showcase-stat-value">{stats.restaurants}</span>
+                    <span className="shows-showcase-stat-label">Restaurants</span>
+                  </div>
+                </div>
+                <div className="shows-showcase-card-cta">
+                  <span>Explore</span>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/about"
+              className="shows-showcase-card"
+              style={{ animationDelay: '240ms' }}
+            >
+              <div className="shows-showcase-card-accent" />
+              <div className="shows-showcase-card-content">
+                <div className="shows-showcase-card-header">
+                  <h3 className="shows-showcase-card-name">About DDD</h3>
+                </div>
+                <div className="shows-showcase-card-stats">
+                  <div className="shows-showcase-stat">
+                    <span className="shows-showcase-stat-value">{stats.cities}</span>
+                    <span className="shows-showcase-stat-label">Cities</span>
+                  </div>
+                </div>
+                <div className="shows-showcase-card-cta">
+                  <span>Learn More</span>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <Footer />
-    </>
+    </div>
   );
 }

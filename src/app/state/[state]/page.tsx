@@ -1,6 +1,9 @@
 import { db, Restaurant, City } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { Header } from '@/components/ui/Header';
+import { Footer } from '@/components/ui/Footer';
+import { PageHero } from '@/components/ui/PageHero';
 
 interface StatePageProps {
   params: Promise<{ state: string }>;
@@ -43,37 +46,25 @@ export default async function StatePage({ params }: StatePageProps) {
   const openRestaurants = restaurants.filter(r => r.status === 'open');
 
   return (
-    <main className="min-h-screen p-8" style={{ background: 'var(--bg-primary)' }}>
-      <div className="max-w-6xl mx-auto">
-        {/* Breadcrumb */}
-        <nav className="mb-6">
-          <Link href="/" className="font-ui" style={{ color: 'var(--text-muted)' }}>
-            Home
-          </Link>
-          <span className="mx-2" style={{ color: 'var(--text-muted)' }}>/</span>
-          <span className="font-ui" style={{ color: 'var(--text-primary)' }}>{state.name}</span>
-        </nav>
+    <>
+      <div className="min-h-screen" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
+        <Header currentPage="states" />
 
-        {/* State Header */}
-        <div className="mb-8">
-          <h1 className="font-display text-5xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-            DDD Restaurants in {state.name}
-          </h1>
-          <div className="flex gap-6 flex-wrap">
-            <div className="font-ui">
-              <span className="font-bold text-2xl" style={{ color: 'var(--accent-primary)' }}>{restaurants.length}</span>
-              <span className="ml-2" style={{ color: 'var(--text-muted)' }}>Total Restaurants</span>
-            </div>
-            <div className="font-ui">
-              <span className="font-bold text-2xl" style={{ color: 'var(--accent-success)' }}>{openRestaurants.length}</span>
-              <span className="ml-2" style={{ color: 'var(--text-muted)' }}>Currently Open</span>
-            </div>
-            <div className="font-ui">
-              <span className="font-bold text-2xl" style={{ color: 'var(--accent-primary)' }}>{cities.length}</span>
-              <span className="ml-2" style={{ color: 'var(--text-muted)' }}>Cities</span>
-            </div>
-          </div>
-        </div>
+        <PageHero
+          title={state.name}
+          subtitle="DDD Restaurants"
+          stats={[
+            { value: restaurants.length, label: 'RESTAURANTS' },
+            { value: openRestaurants.length, label: 'OPEN' },
+            { value: cities.length, label: 'CITIES' }
+          ]}
+          breadcrumbItems={[
+            { label: 'States', href: '/states' },
+            { label: state.name }
+          ]}
+        />
+
+        <main id="main-content" className="max-w-6xl mx-auto px-4 py-12">
 
         {/* Cities List */}
         {cities.length === 0 ? (
@@ -172,7 +163,9 @@ export default async function StatePage({ params }: StatePageProps) {
             </section>
           </div>
         )}
+        </main>
       </div>
-    </main>
+      <Footer />
+    </>
   );
 }

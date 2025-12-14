@@ -30,7 +30,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
-      // Add Supabase hostname once project is created
+      {
+        protocol: 'https',
+        hostname: 'nzrbezhlkrqzfppweauw.supabase.co',
+      },
     ],
   },
   async headers() {
