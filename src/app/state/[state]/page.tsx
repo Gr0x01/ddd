@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
+import { generateBreadcrumbSchema, generateItemListSchema } from '@/lib/schema';
 
 interface StatePageProps {
   params: Promise<{ state: string }>;
@@ -45,8 +46,31 @@ export default async function StatePage({ params }: StatePageProps) {
 
   const openRestaurants = restaurants.filter(r => r.status === 'open');
 
+  // Generate structured data for SEO
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'States', url: '/states' },
+    { name: state.name },
+  ]);
+
+  const itemListSchema = generateItemListSchema(
+    openRestaurants,
+    `DDD Restaurants in ${state.name}`,
+    `/state/${stateSlug}`
+  );
+
   return (
     <>
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+
       <div className="min-h-screen" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
         <Header currentPage="states" />
 

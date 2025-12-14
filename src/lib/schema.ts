@@ -87,11 +87,12 @@ export function generateRestaurantSchema(restaurant: Restaurant) {
     schema.url = restaurant.website_url;
   }
 
-  // Add ratings if available
-  if (restaurant.google_rating) {
+  // Add ratings if available (requires reviewCount for Google rich snippets)
+  if (restaurant.google_rating && restaurant.google_review_count) {
     schema.aggregateRating = {
       '@type': 'AggregateRating',
       ratingValue: restaurant.google_rating,
+      reviewCount: restaurant.google_review_count,
       bestRating: 5,
       worstRating: 1,
     };
@@ -168,11 +169,13 @@ export function generateItemListSchema(
           addressLocality: restaurant.city,
           addressRegion: restaurant.state,
         },
-        ...(restaurant.google_rating && {
+        ...(restaurant.google_rating && restaurant.google_review_count && {
           aggregateRating: {
             '@type': 'AggregateRating',
             ratingValue: restaurant.google_rating,
+            reviewCount: restaurant.google_review_count,
             bestRating: 5,
+            worstRating: 1,
           },
         }),
       },

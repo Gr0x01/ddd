@@ -6,6 +6,7 @@ import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { RestaurantHero } from '@/components/restaurant/RestaurantHero';
 import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
+import { generateRestaurantSchema, generateBreadcrumbSchema } from '@/lib/schema';
 
 interface RestaurantPageProps {
   params: Promise<{ slug: string }>;
@@ -77,8 +78,26 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
 
   const stateRestaurants = await getStateRestaurants(restaurant.state, restaurant.id);
 
+  // Generate structured data for SEO
+  const restaurantSchema = generateRestaurantSchema(restaurant);
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Restaurants', url: '/restaurants' },
+    { name: restaurant.name },
+  ]);
+
   return (
     <>
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       <div className="min-h-screen overflow-auto" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
         <Header currentPage="restaurants" />
 

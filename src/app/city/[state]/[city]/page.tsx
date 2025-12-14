@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
+import { generateBreadcrumbSchema, generateItemListSchema } from '@/lib/schema';
 
 interface CityPageProps {
   params: Promise<{ state: string; city: string }>;
@@ -38,8 +39,32 @@ export default async function CityPage({ params }: CityPageProps) {
   const openRestaurants = restaurants.filter(r => r.status === 'open');
   const closedRestaurants = restaurants.filter(r => r.status === 'closed');
 
+  // Generate structured data for SEO
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'States', url: '/states' },
+    { name: state.name, url: `/state/${stateSlug}` },
+    { name: city.name },
+  ]);
+
+  const itemListSchema = generateItemListSchema(
+    openRestaurants,
+    `DDD Restaurants in ${city.name}, ${state.abbreviation}`,
+    `/city/${stateSlug}/${citySlug}`
+  );
+
   return (
     <>
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+
       <div className="min-h-screen" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
         <Header currentPage="states" />
 
