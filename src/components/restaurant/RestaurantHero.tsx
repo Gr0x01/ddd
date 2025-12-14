@@ -63,7 +63,7 @@ export function RestaurantHero({ restaurant, breadcrumbItems }: RestaurantHeroPr
   ].filter(Boolean).join(', ');
 
   return (
-    <section className="relative overflow-hidden" style={{ background: 'var(--slate-900)' }}>
+    <section className="relative overflow-hidden" style={{ background: 'var(--bg-dark)' }}>
       <div 
         className="absolute inset-0 opacity-5"
         style={{
