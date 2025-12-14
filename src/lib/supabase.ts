@@ -91,6 +91,7 @@ export interface Restaurant {
 
   // Status & Verification
   status: 'open' | 'closed' | 'unknown';
+  closed_date: string | null;
   last_verified: string | null;
   verification_source: string | null;
 
@@ -502,6 +503,94 @@ export const db = {
 
     if (error) throw error;
     return data;
+  },
+
+  // Get all states
+  async getStates() {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('states')
+      .select('*')
+      .order('name');
+
+    if (error) throw error;
+    return data as State[];
+  },
+
+  // Get all cities
+  async getCities() {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('cities')
+      .select('*')
+      .order('name');
+
+    if (error) throw error;
+    return data as City[];
+  },
+
+  // Get all cuisines
+  async getCuisines() {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('cuisines')
+      .select('*')
+      .order('name');
+
+    if (error) throw error;
+    return data as Cuisine[];
+  },
+
+  // Get cuisines with restaurant counts (efficient - counts at DB level)
+  async getCuisinesWithCounts() {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('cuisines')
+      .select(`
+        *,
+        restaurant_cuisines(count)
+      `)
+      .order('name');
+
+    if (error) throw error;
+    if (!data) return [];
+
+    return data.map((c: any) => ({
+      ...(c as Cuisine),
+      restaurantCount: c.restaurant_cuisines?.[0]?.count || 0
+    })).filter(c => c.restaurantCount > 0);
+  },
+
+  // Get cuisine by slug
+  async getCuisine(slug: string) {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('cuisines')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (error) throw error;
+    return data as Cuisine;
+  },
+
+  // Get restaurants by cuisine
+  async getRestaurantsByCuisine(cuisineSlug: string) {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('restaurants')
+      .select(`
+        *,
+        restaurant_cuisines!inner(
+          cuisine:cuisines!inner(slug)
+        )
+      `)
+      .eq('restaurant_cuisines.cuisine.slug', cuisineSlug)
+      .eq('is_public', true)
+      .order('name');
+
+    if (error) throw error;
+    return data as Restaurant[];
   },
 };
 

@@ -1,13 +1,60 @@
 import { db, Restaurant, City } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import Link from 'next/link';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
-import { generateBreadcrumbSchema, generateItemListSchema } from '@/lib/schema';
+import { generateBreadcrumbSchema, generateItemListSchema, safeStringifySchema } from '@/lib/schema';
 
 interface StatePageProps {
   params: Promise<{ state: string }>;
+}
+
+export const revalidate = 3600; // Revalidate every hour
+
+export async function generateMetadata({ params }: StatePageProps): Promise<Metadata> {
+  const { state: stateSlug } = await params;
+
+  try {
+    const state = await db.getState(stateSlug);
+    if (!state) {
+      return {
+        title: 'State Not Found | Diners, Drive-ins and Dives Locations',
+      };
+    }
+
+    const [cities, restaurants] = await Promise.all([
+      db.getCitiesByState(state.name),
+      db.getRestaurantsByState(state.abbreviation)
+    ]);
+
+    const openCount = restaurants.filter(r => r.status === 'open').length;
+
+    const title = `${openCount} Diners, Drive-ins and Dives Restaurants in ${state.name} | Guy Fieri`;
+    const description = state.meta_description ||
+      `Discover ${restaurants.length} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives in ${state.name}. ${openCount} still open across ${cities.length} cities. View photos, ratings, and detailed info.`;
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title: `Diners, Drive-ins and Dives Restaurants in ${state.name}`,
+        description,
+        type: 'website',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `Diners, Drive-ins and Dives Restaurants in ${state.name}`,
+        description,
+      },
+    };
+  } catch (error) {
+    console.error('State page metadata generation failed:', error);
+    return {
+      title: 'State Not Found | Diners, Drive-ins and Dives Locations',
+    };
+  }
 }
 
 export default async function StatePage({ params }: StatePageProps) {
@@ -64,11 +111,11 @@ export default async function StatePage({ params }: StatePageProps) {
       {/* Schema.org Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(breadcrumbSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(itemListSchema) }}
       />
 
       <div className="min-h-screen" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>

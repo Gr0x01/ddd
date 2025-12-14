@@ -6,7 +6,7 @@ import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { RestaurantHero } from '@/components/restaurant/RestaurantHero';
 import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
-import { generateRestaurantSchema, generateBreadcrumbSchema } from '@/lib/schema';
+import { generateRestaurantSchema, generateBreadcrumbSchema, safeStringifySchema } from '@/lib/schema';
 
 interface RestaurantPageProps {
   params: Promise<{ slug: string }>;
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: RestaurantPageProps): Promise
 
     if (!restaurant) {
       return {
-        title: 'Restaurant Not Found | Triple D Map',
+        title: 'Restaurant Not Found | Diners, Drive-ins and Dives Locations',
       };
     }
 
@@ -43,27 +43,27 @@ export async function generateMetadata({ params }: RestaurantPageProps): Promise
 
     const description = restaurant.description
       ? restaurant.description.substring(0, 160)
-      : `${restaurant.name} in ${restaurant.city}${restaurant.state ? `, ${restaurant.state}` : ''}.${ratingText}${priceText}`;
+      : `${restaurant.name} in ${restaurant.city}${restaurant.state ? `, ${restaurant.state}` : ''} - Featured on Guy Fieri's Diners, Drive-ins and Dives.${ratingText}${priceText}`;
 
     return {
-      title: `${restaurant.name} - ${restaurant.city} | Triple D Map`,
+      title: `${restaurant.name} - ${restaurant.city} | Diners, Drive-ins and Dives`,
       description,
       openGraph: {
-        title: `${restaurant.name}`,
+        title: `${restaurant.name} | Guy Fieri's Diners, Drive-ins and Dives`,
         description,
         type: 'website',
         images: restaurant.photos?.[0] ? [restaurant.photos[0]] : undefined,
       },
       twitter: {
         card: 'summary_large_image',
-        title: `${restaurant.name}`,
+        title: `${restaurant.name} | Diners, Drive-ins and Dives`,
         description,
         images: restaurant.photos?.[0] ? [restaurant.photos[0]] : undefined,
       },
     };
   } catch {
     return {
-      title: 'Restaurant Not Found | Triple D Map',
+      title: 'Restaurant Not Found | Diners, Drive-ins and Dives Locations',
     };
   }
 }
@@ -91,11 +91,11 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
       {/* Schema.org Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(restaurantSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(breadcrumbSchema) }}
       />
 
       <div className="min-h-screen overflow-auto" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>

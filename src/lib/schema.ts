@@ -7,9 +7,40 @@
 
 import { Restaurant, Episode } from './supabase';
 
-const SITE_NAME = 'Triple D Map';
+const SITE_NAME = 'Diners, Drive-ins and Dives Locations';
 const SITE_URL = 'https://trimpdmap.com';
 const SITE_DESCRIPTION = 'Find every restaurant featured on Guy Fieri\'s Diners, Drive-ins and Dives. Interactive map, photos, ratings, and detailed info.';
+
+/**
+ * Sanitize data for safe inclusion in JSON-LD scripts
+ * Prevents XSS by escaping dangerous characters
+ */
+function sanitizeForJSON(obj: any): any {
+  if (typeof obj === 'string') {
+    return obj
+      .replace(/</g, '\\u003c')
+      .replace(/>/g, '\\u003e')
+      .replace(/\u2028/g, '\\u2028')
+      .replace(/\u2029/g, '\\u2029');
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeForJSON);
+  }
+  if (obj && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([k, v]) => [k, sanitizeForJSON(v)])
+    );
+  }
+  return obj;
+}
+
+/**
+ * Safely stringify schema for inclusion in script tags
+ * Use this instead of JSON.stringify() for all schema.org data
+ */
+export function safeStringifySchema(schema: any): string {
+  return JSON.stringify(sanitizeForJSON(schema));
+}
 
 // Type definitions for Schema.org structured data
 interface SchemaOrgBase {
