@@ -113,7 +113,7 @@ async function main() {
             google_review_count: result.google_review_count,
             latitude: result.latitude,
             longitude: result.longitude,
-            photos: result.photos,
+            // Don't save photo references - only save actual photo URLs
           })
           .eq('id', restaurant.id);
 

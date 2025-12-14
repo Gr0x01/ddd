@@ -171,7 +171,7 @@ export class RestaurantEnrichmentService {
           google_review_count: placeDetails?.userRatingsTotal || null,
           latitude: null,
           longitude: null,
-          photos: placeDetails?.photos || null,
+          photos: null, // Don't save photo references - only save actual URLs
           tokensUsed: { prompt: 0, completion: 0, total: 0 },
           success: true,
           error: 'No search results found',
@@ -234,7 +234,7 @@ Return ONLY JSON.`;
           google_review_count: placeDetails?.userRatingsTotal || null,
           latitude: null,
           longitude: null,
-          photos: placeDetails?.photos || null,
+          photos: null, // Don't save photo references - only save actual URLs
           tokensUsed: result.usage,
           success: false,
           error: result.error,
@@ -270,7 +270,7 @@ Return ONLY JSON.`;
         google_review_count: placeDetails?.userRatingsTotal || null,
         latitude: placeDetails?.latitude || null,
         longitude: placeDetails?.longitude || null,
-        photos: placeDetails?.photos || null,
+        photos: null, // Don't save photo references - only save actual URLs
         tokensUsed: result.usage,
         success: true,
       };
