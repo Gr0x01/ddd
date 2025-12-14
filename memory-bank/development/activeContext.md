@@ -1,15 +1,15 @@
 ---
 title: Active Development Context
 created: 2025-12-14
-last-updated: 2025-12-14 (evening)
+last-updated: 2025-12-14 (evening - SEO complete)
 maintainer: Claude
 status: Active
 ---
 
 # Active Development Context
 
-**Current Phase:** Phase 2.5 - Enrichment System Complete + Status Detection
-**Sprint Goal:** Full enrichment operational, ready for batch processing
+**Current Phase:** Phase 3 - SEO Infrastructure Complete ✅
+**Sprint Goal:** Test pages → Deploy with full SEO
 **Timeline:** Week of Dec 14, 2025
 
 ---
@@ -66,6 +66,37 @@ status: Active
    - **Result:** Full Wikipedia content now available to LLM
    - Commit: a860c6b
 
+6. **Complete SEO Infrastructure** (Evening Session Part 2)
+   - **Sitemap & Robots:**
+     - Dynamic `sitemap.ts` with all page types (restaurants, cities, states, cuisines)
+     - `robots.ts` with AI bot blocking (GPTBot, CCBot, Claude-Web, etc.)
+     - Proper priority and change frequency for each page type
+
+   - **High-Value SEO Pages:**
+     - `/still-open` - Trust signal page showing verified open restaurants by state
+     - `/closed` - Curiosity traffic page with closure dates
+     - `/cuisines` - Browse by cuisine type (BBQ, Mexican, Italian, etc.)
+     - `/cuisines/[slug]` - Individual cuisine pages
+
+   - **Metadata Improvements:**
+     - All pages use full "Diners, Drive-ins and Dives" (no "DDD" or "Triple D")
+     - Added `generateMetadata` to city and state pages
+     - Added ISR caching (`revalidate = 3600`) to all dynamic pages
+     - Proper Open Graph and Twitter Card metadata everywhere
+
+   - **Security & Performance Fixes:**
+     - XSS protection: `safeStringifySchema()` for all JSON-LD structured data
+     - Fixed N+1 query: `getCuisinesWithCounts()` aggregates at DB level
+     - Added error logging to all metadata generation functions
+     - Proper error handling in cuisine detail pages
+
+   - **Database Helpers Added:**
+     - `getStates()`, `getCities()` - Fetch all geo data
+     - `getCuisines()`, `getCuisinesWithCounts()` - Cuisine queries
+     - `getCuisine()`, `getRestaurantsByCuisine()` - Cuisine detail pages
+
+   - **Commit:** `7a93ddf` - 13 files changed, 909 insertions, 30 deletions
+
 ### ✅ Completed (Dec 14 - Morning Session)
 1. **LLM Enrichment System** (Phase 2)
    - Full architecture: repositories, services, workflows, facade
@@ -93,10 +124,10 @@ status: Active
    - **Status verified** (open/closed with dates)
    - **Contact info** saved (address, phone, website)
 
-### ❌ NOT Built (Phase 3)
+### ❌ NOT Built (Phase 4)
 - No Playwright tests run
-- No photos uploaded
 - Pages exist but not tested in browser
+- No deployment yet
 
 ---
 
@@ -131,25 +162,46 @@ status: Active
 
 ## Next Steps (Priority Order)
 
-### Option 1: Deploy MVP with Basic Data
-1. Import recent 40 episodes (2024-2026) - ~120 restaurants
-2. Run Playwright tests on pages
-3. Deploy to Vercel
-4. Submit to Google Search Console
-5. **Result:** Live site with basic restaurant data, no enrichment
+**Phase 4: Testing & Deployment**
 
-### Option 2: Build Enrichment Before Deploy
-1. Build LLM enrichment system (descriptions, cuisines)
-2. Integrate Google Places API (status, addresses, ratings)
-3. Enrich imported restaurants
-4. Then deploy
-5. **Result:** Delayed launch but richer data
+### Immediate Next Steps (Recommended)
+1. **Run Playwright Tests**
+   - Test all page types (restaurant, city, state, cuisine)
+   - Verify SEO pages (/still-open, /closed, /cuisines)
+   - Check sitemap.xml and robots.txt generation
+   - Validate structured data with Google Rich Results Test
 
-### Option 3: Hybrid Approach
-1. Import + deploy basic data NOW (fast SEO indexing)
-2. Build enrichment system in background
-3. Enrich data incrementally after launch
-4. **Result:** Fast launch, progressive enhancement
+2. **Import More Data (Optional)**
+   - Current: 3 restaurants fully enriched
+   - Option A: Deploy with 3 restaurants to test infrastructure
+   - Option B: Import + enrich 40 recent episodes first (~120 restaurants)
+   - Option C: Import all 1,695 restaurants (takes hours, $10-170 in API costs)
+
+3. **Deploy to Vercel**
+   - Set environment variables
+   - Deploy main branch
+   - Verify production build
+   - Test live sitemap and robots.txt
+
+4. **Post-Launch SEO**
+   - Submit sitemap to Google Search Console
+   - Submit sitemap to Bing Webmaster Tools
+   - Monitor indexing progress
+   - Start enriching remaining restaurants
+
+### Option A: Launch Minimal (Fastest)
+- Deploy with 3 enriched restaurants NOW
+- Get site live and indexed
+- Enrich remaining restaurants incrementally
+- **Timeline:** 1-2 hours
+- **Cost:** $0 (already done)
+
+### Option B: Launch with Recent Episodes (Balanced)
+- Import 40 recent episodes (2024-2026)
+- Enrich ~120 restaurants before launch
+- Deploy with fresh, relevant content
+- **Timeline:** 6-12 hours
+- **Cost:** ~$7-20 (enrichment)
 
 ---
 

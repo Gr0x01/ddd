@@ -1,19 +1,19 @@
 ---
 Last-Updated: 2025-12-14
 Maintainer: RB
-Status: Phase 1A - Data Pipeline Complete
+Status: Phase 3 - SEO Complete ✅
 ---
 
 # Quickstart: DDD (Diners, Drive-ins and Dives)
 
 ## Current Status
-- **Phase**: Phase 2 - Enrichment System Complete ✅
-- **Version**: 0.2.0
-- **Environment**: Development (Ready for deployment)
-- **Focus**: Enrich imported restaurants → Test pages → Deploy
+- **Phase**: Phase 3 - SEO & Infrastructure Complete ✅
+- **Version**: 0.3.0
+- **Environment**: Development (SEO ready for deployment)
+- **Focus**: Test pages → Deploy → Start enriching restaurants
 - **Data Available**: 572 episodes, 1,695 restaurants (cached in Supabase)
 - **Imported**: 3 restaurants with full enrichment
-- **Enrichment Working**: Restaurant enrichment, status verification, episode descriptions
+- **SEO Ready**: Sitemap, robots.txt, high-value pages, full metadata
 - **Market**: Targeting 263k+ monthly visitors (based on competitor analysis)
 
 ## What We Actually Have
@@ -21,10 +21,12 @@ Status: Phase 1A - Data Pipeline Complete
 **✅ Built:**
 - Wikipedia data pipeline (cache → parse → import)
 - Database schema with PostGIS
-- Restaurant, city, state pages (not tested)
+- Restaurant, city, state, cuisine pages
 - Import scripts that work
 - **Enrichment system (LLM + Tavily + Google Places)**
 - **CLI scripts for enrichment, status verification, episodes**
+- **Complete SEO infrastructure (sitemap, robots.txt, metadata)**
+- **High-value SEO pages (/still-open, /closed, /cuisines)**
 
 **❌ NOT Built:**
 - No Playwright tests run
@@ -87,17 +89,21 @@ npx tsx scripts/ingestion/check-enrichment.ts                     # Verify enric
 - `supabase/migrations/001_initial_schema.sql` - Full schema with PostGIS
 - `supabase/migrations/002_add_cache_table.sql` - Cache for API responses
 
-**Pages (Not Tested):**
+**Pages (Built, Not Tested):**
 - `src/app/page.tsx` - Homepage with stats
 - `src/app/restaurant/[slug]/page.tsx` - Restaurant details
 - `src/app/city/[state]/[city]/page.tsx` - City browse
 - `src/app/state/[state]/page.tsx` - State browse
+- `src/app/cuisines/page.tsx` - Browse by cuisine
+- `src/app/cuisines/[slug]/page.tsx` - Cuisine detail pages
+- `src/app/still-open/page.tsx` - Verified open restaurants (trust signal)
+- `src/app/closed/page.tsx` - Closed restaurants (curiosity traffic)
 
-**What We DON'T Have:**
-- No enrichment system
-- No LLM descriptions
-- No Google Places integration
-- No tests run
+**SEO Infrastructure:**
+- `src/app/sitemap.ts` - Dynamic sitemap with all pages
+- `src/app/robots.ts` - Search crawler guidance + AI bot blocking
+- `src/lib/schema.ts` - Schema.org structured data with XSS protection
+- All metadata uses full "Diners, Drive-ins and Dives" (no abbreviations)
 
 ---
 
@@ -109,16 +115,26 @@ npx tsx scripts/ingestion/check-enrichment.ts                     # Verify enric
 - ✅ Import script works (tested with 1 episode)
 - ✅ Database schema is ready
 
-**What Works (Added Dec 14):**
+**What Works (Added Dec 14 - Morning):**
 - ✅ Enrichment system fully built and tested
 - ✅ LLM integration (OpenAI gpt-4o-mini with Flex tier)
 - ✅ Tavily web search for restaurant context
 - ✅ Google Places API for status verification (optional)
 - ✅ CLI scripts for all enrichment operations
 
+**What Works (Added Dec 14 - Evening):**
+- ✅ Complete SEO infrastructure
+- ✅ Dynamic sitemap with all page types
+- ✅ Robots.txt with AI bot blocking
+- ✅ High-value pages (/still-open, /closed, /cuisines)
+- ✅ Full show name in all metadata (no "DDD" abbreviations)
+- ✅ XSS-protected JSON-LD structured data
+- ✅ ISR caching on all dynamic pages
+- ✅ Database-level aggregations (no N+1 queries)
+
 **What Doesn't Exist:**
 - ❌ No Playwright tests run
-- ❌ Pages exist but not tested
+- ❌ Pages exist but not tested in browser
 - ❌ Not deployed
 
 ## Next Decision
