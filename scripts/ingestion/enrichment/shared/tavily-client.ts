@@ -53,7 +53,7 @@ function hashQuery(query: string): string {
 
 async function getCachedResults(queryHash: string): Promise<TavilyResponse | null> {
   const { data, error } = await getSupabase()
-    .from('search_cache')
+    .from('cache')
     .select('*')
     .eq('query_hash', queryHash)
     .or('expires_at.is.null,expires_at.gt.now()')
@@ -81,7 +81,7 @@ async function cacheResults(
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + ttlDays);
 
-  await getSupabase().from('search_cache').insert({
+  await getSupabase().from('cache').insert({
     entity_type: options.entityType,
     entity_id: options.entityId || null,
     entity_name: options.entityName || null,
@@ -126,7 +126,7 @@ export async function searchTavily(
         api_key: apiKey,
         query,
         search_depth: 'advanced',
-        include_raw_content: false,
+        include_raw_content: true,
         max_results: options.maxResults ?? 10,
       }),
       signal: AbortSignal.timeout(30000), // 30 second timeout
@@ -220,7 +220,7 @@ export async function getCacheStats(): Promise<{
   expired: number;
 }> {
   const { data: all } = await getSupabase()
-    .from('search_cache')
+    .from('cache')
     .select('entity_type, source, expires_at');
 
   if (!all) return { total: 0, byType: {}, bySource: {}, expired: 0 };
@@ -241,7 +241,7 @@ export async function getCacheStats(): Promise<{
 
 export async function invalidateCache(entityType: string, entityId: string): Promise<number> {
   const { data } = await getSupabase()
-    .from('search_cache')
+    .from('cache')
     .delete()
     .eq('entity_type', entityType)
     .eq('entity_id', entityId)
