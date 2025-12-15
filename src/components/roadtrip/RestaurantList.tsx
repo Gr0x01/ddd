@@ -2,11 +2,22 @@
 
 import { RestaurantNearRoute } from '@/lib/supabase';
 import Link from 'next/link';
+import Image from 'next/image';
+import { Donut } from 'lucide-react';
 
 interface RestaurantListProps {
   restaurants: RestaurantNearRoute[];
   selectedRestaurant: RestaurantNearRoute | null;
   onRestaurantSelect: (restaurant: RestaurantNearRoute) => void;
+}
+
+// Filter photos to only include valid URL strings
+function getFirstPhoto(photos: string[] | null | undefined): string | null {
+  if (!photos || !Array.isArray(photos)) return null;
+  const validPhoto = photos.find(
+    (photo): photo is string => typeof photo === 'string' && photo.startsWith('http')
+  );
+  return validPhoto || null;
 }
 
 export default function RestaurantList({
@@ -16,9 +27,20 @@ export default function RestaurantList({
 }: RestaurantListProps) {
   if (restaurants.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600">No restaurants found along this route.</p>
-        <p className="text-sm text-gray-500 mt-2">
+      <div
+        className="p-8 text-center"
+        style={{ background: 'var(--bg-secondary)', border: '2px solid var(--border-light)' }}
+      >
+        <div
+          className="w-16 h-16 mx-auto mb-4 flex items-center justify-center"
+          style={{ background: 'var(--bg-tertiary)' }}
+        >
+          <Donut className="w-8 h-8" style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
+        </div>
+        <p className="font-display text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+          No Restaurants Found
+        </p>
+        <p className="font-body text-sm" style={{ color: 'var(--text-muted)' }}>
           Try increasing the search radius or choosing a different route.
         </p>
       </div>
@@ -26,65 +48,172 @@ export default function RestaurantList({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">
+    <div style={{ border: '2px solid var(--border-light)' }}>
+      {/* Header */}
+      <div
+        className="p-4 border-b"
+        style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }}
+      >
+        <h2 className="font-display text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
           {restaurants.length} Restaurant{restaurants.length !== 1 ? 's' : ''} Found
         </h2>
       </div>
 
-      <div className="divide-y divide-gray-200 max-h-[600px] overflow-y-auto">
-        {restaurants.map((restaurant) => (
-          <div
-            key={restaurant.id}
-            className={`p-4 cursor-pointer transition-colors ${
-              selectedRestaurant?.id === restaurant.id
-                ? 'bg-red-50'
-                : 'hover:bg-gray-50'
-            }`}
-            onClick={() => onRestaurantSelect(restaurant)}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">{restaurant.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">
+      {/* Restaurant List */}
+      <div
+        className="max-h-[600px] overflow-y-auto"
+        style={{ background: 'var(--bg-primary)' }}
+      >
+        {restaurants.map((restaurant, index) => {
+          const isSelected = selectedRestaurant?.id === restaurant.id;
+          const isClosed = restaurant.status === 'closed';
+          const photoUrl = getFirstPhoto(restaurant.photos);
+
+          return (
+            <div
+              key={restaurant.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => onRestaurantSelect(restaurant)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onRestaurantSelect(restaurant);
+                }
+              }}
+              className="flex gap-4 p-4 cursor-pointer transition-all border-b"
+              style={{
+                borderColor: 'var(--border-light)',
+                background: isSelected ? 'rgba(230, 57, 70, 0.08)' : 'var(--bg-primary)',
+                borderLeft: isSelected ? '3px solid var(--accent-primary)' : '3px solid transparent',
+                animationDelay: `${index * 30}ms`
+              }}
+            >
+              {/* Image */}
+              <div
+                className="w-16 h-16 flex-shrink-0 overflow-hidden"
+                style={{
+                  filter: isClosed ? 'grayscale(100%) brightness(0.7)' : 'none'
+                }}
+              >
+                {photoUrl ? (
+                  <Image
+                    src={photoUrl}
+                    alt={restaurant.name}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    sizes="64px"
+                  />
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center"
+                    style={{ background: 'var(--bg-tertiary)' }}
+                  >
+                    <Donut className="w-6 h-6" style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
+                  </div>
+                )}
+              </div>
+
+              {/* Content */}
+              <div className={`flex-1 min-w-0 ${isClosed ? 'opacity-60' : ''}`}>
+                {/* Name & Price Row */}
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <h3
+                    className={`font-display text-base font-bold truncate ${isClosed ? 'line-through' : ''}`}
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {restaurant.name}
+                  </h3>
+                  {isClosed ? (
+                    <span
+                      className="font-mono text-[10px] tracking-wider px-2 py-0.5 flex-shrink-0"
+                      style={{ background: 'var(--text-muted)', color: 'white' }}
+                    >
+                      CLOSED
+                    </span>
+                  ) : restaurant.price_tier ? (
+                    <span
+                      className="font-mono text-xs flex-shrink-0"
+                      style={{ color: 'var(--accent-primary)' }}
+                    >
+                      {restaurant.price_tier}
+                    </span>
+                  ) : null}
+                </div>
+
+                {/* Location */}
+                <p
+                  className="font-mono text-[11px] tracking-wider uppercase mb-2"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   {restaurant.city}, {restaurant.state}
                 </p>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="text-xs text-gray-500">
-                    {restaurant.distance_miles.toFixed(1)} mi from route
-                  </span>
-                  {restaurant.price_tier && (
-                    <span className="text-xs text-gray-600">{restaurant.price_tier}</span>
-                  )}
+
+                {/* Meta Row: Distance, Rating, Status */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Distance Badge */}
                   <span
-                    className={`text-xs px-2 py-1 rounded ${
-                      restaurant.status === 'open'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
+                    className="font-mono text-[10px] tracking-wider px-2 py-0.5"
+                    style={{
+                      background: 'var(--bg-tertiary)',
+                      color: 'var(--text-secondary)'
+                    }}
                   >
-                    {restaurant.status}
+                    {restaurant.distance_miles.toFixed(1)} MI
                   </span>
+
+                  {/* Rating */}
+                  {restaurant.google_rating && (
+                    <div className="flex items-center gap-1">
+                      <svg
+                        className="w-3 h-3"
+                        style={{ color: 'var(--accent-secondary)' }}
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                      </svg>
+                      <span
+                        className="font-mono text-[11px]"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
+                        {restaurant.google_rating}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Open Status */}
+                  {!isClosed && (
+                    <span
+                      className="font-mono text-[10px] tracking-wider px-2 py-0.5"
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        color: 'var(--accent-success)'
+                      }}
+                    >
+                      OPEN
+                    </span>
+                  )}
                 </div>
+
+                {/* View Details Link */}
+                <Link
+                  href={`/restaurant/${restaurant.slug}`}
+                  className="inline-flex items-center gap-1 font-mono text-[11px] tracking-wider mt-3 transition-colors"
+                  style={{ color: 'var(--accent-primary)' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  VIEW DETAILS
+                  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </Link>
               </div>
             </div>
-
-            {restaurant.description && (
-              <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                {restaurant.description}
-              </p>
-            )}
-
-            <Link
-              href={`/restaurant/${restaurant.slug}`}
-              className="inline-block mt-3 text-sm text-red-600 hover:text-red-700 font-medium"
-              onClick={(e) => e.stopPropagation()}
-            >
-              View Details →
-            </Link>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

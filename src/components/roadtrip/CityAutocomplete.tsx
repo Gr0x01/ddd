@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useRef, useMemo, useCallback } from 'react';
 import { matchCities, formatCity, expandAbbreviation, type City } from '@/lib/cityMatcher';
 
 interface CityAutocompleteProps {

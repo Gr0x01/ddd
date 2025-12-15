@@ -16,9 +16,10 @@ interface SearchFormProps {
 }
 
 const EXAMPLE_ROUTES = [
-  { origin: 'San Francisco, CA', destination: 'Los Angeles, CA', label: 'SF to LA' },
-  { origin: 'New York, NY', destination: 'Boston, MA', label: 'NYC to Boston' },
-  { origin: 'Chicago, IL', destination: 'Milwaukee, WI', label: 'Chicago to Milwaukee' },
+  { origin: 'San Francisco, CA', destination: 'Los Angeles, CA', label: 'SF → LA' },
+  { origin: 'New York, NY', destination: 'Boston, MA', label: 'NYC → Boston' },
+  { origin: 'Chicago, IL', destination: 'Milwaukee, WI', label: 'Chicago → Milwaukee' },
+  { origin: 'Austin, TX', destination: 'San Antonio, TX', label: 'Austin → SA' },
 ];
 
 export default function SearchForm({
@@ -49,71 +50,92 @@ export default function SearchForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
+    <form onSubmit={handleSubmit} className="hero-search-form">
+      <div className="hero-form-accent" />
+
       {/* Example Routes */}
       {!origin && !destination && (
-        <div className="mb-4">
-          <p className="text-sm text-gray-600 mb-2">Try an example route:</p>
-          <div className="flex flex-wrap gap-2">
+        <div className="hero-quick-routes" style={{ marginBottom: '24px' }}>
+          <p className="hero-quick-label">Popular Routes:</p>
+          <div className="hero-quick-buttons">
             {EXAMPLE_ROUTES.map((route) => (
               <button
                 key={route.label}
                 type="button"
                 onClick={() => loadExample(route.origin, route.destination)}
-                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                className="hero-quick-button"
               >
-                {route.label}
+                <span className="hero-quick-button-label">{route.label}</span>
               </button>
             ))}
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Origin & Destination Row */}
+      <div className="hero-form-row">
         {/* Origin */}
-        <CityAutocomplete
-          label="From"
-          value={origin}
-          onChange={onOriginChange}
-          placeholder="San Francisco, CA"
-          disabled={isLoading}
-          cities={cities}
-        />
+        <div className="hero-form-field">
+          <label className="hero-form-label">
+            <svg className="hero-form-label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            START
+          </label>
+          <CityAutocomplete
+            value={origin}
+            onChange={onOriginChange}
+            placeholder="San Francisco, CA"
+            disabled={isLoading}
+            cities={cities}
+          />
+        </div>
 
-        {/* Destination */}
-        <div>
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <CityAutocomplete
-                label="To"
-                value={destination}
-                onChange={onDestinationChange}
-                placeholder="Los Angeles, CA"
-                disabled={isLoading}
-                cities={cities}
-              />
-            </div>
-            <div className="flex items-end pb-[1px]">
-              <button
-                type="button"
-                onClick={swapLocations}
-                disabled={!origin || !destination}
-                className="px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                title="Swap locations"
-                aria-label="Swap origin and destination"
-              >
-                ⇄
-              </button>
-            </div>
-          </div>
+        {/* Swap Button */}
+        <button
+          type="button"
+          onClick={swapLocations}
+          disabled={!origin || !destination}
+          className="hero-swap-button"
+          title="Swap locations"
+          aria-label="Swap origin and destination"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M7 16V4M7 4L3 8M7 4L11 8" />
+            <path d="M17 8V20M17 20L21 16M17 20L13 16" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Destination Row */}
+      <div className="hero-form-row">
+        <div className="hero-form-field">
+          <label className="hero-form-label">
+            <svg className="hero-form-label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+              <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            END
+          </label>
+          <CityAutocomplete
+            value={destination}
+            onChange={onDestinationChange}
+            placeholder="Los Angeles, CA"
+            disabled={isLoading}
+            cities={cities}
+          />
         </div>
       </div>
 
-      {/* Search Radius */}
-      <div className="mt-4">
-        <label htmlFor="radius" className="block text-sm font-medium text-gray-700 mb-2">
-          Search radius: {radiusMiles} miles
-        </label>
+      {/* Radius Slider */}
+      <div className="hero-form-radius">
+        <div className="hero-radius-header">
+          <label htmlFor="radius" className="hero-form-label-small">
+            SEARCH RADIUS
+          </label>
+          <span className="hero-radius-value">{radiusMiles} MILES</span>
+        </div>
         <input
           type="range"
           id="radius"
@@ -122,24 +144,40 @@ export default function SearchForm({
           step="5"
           value={radiusMiles}
           onChange={(e) => onRadiusChange(Number(e.target.value))}
-          className="w-full"
+          className="hero-radius-slider"
+          disabled={isLoading}
         />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <div className="hero-radius-labels">
           <span>5 mi</span>
+          <span>10</span>
+          <span>15</span>
+          <span>20</span>
           <span>25 mi</span>
         </div>
       </div>
 
       {/* Submit Button */}
-      <div className="mt-6">
-        <button
-          type="submit"
-          disabled={isLoading || !origin || !destination}
-          className="w-full bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-        >
-          {isLoading ? 'Planning Route...' : 'Plan My Route'}
-        </button>
-      </div>
+      <button
+        type="submit"
+        disabled={isLoading || !origin || !destination}
+        className="hero-submit-button"
+      >
+        {isLoading ? (
+          <>
+            <span className="hero-submit-spinner" />
+            PLANNING ROUTE...
+          </>
+        ) : (
+          <>
+            <svg className="hero-submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 17h14v-5l-1.5-4.5h-11L5 12v5z"/>
+              <circle cx="7.5" cy="17.5" r="1.5"/>
+              <circle cx="16.5" cy="17.5" r="1.5"/>
+            </svg>
+            FIND RESTAURANTS
+          </>
+        )}
+      </button>
     </form>
   );
 }
