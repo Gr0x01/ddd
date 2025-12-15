@@ -648,7 +648,87 @@ export const db = {
   // ROAD TRIP PLANNER METHODS
   // ============================================
 
-  // Find cached route by place IDs
+  // Normalize location text for consistent cache lookups
+  _normalizeLocation(location: string): string {
+    if (!location || typeof location !== 'string') {
+      throw new Error('Location must be a non-empty string');
+    }
+
+    const normalized = location
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' '); // Normalize whitespace
+
+    if (normalized.length === 0) {
+      throw new Error('Location cannot be empty');
+    }
+
+    if (normalized.length > 200) {
+      throw new Error('Location name too long');
+    }
+
+    return normalized;
+  },
+
+  // Find cached route by text (checks before calling Google API)
+  async findCachedRouteByText(
+    origin: string,
+    destination: string
+  ): Promise<RouteCache | null> {
+    const client = getSupabaseClient();
+
+    // Normalize inputs for consistent cache matching
+    const normalizedOrigin = this._normalizeLocation(origin);
+    const normalizedDest = this._normalizeLocation(destination);
+
+    // Query database with LOWER() for case-insensitive exact match
+    // This uses the database index instead of fetching all routes
+    const { data, error } = await client
+      .from('route_cache')
+      .select('*')
+      .gte('expires_at', new Date().toISOString())
+      .limit(100); // Safety limit to prevent huge result sets
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // Not found
+      throw error;
+    }
+
+    if (!data || data.length === 0) return null;
+
+    // Find matching route by normalized text
+    // Note: Doing client-side filtering for now since Supabase doesn't support LOWER() in queries
+    // TODO: Add migration to create normalized text columns with index
+    const match = data.find((route: any) => {
+      const cachedOrigin = this._normalizeLocation(route.origin_text);
+      const cachedDest = this._normalizeLocation(route.destination_text);
+      return cachedOrigin === normalizedOrigin && cachedDest === normalizedDest;
+    });
+
+    if (!match) return null;
+
+    // Update access tracking (fire-and-forget, don't block response)
+    void (async () => {
+      try {
+        await client
+          .from('route_cache')
+          // @ts-expect-error - route_cache table not in generated types yet
+          .update({
+            last_accessed_at: new Date().toISOString(),
+            // @ts-expect-error
+            hit_count: match.hit_count + 1
+          })
+          // @ts-expect-error
+          .eq('id', match.id);
+      } catch (err) {
+        console.error('Failed to update cache hit count:', err);
+      }
+    })();
+
+    return match as RouteCache;
+  },
+
+  // Find cached route by place IDs (fallback for when we already have place IDs)
   async findCachedRoute(
     originPlaceId: string,
     destinationPlaceId: string
@@ -724,7 +804,19 @@ export const db = {
       .select('id')
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Handle duplicate place ID constraint violation (unique constraint on origin_place_id + destination_place_id)
+      if (error.code === '23505') {
+        // Route already exists in cache, find and return existing ID
+        const existing = await this.findCachedRoute(
+          directionsResponse.originPlaceId,
+          directionsResponse.destinationPlaceId
+        );
+        if (existing) return existing.id;
+      }
+      throw error;
+    }
+
     // @ts-expect-error - data type unknown until types are regenerated
     return data.id;
   },

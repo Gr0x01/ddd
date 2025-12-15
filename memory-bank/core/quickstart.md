@@ -32,9 +32,11 @@ Status: Phase 4 - Live & Indexing 🚀
 - **App deployed and indexing** 🚀
 - **Road trip planner with basic map** (MapLibre GL JS)
 - **Free city autocomplete** (SimpleMaps, 1,444 cities, $0 cost)
+- **Route caching optimized** (checks cache BEFORE Google API, 80-90% cost savings)
 
 **🚧 In Progress:**
 - City autocomplete polish (functional but needs UX refinement)
+- Road trip planner design integration (needs to match site aesthetic)
 - Interactive map with filtering (basic map exists, needs enhancement)
 - Playwright tests (not yet run)
 

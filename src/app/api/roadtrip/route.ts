@@ -20,25 +20,55 @@ export async function POST(request: NextRequest) {
     const validatedBody = requestSchema.parse(body);
     const { origin, destination, radiusMiles } = validatedBody;
 
-    // Get directions from Google API
-    const directionsResponse = await getDirections({ origin, destination });
-
-    // Check cache by place IDs
-    let cachedRoute = await db.findCachedRoute(
-      directionsResponse.originPlaceId,
-      directionsResponse.destinationPlaceId
-    );
-
+    // Check cache FIRST (by text, before calling Google API)
+    let cachedRoute = await db.findCachedRouteByText(origin, destination);
     let routeId: string;
     let cached = false;
 
     if (cachedRoute) {
+      // Cache hit! Use cached route
       routeId = cachedRoute.id;
       cached = true;
-    } else {
-      // Save to cache
-      routeId = await db.saveRoute(origin, destination, directionsResponse);
+
+      // Log cache hit for analytics
+      console.log('[CACHE HIT]', {
+        origin,
+        destination,
+        routeId,
+        hit_count: (cachedRoute as any).hit_count || 0,
+        age_hours: Math.floor(
+          (Date.now() - new Date((cachedRoute as any).created_at).getTime()) / (1000 * 60 * 60)
+        ),
+        timestamp: new Date().toISOString()
+      });
+
+      // Get restaurants near route
+      const restaurants = await db.getRestaurantsNearRoute(routeId, radiusMiles);
+
+      return NextResponse.json({
+        route: {
+          polyline: cachedRoute.polyline,
+          polylinePoints: cachedRoute.polyline_points,
+          distanceMeters: cachedRoute.distance_meters,
+          durationSeconds: cachedRoute.duration_seconds,
+          bounds: (cachedRoute as any).google_response?.bounds || null
+        },
+        restaurants,
+        cached
+      });
     }
+
+    // Cache miss - call Google Directions API
+    console.log('[CACHE MISS]', {
+      origin,
+      destination,
+      timestamp: new Date().toISOString()
+    });
+
+    const directionsResponse = await getDirections({ origin, destination });
+
+    // Save to cache for next time
+    routeId = await db.saveRoute(origin, destination, directionsResponse);
 
     // Get restaurants near route
     const restaurants = await db.getRestaurantsNearRoute(routeId, radiusMiles);
