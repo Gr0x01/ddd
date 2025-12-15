@@ -780,29 +780,25 @@ export const db = {
   ): Promise<string> {
     const client = getSupabaseClient();
 
-    // Convert polyline points to PostGIS LINESTRING
-    const linestring = `LINESTRING(${directionsResponse.polylinePoints
+    // Convert polyline points to PostGIS LINESTRING text format
+    const linestringText = `LINESTRING(${directionsResponse.polylinePoints
       .map((p) => `${p.lng} ${p.lat}`)
       .join(',')})`;
 
-    // TODO: Regenerate Supabase types after running migration 003
-    const { data, error } = await client
-      .from('route_cache')
-      // @ts-expect-error - route_cache table not in generated types yet
-      .insert({
-        origin_place_id: directionsResponse.originPlaceId,
-        destination_place_id: directionsResponse.destinationPlaceId,
-        origin_text: origin,
-        destination_text: destination,
-        polyline: directionsResponse.polyline,
-        polyline_points: directionsResponse.polylinePoints,
-        distance_meters: directionsResponse.distanceMeters,
-        duration_seconds: directionsResponse.durationSeconds,
-        route_geography: linestring,
-        google_response: directionsResponse
-      })
-      .select('id')
-      .single();
+    // Use RPC function to insert with proper PostGIS geography conversion
+    // @ts-expect-error - insert_route_cache function not in generated types yet
+    const { data, error } = await client.rpc('insert_route_cache', {
+      p_origin_place_id: directionsResponse.originPlaceId,
+      p_destination_place_id: directionsResponse.destinationPlaceId,
+      p_origin_text: origin,
+      p_destination_text: destination,
+      p_polyline: directionsResponse.polyline,
+      p_polyline_points: directionsResponse.polylinePoints,
+      p_distance_meters: directionsResponse.distanceMeters,
+      p_duration_seconds: directionsResponse.durationSeconds,
+      p_linestring_text: linestringText,
+      p_google_response: directionsResponse
+    });
 
     if (error) {
       // Handle duplicate place ID constraint violation (unique constraint on origin_place_id + destination_place_id)
@@ -817,8 +813,8 @@ export const db = {
       throw error;
     }
 
-    // @ts-expect-error - data type unknown until types are regenerated
-    return data.id;
+    // data is the UUID returned by the function
+    return data as string;
   },
 
   // Get restaurants near a cached route
