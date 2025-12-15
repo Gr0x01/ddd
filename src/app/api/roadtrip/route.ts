@@ -70,6 +70,11 @@ export async function POST(request: NextRequest) {
     // Save to cache for next time
     routeId = await db.saveRoute(origin, destination, directionsResponse);
 
+    // Auto-generate slug for SEO (fire and forget - don't block response)
+    db.ensureRouteHasSlug(routeId, origin, destination).catch(err => {
+      console.error('[SLUG GENERATION ERROR]', err);
+    });
+
     // Get restaurants near route
     const restaurants = await db.getRestaurantsNearRoute(routeId, radiusMiles);
 

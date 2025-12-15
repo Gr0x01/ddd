@@ -212,6 +212,11 @@ export interface RouteCache {
   title?: string | null;
 }
 
+// Route with restaurant count for display
+export interface RouteWithRestaurantCount extends RouteCache {
+  restaurant_count: number;
+}
+
 // Restaurant with distance from route
 export interface RestaurantNearRoute extends Restaurant {
   distance_miles: number;
@@ -890,6 +895,175 @@ export const db = {
       // Log but don't throw - view count is non-critical
       console.error('Failed to increment route views:', error);
     }
+  },
+
+  // Get all routes (curated first, then user-generated) with restaurant counts
+  // Uses efficient single-query RPC function
+  async getRoutesForDisplay(limit: number = 20): Promise<RouteWithRestaurantCount[]> {
+    const client = getSupabaseClient();
+
+    // Use RPC function for efficient single-query with counts
+    // @ts-expect-error - get_routes_with_counts function not in generated types
+    const { data, error } = await client.rpc('get_routes_with_counts', {
+      p_limit: limit,
+      p_curated_only: false,
+      p_radius_miles: 15
+    });
+
+    if (error) {
+      console.error('Error fetching routes with counts:', error);
+      // Fallback to basic query without counts
+      return this.getRoutesBasic(limit);
+    }
+
+    return (data || []) as RouteWithRestaurantCount[];
+  },
+
+  // Get curated routes only with restaurant counts
+  async getCuratedRoutesWithCounts(): Promise<RouteWithRestaurantCount[]> {
+    const client = getSupabaseClient();
+
+    // @ts-expect-error - get_routes_with_counts function not in generated types
+    const { data, error } = await client.rpc('get_routes_with_counts', {
+      p_limit: 10,
+      p_curated_only: true,
+      p_radius_miles: 15
+    });
+
+    if (error) {
+      console.error('Error fetching curated routes:', error);
+      return [];
+    }
+
+    return (data || []) as RouteWithRestaurantCount[];
+  },
+
+  // Get user-generated routes (non-curated) sorted by popularity
+  async getUserRoutes(limit: number = 12): Promise<RouteWithRestaurantCount[]> {
+    const client = getSupabaseClient();
+
+    // @ts-expect-error - get_routes_with_counts function not in generated types
+    const { data, error } = await client.rpc('get_routes_with_counts', {
+      p_limit: limit + 10, // Fetch extra to filter out curated
+      p_curated_only: false,
+      p_radius_miles: 15
+    });
+
+    if (error) {
+      console.error('Error fetching user routes:', error);
+      return [];
+    }
+
+    // Filter out curated routes and limit
+    const routes = data as RouteWithRestaurantCount[] | null;
+    const userRoutes = (routes || [])
+      .filter((r) => !r.is_curated)
+      .slice(0, limit);
+
+    return userRoutes;
+  },
+
+  // Fallback: basic route query without counts (if RPC fails)
+  async getRoutesBasic(limit: number = 20): Promise<RouteWithRestaurantCount[]> {
+    const client = getSupabaseClient();
+
+    const { data, error } = await client
+      .from('route_cache')
+      .select('*')
+      .gt('expires_at', new Date().toISOString())
+      .order('is_curated', { ascending: false, nullsFirst: false })
+      .order('view_count', { ascending: false, nullsFirst: true })
+      .order('hit_count', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    // Return with 0 counts as fallback
+    const routes = data as RouteCache[] | null;
+    return (routes || []).map(r => ({ ...r, restaurant_count: 0 }));
+  },
+
+  // Get all routes with slugs for sitemap (both curated and user-generated)
+  async getAllRoutesWithSlugs(): Promise<RouteCache[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('route_cache')
+      .select('*')
+      .not('slug', 'is', null) // Only routes with slugs
+      .gt('expires_at', new Date().toISOString()) // Not expired
+      .order('is_curated', { ascending: false }) // Curated first
+      .order('view_count', { ascending: false, nullsFirst: true })
+      .limit(100); // Cap for sitemap size
+
+    if (error) throw error;
+    return (data || []) as RouteCache[];
+  },
+
+  // Generate a slug from origin/destination text
+  generateRouteSlug(origin: string, destination: string): string {
+    // Validate inputs
+    if (!origin || !destination || typeof origin !== 'string' || typeof destination !== 'string') {
+      throw new Error('Origin and destination are required strings');
+    }
+    if (origin.length > 200 || destination.length > 200) {
+      throw new Error('Location names too long');
+    }
+
+    const normalize = (text: string) => {
+      return text
+        .toLowerCase()
+        .replace(/,\s*(ca|ny|tx|fl|il|pa|oh|ga|nc|mi|nj|va|wa|az|ma|tn|in|mo|md|wi|mn|co|al|sc|la|ky|or|ok|ct|ut|ia|nv|ar|ms|ks|nm|ne|wv|id|hi|nh|me|mt|ri|de|sd|nd|ak|vt|dc|wy)$/i, '') // Remove state abbreviation
+        .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
+        .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+        .substring(0, 30); // Limit length
+    };
+
+    const originSlug = normalize(origin);
+    const destSlug = normalize(destination);
+
+    // Ensure valid slugs were generated
+    if (!originSlug || !destSlug) {
+      throw new Error('Failed to generate valid slug from locations');
+    }
+
+    return `${originSlug}-to-${destSlug}`;
+  },
+
+  // Update route with auto-generated slug (for user routes without slugs)
+  async ensureRouteHasSlug(routeId: string, origin: string, destination: string): Promise<string | null> {
+    const client = getSupabaseClient();
+
+    // First check if route already has a slug
+    const { data: existing } = await client
+      .from('route_cache')
+      .select('slug')
+      .eq('id', routeId)
+      .single();
+
+    const existingRoute = existing as { slug: string | null } | null;
+    if (existingRoute?.slug) {
+      return existingRoute.slug;
+    }
+
+    // Generate a slug with short unique suffix to avoid race conditions
+    // Using base36 timestamp + random chars for uniqueness without database lookups
+    const baseSlug = this.generateRouteSlug(origin, destination);
+    const uniqueSuffix = Date.now().toString(36).slice(-4) + Math.random().toString(36).slice(-2);
+    const slug = `${baseSlug}-${uniqueSuffix}`;
+
+    // Update the route with the slug
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (client as any)
+      .from('route_cache')
+      .update({ slug, title: `${origin.split(',')[0]} to ${destination.split(',')[0]}` })
+      .eq('id', routeId);
+
+    if (error) {
+      console.error('Failed to set route slug:', error);
+      return null;
+    }
+
+    return slug;
   },
 };
 

@@ -1,6 +1,9 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/supabase';
 
+// Cache sitemap for 1 hour to avoid expensive queries on every request
+export const revalidate = 3600;
+
 /**
  * Dynamic sitemap generation for all pages
  * This helps search engines discover and index all restaurant, city, state pages
@@ -15,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       db.getStates(),
       db.getCities(),
       db.getCuisines(),
-      db.getCuratedRoutes(),
+      db.getAllRoutesWithSlugs(), // Get ALL routes with slugs for SEO
     ]);
 
     // Create a map of state_name -> state_slug for building city URLs
@@ -105,14 +108,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    // Curated route pages - road trip content
+    // Route pages - curated get higher priority, user-generated get lower
     const routePages: MetadataRoute.Sitemap = routes
       .filter(route => route.slug) // Only include routes with slugs
       .map((route) => ({
         url: `${baseUrl}/route/${route.slug}`,
         lastModified: route.created_at ? new Date(route.created_at) : new Date(),
         changeFrequency: 'weekly' as const,
-        priority: 0.7,
+        priority: route.is_curated ? 0.7 : 0.5, // Curated routes get higher priority
       }));
 
     return [...staticPages, ...restaurantPages, ...statePages, ...cityPages, ...cuisinePages, ...routePages];

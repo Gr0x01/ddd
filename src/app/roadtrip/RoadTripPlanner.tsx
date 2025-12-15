@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Header } from '@/components/ui/Header';
-import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
 import SearchForm from '@/components/roadtrip/SearchForm';
 import RouteMap from '@/components/roadtrip/RouteMap';
@@ -177,9 +175,7 @@ export default function RoadTripPlanner() {
   };
 
   return (
-    <div className="app-container">
-      <Header currentPage="roadtrip" />
-
+    <>
       <PageHero
         title="Road Trip Planner"
         subtitle="Find Guy Fieri-approved restaurants along your route"
@@ -364,8 +360,6 @@ export default function RoadTripPlanner() {
           </div>
         </section>
       </main>
-
-      <Footer />
-    </div>
+    </>
   );
 }
