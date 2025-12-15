@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 interface HeaderProps {
-  currentPage?: 'restaurants' | 'states' | 'episodes' | 'about' | 'home';
+  currentPage?: 'restaurants' | 'states' | 'episodes' | 'roadtrip' | 'about' | 'home';
 }
 
 export function Header({ currentPage }: HeaderProps) {
@@ -117,6 +117,22 @@ export function Header({ currentPage }: HeaderProps) {
             EPISODES
           </Link>
           <Link
+            href="/roadtrip"
+            className={`font-mono text-xs tracking-wider transition-colors ${
+              currentPage === 'roadtrip'
+                ? 'font-semibold'
+                : 'hover:text-[var(--accent-primary)]'
+            }`}
+            style={{
+              color: currentPage === 'roadtrip'
+                ? 'var(--accent-primary)'
+                : 'var(--text-muted)'
+            }}
+            aria-current={currentPage === 'roadtrip' ? 'page' : undefined}
+          >
+            ROAD TRIP
+          </Link>
+          <Link
             href="/about"
             className={`font-mono text-xs tracking-wider transition-colors ${
               currentPage === 'about'
@@ -209,6 +225,20 @@ export function Header({ currentPage }: HeaderProps) {
                 aria-current={currentPage === 'episodes' ? 'page' : undefined}
               >
                 EPISODES
+              </Link>
+              <Link
+                href="/roadtrip"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`px-4 py-4 font-mono text-sm tracking-wider transition-colors border-b ${
+                  currentPage === 'roadtrip' ? 'font-semibold' : ''
+                }`}
+                style={{
+                  color: currentPage === 'roadtrip' ? 'var(--accent-primary)' : 'var(--text-muted)',
+                  borderColor: 'var(--border-light)'
+                }}
+                aria-current={currentPage === 'roadtrip' ? 'page' : undefined}
+              >
+                ROAD TRIP
               </Link>
               <Link
                 href="/about"

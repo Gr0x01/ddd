@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 function RoadTripLoading() {
   return (
     <div className="app-container">
-      <Header />
+      <Header currentPage="roadtrip" />
       <main className="min-h-[60vh] flex items-center justify-center" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
         <div className="text-center">
           <div

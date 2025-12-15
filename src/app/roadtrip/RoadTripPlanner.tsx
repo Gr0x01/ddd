@@ -178,7 +178,7 @@ export default function RoadTripPlanner() {
 
   return (
     <div className="app-container">
-      <Header />
+      <Header currentPage="roadtrip" />
 
       <PageHero
         title="Road Trip Planner"

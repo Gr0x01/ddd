@@ -123,7 +123,7 @@ export default async function RoutePage({ params }: RoutePageProps) {
         dangerouslySetInnerHTML={{ __html: safeStringifySchema(breadcrumbSchema) }}
       />
 
-      <Header currentPage="restaurants" />
+      <Header currentPage="roadtrip" />
 
       <main className="route-page">
         <div className="route-page-container">
