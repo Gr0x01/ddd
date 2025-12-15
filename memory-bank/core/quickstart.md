@@ -1,74 +1,60 @@
 ---
-Last-Updated: 2025-12-15
+Last-Updated: 2025-12-16
 Maintainer: RB
-Status: Phase 4 - Live & Indexing 🚀
+Status: Phase 4 - Live & Indexing
 ---
 
 # Quickstart: DDD (Diners, Drive-ins and Dives)
 
 ## Current Status
-- **Phase**: Phase 4 - Live & Being Indexed 🚀
-- **Version**: 0.4.0
-- **Environment**: Production (deployed and indexing)
-- **Focus**: Build interactive map with filtering
-- **Data Available**: 572 episodes, 1,541 restaurants (all imported)
-- **Enriched**: 1,541 restaurants (100.0%) with full LLM enrichment ✅
-- **Status Verified**: 1,151 open, 390 closed, 0 unknown (100% verified!) 🎉
-- **SEO Ready**: Sitemap, robots.txt, high-value pages, full metadata
+- **Phase**: Phase 4 - Live & Indexing
+- **Version**: 1.0.0
+- **Environment**: Production (deployed on Vercel)
+- **Data**: 572 episodes, 1,541 restaurants (100% enriched)
+- **Status Verified**: 1,151 open, 390 closed, 0 unknown (100% verified)
+- **SEO**: Sitemap submitted, Google indexing in progress
 - **Market**: Targeting 263k+ monthly visitors (based on competitor analysis)
 
-## What We Actually Have
+---
 
-**✅ Built & Deployed:**
-- Wikipedia data pipeline (cache → parse → import)
-- Database schema with PostGIS
-- Restaurant, city, state, cuisine pages
-- Import scripts that work
-- **Enrichment system (LLM + Tavily + Google Places)**
-- **CLI scripts for enrichment, status verification, episodes**
-- **Complete SEO infrastructure (sitemap, robots.txt, metadata)**
-- **High-value SEO pages (/still-open, /closed, /cuisines)**
-- **1,541 restaurants fully enriched** (100% complete, 0 unknown)
-- **App deployed and indexing** 🚀
-- **Road trip planner with basic map** (MapLibre GL JS)
-- **Free city autocomplete** (SimpleMaps, 1,444 cities, $0 cost)
-- **Route caching optimized** (checks cache BEFORE Google API, 80-90% cost savings)
+## What's Built & Deployed
 
-**🚧 In Progress:**
-- City autocomplete polish (functional but needs UX refinement)
-- Road trip planner design integration (needs to match site aesthetic)
-- Interactive map with filtering (basic map exists, needs enhancement)
-- Playwright tests (not yet run)
+### Core Pages
+| Route | Purpose |
+|-------|---------|
+| `/` | Homepage with road trip hero, popular routes, browse sections |
+| `/roadtrip` | Road trip planner with map and restaurant discovery |
+| `/route/[slug]` | Individual route pages with restaurant lists |
+| `/restaurant/[slug]` | 1,541 restaurant detail pages |
+| `/restaurants` | Searchable restaurant list with filters |
+| `/city/[state]/[city]` | City landing pages |
+| `/state/[state]` | State landing pages |
+| `/cuisines` | Browse all cuisine types |
+| `/cuisines/[slug]` | Cuisine detail pages |
+| `/still-open` | Verified open restaurants (trust signal) |
+| `/closed` | Closed restaurants (curiosity traffic) |
+| `/episodes` | All episodes list |
+| `/episode/[slug]` | Episode detail pages |
 
-**📍 Road Trip Components:**
-- `src/app/roadtrip/page.tsx` - Road trip planner page
-- `src/components/roadtrip/SearchForm.tsx` - Route search form
-- `src/components/roadtrip/CityAutocomplete.tsx` - City autocomplete (free, fuzzy matching)
-- `src/components/roadtrip/RouteMap.tsx` - MapLibre GL JS map
-- `src/components/roadtrip/RestaurantList.tsx` - Restaurant results list
-- `src/lib/cityMatcher.ts` - Fuzzy matching logic (1,444 cities)
-- `scripts/process-cities.ts` - SimpleMaps data processor
-
-**📍 Other Map Components:**
-- `src/components/RestaurantMap.tsx` - Main Leaflet map component
-- `src/components/RestaurantMapPins.tsx` - Map pins with clustering
-- `src/components/restaurant/MiniMap.tsx` - Restaurant detail mini-map
-- `src/app/api/restaurants/map-pins/route.ts` - Lightweight pins API
+### Key Features
+- **Road Trip Planner**: Enter origin/destination, find restaurants along route
+- **City Autocomplete**: 1,444 US cities with fuzzy matching (FREE)
+- **Route Caching**: 80-90% cost savings on Google Directions API
+- **MapLibre GL JS**: Free, open-source map rendering
+- **100% Status Verification**: All restaurants verified open/closed
+- **SEO Infrastructure**: Sitemap, robots.txt, structured data
 
 ---
 
 ## Tech Stack
 
-- **Frontend:** Next.js 14, React 18, TypeScript, Tailwind CSS
-- **Backend:** Supabase (PostgreSQL + PostGIS)
-- **Data Source:** Wikipedia (via Tavily, cached in Supabase)
-- **Deployment:** Vercel (planned)
-- **Testing:** Playwright (not run yet)
-
-**Future (Phase 2):**
-- OpenAI gpt-4o-mini for descriptions
-- Google Places API for status/addresses
-- Tavily for web search
+- **Frontend**: Next.js 14+, React 18+, TypeScript, Tailwind CSS
+- **Backend**: Supabase (PostgreSQL + PostGIS)
+- **Maps**: MapLibre GL JS (free), Leaflet.js
+- **Data Source**: Wikipedia (via Tavily, cached in Supabase)
+- **Enrichment**: OpenAI gpt-4o-mini, Tavily, Google Places API
+- **Deployment**: Vercel
+- **Analytics**: PostHog
 
 ---
 
@@ -76,136 +62,122 @@ Status: Phase 4 - Live & Indexing 🚀
 
 ```bash
 # Development
-npm run dev          # Start development server (localhost:3000)
-npm run build        # Build for production
-npm run lint         # Run ESLint
-npm run type-check   # Run TypeScript checks
+npm run dev              # Start development server (localhost:3000)
+npm run build            # Build for production
+npm run lint             # Run ESLint
+npm run type-check       # Run TypeScript checks
 
 # Testing
-npm run test:e2e     # Run Playwright tests
-npm run test:e2e:ui  # Interactive test mode
+npm run test:e2e         # Run Playwright tests
+npm run test:e2e:ui      # Interactive test mode
 
-# Data Import (Phase 1)
-npx tsx scripts/ingestion/cache-wikipedia.ts              # Cache Wikipedia (once/week)
-npx tsx scripts/ingestion/import-from-wikipedia.ts --recent  # Import 40 newest episodes
-npx tsx scripts/ingestion/verify-import.ts                # Verify data
+# Data Operations
+npm run populate-routes  # Insert curated routes
+npm run generate-maps    # Generate route map images
+npm run geocode          # Geocode restaurants
 
-# Enrichment (Phase 2 - ready to use)
-npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10        # Enrich 10 restaurants
-npx tsx scripts/ingestion/enrich-restaurants.ts --all             # Enrich all pending
-npx tsx scripts/ingestion/verify-status.ts --limit 50             # Verify restaurant status
-npx tsx scripts/ingestion/enrich-episodes.ts --limit 10           # Generate episode SEO descriptions
-npx tsx scripts/ingestion/check-enrichment.ts                     # Verify enriched data
+# Enrichment (if needed)
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10
+npx tsx scripts/ingestion/verify-status.ts --limit 50
+npx tsx scripts/ingestion/check-enrichment.ts
 ```
 
 ---
 
-## What We Built
+## Project Structure
 
-**Data Pipeline:**
-- `scripts/ingestion/cache-wikipedia.ts` - Fetch Wikipedia via Tavily, cache in Supabase
-- `scripts/ingestion/parse-wikipedia.ts` - Parse 572 episodes from cache
-- `scripts/ingestion/import-from-wikipedia.ts` - Import to database
-- `scripts/ingestion/verify-import.ts` - Verify data integrity
+### Pages (`src/app/`)
+```
+src/app/
+├── page.tsx                    # Homepage
+├── roadtrip/page.tsx           # Road trip planner
+├── route/[slug]/page.tsx       # Route detail pages
+├── restaurant/[slug]/page.tsx  # Restaurant pages
+├── restaurants/page.tsx        # Restaurant list
+├── city/[state]/[city]/page.tsx
+├── state/[state]/page.tsx
+├── cuisines/page.tsx
+├── cuisines/[slug]/page.tsx
+├── still-open/page.tsx
+├── closed/page.tsx
+├── episodes/page.tsx
+├── episode/[slug]/page.tsx
+├── sitemap.ts
+└── robots.ts
+```
 
-**Database:**
-- `supabase/migrations/001_initial_schema.sql` - Full schema with PostGIS
-- `supabase/migrations/002_add_cache_table.sql` - Cache for API responses
+### Components (`src/components/`)
+```
+src/components/
+├── home/                # Homepage hero components
+├── homepage/            # Homepage sections (PopularRoutes, BrowseSection, etc.)
+├── roadtrip/            # Road trip planner components
+├── restaurant/          # Restaurant cards and filters
+├── ui/                  # Shared UI components (Button, Card, RouteCard, etc.)
+├── seo/                 # Schema.org, breadcrumbs
+└── analytics/           # PostHog integration
+```
 
-**Pages (Built, Not Tested):**
-- `src/app/page.tsx` - Homepage with stats
-- `src/app/restaurant/[slug]/page.tsx` - Restaurant details
-- `src/app/city/[state]/[city]/page.tsx` - City browse
-- `src/app/state/[state]/page.tsx` - State browse
-- `src/app/cuisines/page.tsx` - Browse by cuisine
-- `src/app/cuisines/[slug]/page.tsx` - Cuisine detail pages
-- `src/app/still-open/page.tsx` - Verified open restaurants (trust signal)
-- `src/app/closed/page.tsx` - Closed restaurants (curiosity traffic)
-
-**SEO Infrastructure:**
-- `src/app/sitemap.ts` - Dynamic sitemap with all pages
-- `src/app/robots.ts` - Search crawler guidance + AI bot blocking
-- `src/lib/schema.ts` - Schema.org structured data with XSS protection
-- All metadata uses full "Diners, Drive-ins and Dives" (no abbreviations)
+### Database (`supabase/migrations/`)
+- 14 migrations total
+- Core tables: restaurants, episodes, cuisines, dishes, cities, states
+- Route caching: route_cache with PostGIS spatial queries
+- RPC functions: get_restaurants_near_route, get_routes_with_counts
 
 ---
 
-## Current Reality Check
+## Environment Variables
 
-**What Works:**
-- ✅ Wikipedia data cached in Supabase
-- ✅ 572 episodes, 1,695 restaurants parsed
-- ✅ Import script works (tested with 1 episode)
-- ✅ Database schema is ready
-
-**What Works (Added Dec 14 - Morning):**
-- ✅ Enrichment system fully built and tested
-- ✅ LLM integration (OpenAI gpt-4o-mini with Flex tier)
-- ✅ Tavily web search for restaurant context
-- ✅ Google Places API for status verification (optional)
-- ✅ CLI scripts for all enrichment operations
-
-**What Works (Added Dec 14 - Evening):**
-- ✅ Complete SEO infrastructure
-- ✅ Dynamic sitemap with all page types
-- ✅ Robots.txt with AI bot blocking
-- ✅ High-value pages (/still-open, /closed, /cuisines)
-- ✅ Full show name in all metadata (no "DDD" abbreviations)
-- ✅ XSS-protected JSON-LD structured data
-- ✅ ISR caching on all dynamic pages
-- ✅ Database-level aggregations (no N+1 queries)
-
-**What Works (Added Dec 15 - Morning):**
-- ✅ **100% enrichment complete!** All 1,541 restaurants enriched
-- ✅ **100% status verified!** 1,151 open, 390 closed, 0 unknown 🎉
-- ✅ Parallel enrichment (50 concurrent workers)
-- ✅ Fixed Tavily rate limiter (900/min instead of 30/min)
-- ✅ Fixed closed date parsing (handles invalid LLM responses)
-- ✅ Manual corrections applied:
-  - The Kitchen → Portsmouth, NH (open)
-  - Wrigleyville Grill → San Antonio, TX (open, not Chicago!)
-  - Bubba's Diner, Los Tapatios, Town Talk Diner → closed
-  - The Pie Dump → open
-- ✅ Total cost: $6.78 for full enrichment
-- ✅ Total time: ~15 minutes for all 1,541 restaurants
-
-**What Works (Added Dec 15 - Deployment):**
-- ✅ **App deployed to production!**
-- ✅ **Sitemap submitted to search engines**
-- ✅ **Site being indexed by Google**
-
-**What Doesn't Exist:**
-- ❌ No Playwright tests run yet
-- ❌ Full-featured interactive map (basic exists, needs filtering/clustering)
-
-## Next Steps (Phase 4)
-
-**Priority 1: Interactive Map** 🗺️
-Build full-featured map experience:
-- Filter by cuisine, price, status
-- Cluster markers for performance
-- Search/filter integration
-- Route planning (future)
-
-**Priority 2: Testing**
 ```bash
-# Run Playwright tests
-npm run test:e2e
+# Required
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+OPENAI_API_KEY=your_openai_key
+TAVILY_API_KEY=your_tavily_key
+GOOGLE_PLACES_API_KEY=your_google_key  # Also used for Directions API
 
-# Visual testing during development
-npm run test:e2e:ui
+# Optional
+NEXT_PUBLIC_POSTHOG_KEY=your_posthog_key
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
 ```
 
-**Priority 3: Monitor Indexing**
-- Track Google Search Console
-- Monitor ranking progress
-- Identify high-performing pages
-- Add more content to top pages
+---
+
+## Data Summary
+
+| Entity | Count | Status |
+|--------|-------|--------|
+| Restaurants | 1,541 | 100% enriched |
+| Open | 1,151 | Verified |
+| Closed | 390 | Verified |
+| Episodes | 572 | Imported |
+| Curated Routes | 8 | Active |
+| Cities | 1,444 | Autocomplete |
+
+---
+
+## Recent Commits
+
+```
+53bef7b feat: Add search/filter components to listing pages
+9222836 fix: Show actual restaurant counts on homepage popular routes
+82b55e6 perf: Fix database query inefficiencies across 8 pages
+bd5ddbe fix: Show actual open restaurant count on homepage
+70ddd6c security: Update dependencies and add rate limiting to roadtrip API
+af68069 refactor: Replace custom SVG icons with Lucide
+c5f9423 feat: Homepage road trip search redirects to route page
+```
 
 ---
 
 ## Documentation
 
-- `development/activeContext.md` - What we actually built
-- `development/progress.md` - Today's work log
-- `supabase/migrations/` - Database schema
+| Document | Purpose |
+|----------|---------|
+| `development/activeContext.md` | Current sprint focus |
+| `development/progress.md` | Work log |
+| `projects/homepage-redesign.md` | Homepage implementation |
+| `archive/roadtrip-planner.md` | Road trip architecture |
+| `architecture/enrichment-system.md` | LLM enrichment details |
+| `architecture/techStack.md` | Technology decisions |

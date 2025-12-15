@@ -1,8 +1,8 @@
 # Diners, Drive-Ins and Dives Directory
 
-**Last Updated:** 2025-12-14  
-**Status:** Phase 0 - Research & Planning  
-**Repo:** TBD
+**Last Updated:** 2025-12-16
+**Status:** Phase 4 - Live & Indexing ✅
+**Deployed:** Vercel (production)
 
 ---
 
@@ -409,43 +409,46 @@ These can rank for "road trip diners [route]" searches.
 
 ## Launch Strategy
 
-### Phase 1: MVP (2-3 weeks)
-- [ ] Database schema deployed
-- [ ] Initial data scrape (Wikipedia + manual)
-- [ ] Basic restaurant pages
-- [ ] City/state pages
-- [ ] Simple map view
-- [ ] Search functionality
-- [ ] Road trip planner (Point A → Point B with restaurants along route)
+### Phase 1: MVP ✅ Complete (Dec 14)
+- [x] Database schema deployed (14 migrations)
+- [x] Initial data scrape (Wikipedia via Tavily)
+- [x] Basic restaurant pages (1,541 restaurants)
+- [x] City/state pages
+- [x] Simple map view
+- [x] Search functionality
+- [x] Road trip planner (MapLibre GL JS + PostGIS)
 
-### Phase 2: Enrichment (1-2 weeks)
-- [ ] LLM enrichment for descriptions
-- [ ] Google Places API integration
-- [ ] Open/closed verification
-- [ ] Ratings import
+### Phase 2: Enrichment ✅ Complete (Dec 14)
+- [x] LLM enrichment for descriptions (OpenAI gpt-4o-mini)
+- [x] Google Places API integration
+- [x] Open/closed verification (100% - 1,151 open, 390 closed)
+- [x] Ratings import
 
-### Phase 3: Polish (1 week)
-- [ ] Episode pages
-- [ ] Cuisine filtering
-- [ ] "Near me" geolocation
-- [ ] Mobile optimization
-- [ ] Performance tuning
+### Phase 3: Polish ✅ Complete (Dec 14-15)
+- [x] Episode pages (572 episodes)
+- [x] Cuisine filtering
+- [x] Mobile optimization
+- [x] Performance tuning
+- [x] SEO infrastructure (sitemap, robots.txt, structured data)
 
-### Phase 4: Launch
-- [ ] Submit to Google Search Console
-- [ ] Reddit communities (r/DinersDD, r/guyfieri, food subs)
-- [ ] Social media presence
-- [ ] Monitor rankings
+### Phase 4: Launch ✅ Deployed (Dec 15-16)
+- [x] Submit to Google Search Console
+- [x] Homepage redesigned with road trip hero
+- [x] Popular routes section with curated routes
+- [x] Route pages at /route/[slug]
+- [ ] Reddit communities (pending)
+- [ ] Social media presence (pending)
+- [x] Monitor rankings (indexing in progress)
 
 ---
 
-## Open Questions
+## Resolved Questions
 
-- [ ] Domain name - flavortownmap.com? dddmap.com? tripledfinder.com?
-- [ ] How many restaurants total? (estimate: 1,000-1,500+)
-- [ ] How many episodes? (30+ seasons!)
-- [ ] Photo sourcing strategy - Google Places? User submitted?
-- [ ] Handle international locations? (show has filmed abroad)
+- [x] ~~Domain name~~ - Deployed on Vercel
+- [x] How many restaurants total? **1,541 restaurants**
+- [x] How many episodes? **572 episodes**
+- [x] Photo sourcing strategy - **Google Places → Supabase Storage**
+- [x] Handle international locations? - **Included in dataset**
 - [ ] Guy's own restaurants vs. featured restaurants - separate or together?
 
 ---

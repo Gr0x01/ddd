@@ -1,7 +1,7 @@
 ---
-Last-Updated: 2025-12-14
+Last-Updated: 2025-12-16
 Maintainer: RB
-Status: Project Inception
+Status: Phase 4 - Live & Indexing
 ---
 
 # Progress Log: DDD Restaurant Map
@@ -9,279 +9,170 @@ Status: Project Inception
 ## Project Timeline
 
 **Project Start**: December 14, 2025
+**Current Phase**: Phase 4 - Live & Indexing
 
-**Current Phase**: Phase 0 - Foundation Setup
+## Key Milestones
 
-## Key Milestones (Revised Based on MVP Doc)
+| # | Phase | Status | Completed |
+|---|-------|--------|-----------|
+| 1 | MVP Foundation | ✅ Complete | Dec 14 |
+| 2 | Enrichment System | ✅ Complete | Dec 14 |
+| 3 | Polish & SEO | ✅ Complete | Dec 14-15 |
+| 4 | Launch & Features | ✅ Deployed | Dec 15-16 |
 
-| # | Phase | Target Timeline | Status |
-|---|-------|----------------|--------|
-| 1 | MVP Foundation | 2-3 weeks | 🚧 In Progress |
-| 2 | Enrichment System | 1-2 weeks | ⏳ Pending |
-| 3 | Polish & Features | 1 week | ⏳ Pending |
-| 4 | Launch & Marketing | Ongoing | ⏳ Pending |
+## Current Status (as of Dec 16, 2025)
 
-## Current Status (as of Dec 14, 2025)
+**Production Deployed**: Live and being indexed by Google
 
-**Foundation Complete**: Database schema, pages, and infrastructure ready for data ✅
+**Data Complete**:
+- 1,541 restaurants (100% enriched)
+- 1,151 verified open / 390 closed / 0 unknown
+- 572 episodes imported
+- 8 curated routes
 
-**Code Quality**: 9.8/10 - Production ready after two comprehensive code reviews
-
-**Tech Stack Implemented**:
-- Next.js 14, Supabase, Tailwind CSS ✅
-- PostGIS for geographic queries ✅
-- TypeScript with strict type safety ✅
-- Zod for environment validation ✅
-
-**Next Actions**:
-1. Apply database migration to Supabase
-2. Add test restaurant/episode data
-3. Build data ingestion scripts
-4. Deploy to Vercel
-
-## Phase 1: MVP Foundation (Current - 2-3 weeks)
-
-### Database & Data
-1. ✅ **Memory Bank Setup** - CLAUDE.md and core documentation
-2. ✅ **Database Schema** - Full schema with PostGIS (restaurants, episodes, cuisines, dishes, states, cities)
-3. ✅ **Database Optimization** - Optimized triggers (3-5x faster), efficient indexes, CHECK constraints
-4. ⏳ **Initial Data Scrape** - Wikipedia episode lists
-5. ⏳ **Manual Data Entry** - First 50-100 restaurants for testing
-
-### Core Pages & Features
-6. ✅ **Next.js Initialization** - Project scaffold with TypeScript
-7. ✅ **Restaurant Pages** - Individual pages with status, episodes, dishes (`/restaurant/[slug]`)
-8. ✅ **City/State Pages** - Geographic SEO landing pages (`/city/[state]/[city]`, `/state/[state]`)
-9. ✅ **Homepage** - Stats display with restaurant browse/list
-10. ⏳ **Interactive Map** - Leaflet with filtering
-11. ⏳ **Road Trip Planner** - Point A → Point B with route and restaurants (MVP differentiator)
-
-### Infrastructure
-12. ✅ **Supabase Setup** - PostgreSQL with PostGIS extension
-13. ✅ **Environment Variables** - Zod validation with type safety
-14. ✅ **Error Handling** - Consistent patterns across all pages
-15. ✅ **Security Hardening** - Input validation, length limits, runtime type checks
-16. ⏳ **Google Directions API** - For road trip routing
-
-## Phase 2: Enrichment (1-2 weeks)
-- [ ] LLM enrichment for restaurant descriptions
-- [ ] Google Places API integration for verification
-- [ ] Open/closed verification system with "Last verified" dates
-- [ ] Google/Yelp ratings import
-- [ ] Photo collection and storage
-
-## Phase 3: Polish (1 week)
-- [ ] Episode pages with featured restaurants
-- [ ] Cuisine filtering system
-- [ ] "Near me" geolocation feature
-- [ ] Mobile optimization
-- [ ] Performance tuning
-- [ ] SEO optimization
-
-## Phase 4: Launch (Ongoing)
-- [ ] Google Search Console submission
-- [ ] Reddit promotion (r/DinersDD, r/guyfieri)
-- [ ] Social media presence
-- [ ] Traffic monitoring and iteration
-
-## Market Context & Opportunity
-
-**Competitor Analysis (Dec 2025):**
-- Primary: dinersdriveinsdiveslocations.com - 263k monthly visitors (growing from 125k in Aug)
-- Secondary: flavortownusa.com - 86k monthly visitors
-- Keyword gap: 39,829 untapped keywords
-- Market is expanding rapidly, not saturated
-
-**Revenue Potential:**
-- 50k visitors @ $20 RPM = $1,000/month
-- 100k visitors @ $20 RPM = $2,000/month
-- 200k visitors @ $20 RPM = $4,000/month
-
-**Competitive Advantages:**
-1. Open/closed verification (competitors lack this)
-2. Road trip planner (unique feature)
-3. Interactive map (better UX)
-4. Fast, mobile-first experience
-5. Natural language search
-
-## Learnings from Previous Projects
-
-**From chefs project:**
-- Enrichment system architecture is solid, reuse it
-- Google Places API is essential for verification
-- Tavily hybrid search works well for web data
-- PostHog analytics provides great insights
-- N+1 query issues - design with eager loading from start
-- Map component and restaurant cards are reusable
-
-**From shark-tank project:**
-- Entity management patterns
-- Admin panel structure
-- Photo handling best practices
+**Features Complete**:
+- Homepage with road trip hero
+- Road trip planner with MapLibre GL JS
+- Individual route pages with sharing
+- City autocomplete (free, 1,444 cities)
+- Route caching (80-90% cost savings)
+- Full SEO infrastructure
 
 ---
 
 ## Detailed Work Log
 
-### December 14, 2025 - Phase 3 SEO Infrastructure Complete
+### December 16, 2025 - Homepage Redesign Complete
 
-**Evening (Part 2): Complete SEO Implementation**
-- ✅ Created dynamic sitemap and robots.txt:
-  - `src/app/sitemap.ts` - All restaurants, cities, states, cuisines
-  - `src/app/robots.ts` - Crawler guidance + AI bot blocking (GPTBot, CCBot, Claude-Web)
-  - Proper priorities and change frequencies for SEO
+**Homepage Redesign Finalized:**
+- ✅ Bold yellow hero section with road trip search
+- ✅ Popular routes section with curated routes
+- ✅ Browse by state/cuisine sections
+- ✅ Featured restaurants (Iconic Spots, Featured Winners)
+- ✅ Mobile responsiveness across all sections
 
-- ✅ Built high-value SEO pages:
-  - `/still-open` - Trust signal showing verified open restaurants by state
-  - `/closed` - Curiosity traffic with closure dates
-  - `/cuisines` - Browse all cuisine types
-  - `/cuisines/[slug]` - Individual cuisine pages (BBQ, Mexican, etc.)
+**Route Pages Enhanced:**
+- ✅ Two-column hero layout for route pages
+- ✅ Restaurant counts from database
+- ✅ View count tracking
+- ✅ Social sharing meta tags
 
-- ✅ Fixed all metadata to use full show name:
-  - Changed all "DDD" and "Triple D" to "Diners, Drive-ins and Dives"
-  - Updated layout.tsx, page.tsx, all restaurant/city/state pages
-  - Better for SEO - people search for the full name
+**Performance Fixes:**
+- ✅ Fixed database query inefficiencies across 8 pages
+- ✅ Show actual restaurant counts on homepage popular routes
+- ✅ Rate limiting added to roadtrip API
 
-- ✅ Added generateMetadata to dynamic pages:
-  - City pages: Full metadata with restaurant counts
-  - State pages: Full metadata with city counts
-  - Cuisine pages: Full metadata with restaurant counts
-  - All with proper ISR caching (revalidate = 3600)
+**Code Quality:**
+- ✅ Replaced custom SVG icons with Lucide
+- ✅ Used full show name throughout ("Diners, Drive-ins and Dives")
+- ✅ Search/filter components added to listing pages
 
-- ✅ Security and performance fixes:
-  - XSS protection: Created `safeStringifySchema()` to sanitize JSON-LD
-  - Fixed N+1 query: `getCuisinesWithCounts()` aggregates at database level
-  - Added error logging to all metadata generation functions
-  - Proper error handling in all page components
+### December 15, 2025 - Road Trip Planner & Deployment
 
-- ✅ Database helpers added:
-  - `getStates()`, `getCities()` - Geo data queries
-  - `getCuisines()`, `getCuisinesWithCounts()` - Cuisine queries
-  - `getCuisine()`, `getRestaurantsByCuisine()` - Cuisine detail pages
+**Road Trip Planner Complete:**
+- ✅ MapLibre GL JS map (free, open source)
+- ✅ City autocomplete with 1,444 cities (SimpleMaps, free)
+- ✅ Route caching with text-based lookup
+- ✅ Cache checks BEFORE Google API call (80-90% cost savings)
+- ✅ PostGIS spatial queries for restaurants near route
+- ✅ Configurable search radius (10-100 miles)
 
-**Code Review & Fixes:**
-- Fixed 3 Critical issues (N+1 query, error handling, XSS protection)
-- Fixed 2 Warnings (revalidation, error logging)
-- All TypeScript checks passing
+**Route Caching Optimization:**
+- ✅ Text-based cache lookup (normalized strings)
+- ✅ Input validation and security
+- ✅ Hit count tracking for analytics
+- ✅ 30-day TTL with automatic expiration
 
-**Commit:** `7a93ddf` - "feat: Add complete SEO infrastructure"
-- 13 files changed, 909 insertions, 30 deletions
-- 6 new files created
+**Deployment:**
+- ✅ App deployed to Vercel
+- ✅ Sitemap submitted to Google Search Console
+- ✅ Site being indexed
 
-**SEO Readiness:**
-- ✅ Sitemap with all page types
-- ✅ Robots.txt blocking AI scrapers
-- ✅ Full show name in all metadata
-- ✅ High-value content pages for long-tail keywords
-- ✅ XSS-protected structured data
-- ✅ ISR caching for performance
+**Commits:**
+- `173cbff` - feat: Add free city autocomplete to road trip planner
+- `337132d` - feat: Add road trip planner with MapLibre GL JS
 
-**Next Steps:**
-1. Run Playwright tests
-2. Deploy to Vercel
-3. Submit to Google Search Console
-
-### December 14, 2025 - Phase 2 Enrichment System Complete
-
-**Afternoon: Enrichment System Built & Tested**
-- ✅ Created CLI scripts for enrichment operations:
-  - `scripts/ingestion/enrich-restaurants.ts` - Full restaurant enrichment
-  - `scripts/ingestion/verify-status.ts` - Status verification with confidence scoring
-  - `scripts/ingestion/enrich-episodes.ts` - Episode meta descriptions
-  - `scripts/ingestion/check-enrichment.ts` - Data verification helper
-- ✅ Fixed database schema alignment issues (cuisine junction table)
-- ✅ Tested enrichment on 3 restaurants:
-  - Mac & Ernie's Roadside Eatery - Enriched + status verified as closed (90% confidence)
-  - Brint's Diner - Enriched with "American, Diner" cuisines
-  - Mad Greek Cafe - Enriched with "Greek" cuisine
-- ✅ Verified all components working:
-  - LLM enrichment (descriptions, cuisines, price tiers, Guy quotes)
-  - Tavily web search integration
-  - Google Places API status verification (with LLM fallback)
-  - Token tracking and cost estimation (~$0.0004 per restaurant enrichment)
-  - Cuisine linking via junction table
-
-**Enrichment System Architecture:**
-- Shared utilities: token-tracker, synthesis-client, result-parser, retry-handler, tavily-client, rate-limiter, logger
-- Repositories: restaurant, episode, city
-- Services: restaurant-enrichment, status-verification, episode-description
-- Workflows: manual-restaurant-addition, refresh-stale-restaurant, restaurant-status-sweep
-- Facade: llm-enricher.ts (public API)
-
-**Cost Metrics:**
-- Restaurant enrichment: ~2,000-2,400 tokens = $0.0004/restaurant
-- Status verification: ~1,800-1,900 tokens = $0.0003/restaurant (with Tavily fallback)
-- Using OpenAI gpt-4o-mini with Flex tier (50% cost savings)
-
-**Next Steps:**
-1. Import more restaurants (40 recent episodes = ~120 restaurants)
-2. Run bulk enrichment on imported data
-3. Run Playwright tests
-4. Deploy to Vercel
-
-### December 14, 2025 - Phase 1A Data Pipeline Complete
+### December 14, 2025 - Foundation & Enrichment
 
 **Morning: Foundation Complete**
-- ✅ Complete database schema with PostGIS extension (`supabase/migrations/001_initial_schema.sql`)
-- ✅ Environment validation with Zod (`src/lib/env.ts`)
-- ✅ Supabase client with type-safe query functions (`src/lib/supabase.ts`)
-- ✅ Homepage with stats (`src/app/page.tsx`)
-- ✅ Restaurant detail pages (`src/app/restaurant/[slug]/page.tsx`)
-- ✅ City landing pages (`src/app/city/[state]/[city]/page.tsx`)
-- ✅ State landing pages (`src/app/state/[state]/page.tsx`)
-- ✅ Migration script (`scripts/db/apply-migration.ts`)
+- ✅ Database schema with PostGIS
+- ✅ Environment validation with Zod
+- ✅ Restaurant, city, state pages
+- ✅ Homepage with stats
 
 **Afternoon: Data Pipeline Built**
-- ✅ Added cache table to database (`supabase/migrations/002_add_cache_table.sql`)
-- ✅ Wikipedia caching system in Supabase (`scripts/ingestion/cache-wikipedia.ts`)
-  - Fetches from Tavily once, stores in Supabase cache table
-  - 7-day expiration, ready for Vercel cron auto-refresh
-  - Cached 572 episodes with 1,695 restaurants
-- ✅ Wikipedia parser (`scripts/ingestion/parse-wikipedia.ts`)
-  - Reads from Supabase cache (zero Tavily API calls)
-  - Parses episodes, restaurants, locations (city/state/country)
-  - Handles multiple restaurants per episode
-- ✅ Database import script (`scripts/ingestion/import-from-wikipedia.ts`)
-  - Supports `--limit N`, `--recent`, `--all` flags
-  - Generates slugs, parses air dates
-  - Links episodes ↔ restaurants via junction table
-  - Tested successfully: 1 episode, 3 restaurants imported
-- ✅ Verification script (`scripts/ingestion/verify-import.ts`)
-  - Confirms data integrity in database
+- ✅ Wikipedia caching system (Tavily → Supabase)
+- ✅ Parser for 572 episodes, 1,695 restaurants
+- ✅ Import scripts with --limit, --recent, --all flags
+- ✅ Verification scripts
 
-**Code Reviews Completed:**
-1. **First Review** - Fixed 20 issues (4 Critical, 10 Warnings, 6 Suggestions)
-2. **Second Review** - Fixed 8 issues (4 Critical, 4 Warnings)
+**Enrichment System Complete:**
+- ✅ LLM enrichment with OpenAI gpt-4o-mini
+- ✅ Tavily web search integration
+- ✅ Google Places API for status verification
+- ✅ CLI scripts for all operations
+- ✅ Cost: ~$6.78 for all 1,541 restaurants
 
-**Quality Metrics:**
-- TypeScript: ✅ Passing
-- Code Quality: 9.8/10
-- Database: Cache system like chefs app (Supabase-based, persistent)
+**SEO Infrastructure:**
+- ✅ Dynamic sitemap with all page types
+- ✅ Robots.txt with AI bot blocking
+- ✅ High-value pages (/still-open, /closed, /cuisines)
+- ✅ Full metadata with proper show name
+- ✅ XSS-protected JSON-LD structured data
 
-**Data Available:**
-- **572 episodes** (Seasons 1-42, 2007-2025)
-- **1,695 restaurants** total
-- **40 recent episodes** (2024-2026) ready for SEO-first import
+---
 
-**Scripts Ready:**
-```bash
-# Cache Wikipedia (one Tavily call, lasts 7 days)
-npx tsx scripts/ingestion/cache-wikipedia.ts
+## Architecture Implemented
 
-# Import test data (1 episode)
-npx tsx scripts/ingestion/import-from-wikipedia.ts --limit 1
+### Database (14 migrations)
+- Core tables: restaurants, episodes, cuisines, dishes, cities, states
+- Junction tables: restaurant_episodes, restaurant_cuisines
+- Route caching: route_cache with PostGIS
+- RPC functions: get_restaurants_near_route, get_routes_with_counts
 
-# Import recent (40 episodes, ~120 restaurants)
-npx tsx scripts/ingestion/import-from-wikipedia.ts --recent
+### Frontend Components
+- Homepage: HeroSection, HeroRoadTrip, PopularRoutes, BrowseSection
+- Road trip: SearchForm, CityAutocomplete, RouteMap, RestaurantList
+- Restaurant: RestaurantCard, RestaurantFilters, MiniMap
+- Shared: RouteCard, PageHero, Badge, Button, Card
 
-# Import all (572 episodes, 1,695 restaurants)
-npx tsx scripts/ingestion/import-from-wikipedia.ts --all
-```
+### API Routes
+- `/api/roadtrip` - Route planning with caching
+- `/api/restaurants` - Restaurant search
+- `/api/restaurants/map-pins` - Lightweight map data
 
-**Next Steps:**
-1. Import recent 40 episodes (2024-2026) for SEO priority
-2. Deploy to Vercel with initial data
-3. Submit to Google Search Console
-4. Phase 2: Build enrichment pipeline (LLM descriptions, Google Places)
+### Scripts
+- Enrichment: enrich-restaurants.ts, verify-status.ts, enrich-episodes.ts
+- Data: populate-curated-routes.ts, geocode-restaurants.ts
+- Utilities: check-enrichment.ts, verify-import.ts
 
-(Detailed phase histories will be documented in `/memory-bank/archive/` as project progresses)
+---
+
+## Cost Summary
+
+**Enrichment (one-time):**
+- LLM enrichment: ~$6.78 for 1,541 restaurants
+- Tavily search: Included in above
+- Google Places: Minimal (status verification)
+
+**Ongoing (monthly):**
+- Google Directions API: ~$0 (caching keeps within free tier)
+- MapLibre GL: $0 (open source)
+- Supabase: Free tier
+- Vercel: Free tier
+
+---
+
+## Market Context
+
+**Competitor Analysis:**
+- Primary: dinersdriveinsdiveslocations.com - 263k monthly visitors
+- Secondary: flavortownusa.com - 86k monthly visitors
+- Keyword gap: 39,829 untapped keywords
+
+**Our Advantages:**
+1. ✅ Open/closed verification (100% complete)
+2. ✅ Road trip planner (unique feature)
+3. ✅ Interactive map
+4. ✅ Modern, mobile-first UX
+5. ✅ Current data (Dec 2025)
