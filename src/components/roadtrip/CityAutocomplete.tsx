@@ -108,14 +108,14 @@ export default function CityAutocomplete({
   }, [onChange]);
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="city-autocomplete-container">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="city-autocomplete-label">
           {label}
         </label>
       )}
 
-      <div className="relative">
+      <div className="city-autocomplete-wrapper">
         <input
           ref={inputRef}
           type="text"
@@ -126,7 +126,7 @@ export default function CityAutocomplete({
           onBlur={handleBlur}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="city-autocomplete-input"
           autoComplete="off"
           role="combobox"
           aria-autocomplete="list"
@@ -140,11 +140,11 @@ export default function CityAutocomplete({
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="city-autocomplete-clear"
             aria-label="Clear input"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+              <path d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         )}
@@ -162,7 +162,7 @@ export default function CityAutocomplete({
         <div
           id="city-suggestions-list"
           role="listbox"
-          className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+          className="city-autocomplete-dropdown"
         >
           {suggestions.map((city, index) => (
             <div
@@ -172,27 +172,27 @@ export default function CityAutocomplete({
               aria-selected={index === selectedIndex}
               onClick={() => selectCity(city)}
               onMouseEnter={() => setSelectedIndex(index)}
-              className={`w-full px-4 py-2 cursor-pointer text-left hover:bg-gray-50 ${
-                index === selectedIndex ? 'bg-gray-100' : ''
+              className={`city-autocomplete-option ${
+                index === selectedIndex ? 'city-autocomplete-option-selected' : ''
               }`}
             >
-              <span className="font-medium text-gray-900">
+              <span className="city-autocomplete-option-text">
                 {city.city}, {city.state}
               </span>
             </div>
           ))}
 
           {/* Hint at bottom */}
-          <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 border-t border-gray-200">
-            Use ↑↓ to navigate, Enter to select, Esc to close
+          <div className="city-autocomplete-hint">
+            ↑↓ Navigate • Enter Select • Esc Close
           </div>
         </div>
       )}
 
       {/* Helper text */}
       {!showSuggestions && value.trim().length > 0 && suggestions.length === 0 && (
-        <p className="mt-1 text-sm text-gray-500">
-          No matches found. Try &quot;{value}, [STATE]&quot; (e.g. &quot;Springfield, IL&quot;)
+        <p className="city-autocomplete-no-match">
+          No matches. Try &quot;{value}, [STATE]&quot;
         </p>
       )}
     </div>

@@ -73,7 +73,7 @@ export default function SearchForm({
       )}
 
       {/* Origin & Destination Row */}
-      <div className="hero-form-row">
+      <div className="hero-form-row hero-form-row-locations">
         {/* Origin */}
         <div className="hero-form-field">
           <label className="hero-form-label">
@@ -106,10 +106,8 @@ export default function SearchForm({
             <path d="M17 8V20M17 20L21 16M17 20L13 16" />
           </svg>
         </button>
-      </div>
 
-      {/* Destination Row */}
-      <div className="hero-form-row">
+        {/* Destination */}
         <div className="hero-form-field">
           <label className="hero-form-label">
             <svg className="hero-form-label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -142,7 +142,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
           <form onSubmit={handleSubmit} className="hero-search-form">
             <div className="hero-form-accent" />
 
-            <div className="hero-form-row">
+            <div className="hero-form-row hero-form-row-locations">
               {/* Origin */}
               <div className="hero-form-field">
                 <label className="hero-form-label">
@@ -175,9 +175,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
                   <path d="M17 8V20M17 20L21 16M17 20L13 16" />
                 </svg>
               </button>
-            </div>
 
-            <div className="hero-form-row">
               {/* Destination */}
               <div className="hero-form-field">
                 <label className="hero-form-label">
