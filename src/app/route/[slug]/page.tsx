@@ -14,6 +14,9 @@ interface RoutePageProps {
   params: Promise<{
     slug: string;
   }>;
+  searchParams: Promise<{
+    radius?: string;
+  }>;
 }
 
 export async function generateMetadata({ params }: RoutePageProps): Promise<Metadata> {
@@ -54,19 +57,31 @@ export async function generateMetadata({ params }: RoutePageProps): Promise<Meta
   }
 }
 
-export default async function RoutePage({ params }: RoutePageProps) {
+// Valid radius options (must match SearchForm)
+const ALLOWED_RADIUS = [10, 25, 50, 100] as const;
+
+export default async function RoutePage({ params, searchParams }: RoutePageProps) {
   const { slug } = await params;
+  const { radius: radiusParam } = await searchParams;
   const route = await db.getRouteBySlug(slug);
 
   if (!route) {
     notFound();
   }
 
-  // Get restaurants along this route and increment view count in parallel
-  const [restaurants] = await Promise.all([
-    db.getRestaurantsNearRoute(route.id, 25), // 25 mile radius to catch more restaurants
-    db.incrementRouteViews(route.id), // Fire and forget
-  ]);
+  // Parse radius and snap to nearest valid value
+  const parsedRadius = parseInt(radiusParam || '25', 10) || 25;
+  const radiusMiles = ALLOWED_RADIUS.reduce((prev, curr) =>
+    Math.abs(curr - parsedRadius) < Math.abs(prev - parsedRadius) ? curr : prev
+  );
+
+  // Get restaurants along this route
+  const restaurants = await db.getRestaurantsNearRoute(route.id, radiusMiles);
+
+  // Increment view count (fire and forget - don't block on failure)
+  db.incrementRouteViews(route.id).catch(err =>
+    console.error('Failed to increment route views:', err)
+  );
 
   const distanceMiles = Math.round(route.distance_meters / 1609.34);
   const durationHours = Math.round(route.duration_seconds / 3600 * 10) / 10;

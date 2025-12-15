@@ -7,9 +7,8 @@ export const dynamic = 'force-dynamic';
 
 // Input validation schema
 const requestSchema = z.object({
-  origin: z.string().min(1).max(200),
-  destination: z.string().min(1).max(200),
-  radiusMiles: z.number().min(10).max(100).optional().default(25)
+  origin: z.string().trim().min(1).max(200),
+  destination: z.string().trim().min(1).max(200),
 });
 
 export async function POST(request: NextRequest) {
@@ -17,8 +16,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate inputs with Zod
-    const validatedBody = requestSchema.parse(body);
-    const { origin, destination, radiusMiles } = validatedBody;
+    const { origin, destination } = requestSchema.parse(body);
 
     // Check cache FIRST (by text, before calling Google API)
     let cachedRoute = await db.findCachedRouteByText(origin, destination);
@@ -42,18 +40,21 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString()
       });
 
-      // Get restaurants near route
-      const restaurants = await db.getRestaurantsNearRoute(routeId, radiusMiles);
+      // Ensure route has a slug (may not exist for older cached routes)
+      let slug = (cachedRoute as any).slug;
+      if (!slug) {
+        slug = await db.ensureRouteHasSlug(routeId, origin, destination);
+      }
+
+      if (!slug) {
+        return NextResponse.json(
+          { error: 'Failed to generate route slug' },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json({
-        route: {
-          polyline: cachedRoute.polyline,
-          polylinePoints: cachedRoute.polyline_points,
-          distanceMeters: cachedRoute.distance_meters,
-          durationSeconds: cachedRoute.duration_seconds,
-          bounds: (cachedRoute as any).google_response?.bounds || null
-        },
-        restaurants,
+        slug,
         cached
       });
     }
@@ -70,23 +71,18 @@ export async function POST(request: NextRequest) {
     // Save to cache for next time
     routeId = await db.saveRoute(origin, destination, directionsResponse);
 
-    // Auto-generate slug for SEO (fire and forget - don't block response)
-    db.ensureRouteHasSlug(routeId, origin, destination).catch(err => {
-      console.error('[SLUG GENERATION ERROR]', err);
-    });
+    // Generate slug for redirect (wait for it, don't fire-and-forget)
+    const slug = await db.ensureRouteHasSlug(routeId, origin, destination);
 
-    // Get restaurants near route
-    const restaurants = await db.getRestaurantsNearRoute(routeId, radiusMiles);
+    if (!slug) {
+      return NextResponse.json(
+        { error: 'Failed to generate route slug' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
-      route: {
-        polyline: directionsResponse.polyline,
-        polylinePoints: directionsResponse.polylinePoints,
-        distanceMeters: directionsResponse.distanceMeters,
-        durationSeconds: directionsResponse.durationSeconds,
-        bounds: directionsResponse.bounds
-      },
-      restaurants,
+      slug,
       cached
     });
   } catch (error) {

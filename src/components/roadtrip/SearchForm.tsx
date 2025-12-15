@@ -2,6 +2,7 @@
 
 import CityAutocomplete from './CityAutocomplete';
 import type { City } from '@/lib/cityMatcher';
+import { MapPin, Flag, ArrowUpDown, Search } from 'lucide-react';
 
 interface SearchFormProps {
   origin: string;
@@ -46,10 +47,7 @@ export default function SearchForm({
         {/* Origin */}
         <div className="hero-form-field">
           <label className="hero-form-label">
-            <svg className="hero-form-label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
+            <MapPin className="hero-form-label-icon" />
             START
           </label>
           <CityAutocomplete
@@ -70,19 +68,13 @@ export default function SearchForm({
           title="Swap locations"
           aria-label="Swap origin and destination"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M7 16V4M7 4L3 8M7 4L11 8" />
-            <path d="M17 8V20M17 20L21 16M17 20L13 16" />
-          </svg>
+          <ArrowUpDown strokeWidth={2.5} />
         </button>
 
         {/* Destination */}
         <div className="hero-form-field">
           <label className="hero-form-label">
-            <svg className="hero-form-label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-              <line x1="4" y1="22" x2="4" y2="15"/>
-            </svg>
+            <Flag className="hero-form-label-icon" />
             END
           </label>
           <CityAutocomplete
@@ -135,11 +127,7 @@ export default function SearchForm({
           </>
         ) : (
           <>
-            <svg className="hero-submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 17h14v-5l-1.5-4.5h-11L5 12v5z"/>
-              <circle cx="7.5" cy="17.5" r="1.5"/>
-              <circle cx="16.5" cy="17.5" r="1.5"/>
-            </svg>
+            <Search className="hero-submit-icon" />
             FIND RESTAURANTS
           </>
         )}
