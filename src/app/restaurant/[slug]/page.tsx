@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { db } from '@/lib/supabase';
+import { db, getCachedRestaurant } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { RestaurantHero } from '@/components/restaurant/RestaurantHero';
@@ -13,26 +13,12 @@ interface RestaurantPageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function getStateRestaurants(state: string | null, excludeId: string) {
-  if (!state) return [];
-
-  try {
-    const allRestaurants = await db.getRestaurants();
-    return allRestaurants
-      .filter(r => r.state === state && r.id !== excludeId)
-      .sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0))
-      .slice(0, 6);
-  } catch {
-    return [];
-  }
-}
-
 
 export async function generateMetadata({ params }: RestaurantPageProps): Promise<Metadata> {
   const { slug } = await params;
 
   try {
-    const restaurant = await db.getRestaurant(slug);
+    const restaurant = await getCachedRestaurant(slug);
 
     if (!restaurant) {
       return {
@@ -77,13 +63,16 @@ export async function generateMetadata({ params }: RestaurantPageProps): Promise
 
 export default async function RestaurantPage({ params }: RestaurantPageProps) {
   const { slug } = await params;
-  const restaurant = await db.getRestaurant(slug);
+  const restaurant = await getCachedRestaurant(slug);
 
   if (!restaurant) {
     notFound();
   }
 
-  const stateRestaurants = await getStateRestaurants(restaurant.state, restaurant.id);
+  // Use efficient DB query instead of fetching ALL restaurants
+  const stateRestaurants = restaurant.state
+    ? await db.getTopRestaurantsByState(restaurant.state, restaurant.id, 6)
+    : [];
 
   // Generate structured data for SEO
   const restaurantSchema = generateRestaurantSchema(restaurant);

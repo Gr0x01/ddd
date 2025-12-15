@@ -1,4 +1,4 @@
-import { db, Restaurant } from '@/lib/supabase';
+import { db, Restaurant, getCachedRestaurantStats } from '@/lib/supabase';
 import { Metadata } from 'next';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
@@ -10,11 +10,11 @@ export const revalidate = 3600; // Revalidate every hour
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const restaurants = await db.getRestaurants();
-    const openCount = restaurants.filter(r => r.status === 'open').length;
+    // Use efficient stats query - just counts, not full records
+    const stats = await getCachedRestaurantStats();
 
-    const title = `All ${restaurants.length} Diners, Drive-ins and Dives Restaurants | Guy Fieri`;
-    const description = `Browse all ${restaurants.length} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives. ${openCount} still open. View photos, ratings, and detailed info for every location.`;
+    const title = `All ${stats.total} Diners, Drive-ins and Dives Restaurants | Guy Fieri`;
+    const description = `Browse all ${stats.total} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives. ${stats.open} still open. View photos, ratings, and detailed info for every location.`;
 
     return {
       title,

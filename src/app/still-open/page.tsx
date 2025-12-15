@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { db } from '@/lib/supabase';
+import { getCachedRestaurantsByStatus } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
@@ -10,8 +10,8 @@ import { generateItemListSchema, safeStringifySchema } from '@/lib/schema';
 export const revalidate = 3600; // Revalidate every hour
 
 export async function generateMetadata(): Promise<Metadata> {
-  const restaurants = await db.getRestaurants();
-  const openRestaurants = restaurants.filter(r => r.status === 'open');
+  // Use cached + filtered query instead of fetching ALL restaurants
+  const openRestaurants = await getCachedRestaurantsByStatus('open');
 
   const title = `${openRestaurants.length} Diners, Drive-ins and Dives Restaurants Still Open | Guy Fieri`;
   const description = `Find ${openRestaurants.length} restaurants from Guy Fieri's Diners, Drive-ins and Dives that are still open and serving. Verified locations with photos, ratings, and directions.`;
@@ -33,8 +33,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function StillOpenPage() {
-  const allRestaurants = await db.getRestaurants();
-  const openRestaurants = allRestaurants.filter(r => r.status === 'open');
+  // Use cached + filtered query (same call as metadata, deduplicated by React cache)
+  const openRestaurants = await getCachedRestaurantsByStatus('open');
 
   // Group by state for better organization
   const restaurantsByState = openRestaurants.reduce((acc, restaurant) => {

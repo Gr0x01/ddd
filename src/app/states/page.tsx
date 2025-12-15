@@ -83,17 +83,14 @@ interface StateWithCount {
 }
 
 export default async function StatesPage() {
-  // Fetch all restaurants to count by state
-  const allRestaurants = await db.getRestaurants();
-  const totalRestaurants = allRestaurants.length;
+  // Use efficient aggregation query instead of fetching ALL restaurants
+  const stateCounts = await db.getRestaurantCountsByState();
+  const totalRestaurants = stateCounts.reduce((sum, s) => sum + s.count, 0);
 
-  // Count restaurants by state abbreviation
+  // Convert to lookup object
   const restaurantCountByState: Record<string, number> = {};
-  allRestaurants.forEach((restaurant) => {
-    const state = restaurant.state || '';
-    if (state) {
-      restaurantCountByState[state] = (restaurantCountByState[state] || 0) + 1;
-    }
+  stateCounts.forEach(({ state, count }) => {
+    restaurantCountByState[state] = count;
   });
 
   // Helper to generate slug matching states table

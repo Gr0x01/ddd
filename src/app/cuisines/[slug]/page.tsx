@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { db } from '@/lib/supabase';
+import { getCachedCuisine, getCachedRestaurantsByCuisine } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
@@ -17,8 +17,9 @@ export async function generateMetadata({ params }: CuisinePageProps): Promise<Me
   const { slug } = await params;
 
   try {
-    const cuisine = await db.getCuisine(slug);
-    const restaurants = await db.getRestaurantsByCuisine(slug);
+    // Use cached functions - deduplicated with page component
+    const cuisine = await getCachedCuisine(slug);
+    const restaurants = await getCachedRestaurantsByCuisine(slug);
     const openCount = restaurants.filter(r => r.status === 'open').length;
 
     const title = `${restaurants.length} ${cuisine.name} Restaurants | Diners, Drive-ins and Dives`;
@@ -53,8 +54,9 @@ export default async function CuisinePage({ params }: CuisinePageProps) {
   let cuisine;
   let restaurants;
   try {
-    cuisine = await db.getCuisine(slug);
-    restaurants = await db.getRestaurantsByCuisine(slug);
+    // Use cached functions - same calls as metadata, deduplicated by React cache
+    cuisine = await getCachedCuisine(slug);
+    restaurants = await getCachedRestaurantsByCuisine(slug);
   } catch (error) {
     console.error('Error loading cuisine page:', error);
     notFound();

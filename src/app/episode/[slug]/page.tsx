@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { db, Restaurant } from '@/lib/supabase';
+import { db, Restaurant, getCachedEpisode } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: EpisodePageProps): Promise<Me
   const { slug } = await params;
 
   try {
-    const episode = await db.getEpisode(slug);
+    const episode = await getCachedEpisode(slug);
 
     if (!episode) {
       return {
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: EpisodePageProps): Promise<Me
 
 export default async function EpisodePage({ params }: EpisodePageProps) {
   const { slug } = await params;
-  const episode = await db.getEpisode(slug);
+  const episode = await getCachedEpisode(slug);
 
   if (!episode) {
     notFound();

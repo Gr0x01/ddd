@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { db } from '@/lib/supabase';
+import { getCachedRestaurantsByStatus } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
@@ -8,8 +8,8 @@ import { PageHero } from '@/components/ui/PageHero';
 export const revalidate = 3600; // Revalidate every hour
 
 export async function generateMetadata(): Promise<Metadata> {
-  const restaurants = await db.getRestaurants();
-  const closedRestaurants = restaurants.filter(r => r.status === 'closed');
+  // Use cached + filtered query instead of fetching ALL restaurants
+  const closedRestaurants = await getCachedRestaurantsByStatus('closed');
 
   const title = `${closedRestaurants.length} Closed Diners, Drive-ins and Dives Restaurants | Guy Fieri`;
   const description = `Discover which restaurants from Guy Fieri's Diners, Drive-ins and Dives have closed. ${closedRestaurants.length} locations that are no longer open, with closure dates when known.`;
@@ -31,8 +31,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ClosedPage() {
-  const allRestaurants = await db.getRestaurants();
-  const closedRestaurants = allRestaurants.filter(r => r.status === 'closed');
+  // Use cached + filtered query (same call as metadata, deduplicated by React cache)
+  const closedRestaurants = await getCachedRestaurantsByStatus('closed');
 
   // Group by state
   const restaurantsByState = closedRestaurants.reduce((acc, restaurant) => {

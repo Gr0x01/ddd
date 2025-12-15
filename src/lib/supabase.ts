@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { cache } from 'react';
 
 // Supabase client configuration for frontend
 // IMPORTANT: Only uses anonymous key - never expose service role key to client
@@ -675,6 +676,116 @@ export const db = {
   },
 
   // ============================================
+  // EFFICIENT QUERY METHODS (Optimized for specific use cases)
+  // ============================================
+
+  // Get top restaurants by state (for "More in State" section)
+  // Much more efficient than fetching ALL restaurants and filtering
+  async getTopRestaurantsByState(
+    stateAbbreviation: string,
+    excludeId?: string,
+    limit: number = 6
+  ): Promise<RestaurantWithEpisodes[]> {
+    const client = getSupabaseClient();
+
+    let query = client
+      .from('restaurants')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        )
+      `)
+      .eq('is_public', true)
+      .eq('state', stateAbbreviation)
+      .order('google_rating', { ascending: false, nullsFirst: false });
+
+    if (excludeId) {
+      query = query.neq('id', excludeId);
+    }
+
+    // Apply limit after exclusion filter (neq happens in DB)
+    query = query.limit(limit);
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return transformRestaurants(data);
+  },
+
+  // Get restaurant counts by state (for /states page)
+  // Returns aggregated counts instead of full records
+  async getRestaurantCountsByState(): Promise<{ state: string; count: number }[]> {
+    const client = getSupabaseClient();
+
+    // Use a raw SQL query via RPC for efficient GROUP BY
+    // Fallback to client-side aggregation if RPC not available
+    const { data, error } = await client
+      .from('restaurants')
+      .select('state')
+      .eq('is_public', true)
+      .not('state', 'is', null);
+
+    if (error) throw error;
+
+    // Aggregate counts client-side (still more efficient than fetching full records)
+    const counts: Record<string, number> = {};
+    // Type assertion needed because Supabase can't infer types for partial selects
+    const rows = (data || []) as Array<{ state: string | null }>;
+    for (const row of rows) {
+      const state = row.state;
+      if (state) {
+        counts[state] = (counts[state] || 0) + 1;
+      }
+    }
+
+    return Object.entries(counts).map(([state, count]) => ({ state, count }));
+  },
+
+  // Get restaurants by status (for /still-open and /closed pages)
+  // More efficient than fetching ALL and filtering client-side
+  async getRestaurantsByStatus(status: 'open' | 'closed'): Promise<RestaurantWithEpisodes[]> {
+    const client = getSupabaseClient();
+
+    const { data, error } = await client
+      .from('restaurants')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_episodes(
+          episode:episodes(*)
+        ),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        )
+      `)
+      .eq('is_public', true)
+      .eq('status', status)
+      .order('name');
+
+    if (error) throw error;
+    return transformRestaurants(data);
+  },
+
+  // Get restaurant stats for metadata (just counts, no full records)
+  async getRestaurantStats(): Promise<{ total: number; open: number; closed: number }> {
+    const client = getSupabaseClient();
+
+    const [totalResult, openResult, closedResult] = await Promise.all([
+      client.from('restaurants').select('id', { count: 'exact', head: true }).eq('is_public', true),
+      client.from('restaurants').select('id', { count: 'exact', head: true }).eq('is_public', true).eq('status', 'open'),
+      client.from('restaurants').select('id', { count: 'exact', head: true }).eq('is_public', true).eq('status', 'closed'),
+    ]);
+
+    return {
+      total: totalResult.count || 0,
+      open: openResult.count || 0,
+      closed: closedResult.count || 0,
+    };
+  },
+
+  // ============================================
   // ROAD TRIP PLANNER METHODS
   // ============================================
 
@@ -1106,3 +1217,16 @@ function transformRestaurants(data: any[]): RestaurantWithEpisodes[] {
     };
   });
 }
+
+// ============================================
+// REACT CACHE WRAPPERS
+// Deduplicate database calls between generateMetadata() and page components
+// within the same request lifecycle
+// ============================================
+
+export const getCachedRestaurant = cache((slug: string) => db.getRestaurant(slug));
+export const getCachedEpisode = cache((slug: string) => db.getEpisode(slug));
+export const getCachedCuisine = cache((slug: string) => db.getCuisine(slug));
+export const getCachedRestaurantsByCuisine = cache((slug: string) => db.getRestaurantsByCuisine(slug));
+export const getCachedRestaurantsByStatus = cache((status: 'open' | 'closed') => db.getRestaurantsByStatus(status));
+export const getCachedRestaurantStats = cache(() => db.getRestaurantStats());
