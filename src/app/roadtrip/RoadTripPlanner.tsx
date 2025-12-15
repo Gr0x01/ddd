@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { PageHero } from '@/components/ui/PageHero';
 import SearchForm from '@/components/roadtrip/SearchForm';
 import RouteMap from '@/components/roadtrip/RouteMap';
 import RestaurantList from '@/components/roadtrip/RestaurantList';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { RestaurantNearRoute } from '@/lib/supabase';
 import type { City } from '@/lib/cityMatcher';
 
@@ -176,101 +176,121 @@ export default function RoadTripPlanner() {
 
   return (
     <>
-      <PageHero
-        title="Road Trip Planner"
-        subtitle="Find Guy Fieri-approved restaurants along your route"
-        breadcrumbItems={[
-          { label: 'Home', href: '/' },
-          { label: 'Road Trip' }
-        ]}
-      />
+      {/* Custom Hero - Road Trip Planner */}
+      <section className="roadtrip-hero">
+        <div className="roadtrip-hero-stripe" />
+        <div className="roadtrip-hero-pattern" />
 
-      <main id="main-content" style={{ background: 'var(--bg-primary)' }}>
-        {/* Search Form Section */}
-        <section className="py-8 sm:py-12">
-          <div className="max-w-6xl mx-auto px-4">
-            {citiesLoading ? (
-              <div
-                className="p-8 text-center"
-                style={{ background: 'var(--bg-secondary)', border: '2px solid var(--border-light)' }}
-              >
-                <div className="inline-flex items-center gap-3">
-                  <div
-                    className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin"
-                    style={{ borderColor: 'var(--accent-primary)', borderTopColor: 'transparent' }}
-                  />
-                  <span className="font-mono text-sm tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                    LOADING CITY DATA...
-                  </span>
-                </div>
-              </div>
-            ) : citiesError ? (
-              <div
-                className="p-6"
-                style={{
-                  background: 'var(--bg-secondary)',
-                  border: '2px solid var(--accent-primary)'
-                }}
-              >
-                <div className="flex items-start gap-4">
-                  <div
-                    className="w-10 h-10 flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'var(--accent-primary)' }}
-                  >
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-display text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                      Failed to Load City Data
-                    </h3>
-                    <p className="font-body mb-4" style={{ color: 'var(--text-secondary)' }}>
-                      {citiesError}
-                    </p>
-                    <button
-                      onClick={() => window.location.reload()}
-                      className="font-mono text-sm font-semibold tracking-wider px-4 py-2 transition-colors"
-                      style={{
-                        background: 'var(--accent-primary)',
-                        color: 'white'
-                      }}
-                    >
-                      RELOAD PAGE
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <SearchForm
-                origin={state.origin}
-                destination={state.destination}
-                radiusMiles={state.radiusMiles}
-                isLoading={state.isLoading}
-                cities={cities}
-                onOriginChange={(origin) => setState(prev => ({ ...prev, origin }))}
-                onDestinationChange={(destination) => setState(prev => ({ ...prev, destination }))}
-                onRadiusChange={(radiusMiles) => setState(prev => ({ ...prev, radiusMiles }))}
-                onSubmit={planRoute}
-              />
-            )}
-
-            {state.error && (
-              <div
-                className="mt-6 p-4 flex items-start gap-3"
-                style={{
-                  background: 'var(--bg-secondary)',
-                  border: '2px solid var(--accent-primary)'
-                }}
-              >
-                <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--accent-primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="font-body" style={{ color: 'var(--text-primary)' }}>{state.error}</p>
-              </div>
-            )}
+        <div className="roadtrip-hero-container">
+          {/* Breadcrumbs */}
+          <div className="roadtrip-hero-breadcrumbs">
+            <Breadcrumbs
+              items={[
+                { label: 'Home', href: '/' },
+                { label: 'Road Trip' }
+              ]}
+              className="[&_a]:text-[#1A1A1D]/60 [&_a:hover]:text-[#1A1A1D] [&_span]:text-[#1A1A1D] [&_svg]:text-[#1A1A1D]/30"
+            />
           </div>
-        </section>
+
+          <div className="roadtrip-hero-grid">
+            {/* Left Column - Title */}
+            <div className="roadtrip-hero-left">
+              <h1 className="roadtrip-hero-title">
+                Road Trip Planner
+              </h1>
+
+              <p className="roadtrip-hero-description">
+                Find <strong>Diners, Drive-ins and Dives</strong> restaurants along your route. Enter your start and end points to discover Guy Fieri-approved spots on the way.
+              </p>
+            </div>
+
+            {/* Right Column - Search Form */}
+            <div className="roadtrip-hero-right">
+              {citiesLoading ? (
+                <div
+                  className="hero-search-form"
+                  style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '280px' }}
+                >
+                  <div className="hero-form-accent" />
+                  <div className="inline-flex items-center gap-3">
+                    <div
+                      className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin"
+                      style={{ borderColor: 'var(--accent-primary)', borderTopColor: 'transparent' }}
+                    />
+                    <span className="font-mono text-sm tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                      LOADING CITY DATA...
+                    </span>
+                  </div>
+                </div>
+              ) : citiesError ? (
+                <div className="hero-search-form">
+                  <div className="hero-form-accent" />
+                  <div className="flex items-start gap-4">
+                    <div
+                      className="w-10 h-10 flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'var(--accent-primary)' }}
+                    >
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-display text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                        Failed to Load City Data
+                      </h3>
+                      <p className="font-body mb-4" style={{ color: 'var(--text-secondary)' }}>
+                        {citiesError}
+                      </p>
+                      <button
+                        onClick={() => window.location.reload()}
+                        className="font-mono text-sm font-semibold tracking-wider px-4 py-2 transition-colors"
+                        style={{
+                          background: 'var(--accent-primary)',
+                          color: 'white'
+                        }}
+                      >
+                        RELOAD PAGE
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <SearchForm
+                  origin={state.origin}
+                  destination={state.destination}
+                  radiusMiles={state.radiusMiles}
+                  isLoading={state.isLoading}
+                  cities={cities}
+                  onOriginChange={(origin) => setState(prev => ({ ...prev, origin }))}
+                  onDestinationChange={(destination) => setState(prev => ({ ...prev, destination }))}
+                  onRadiusChange={(radiusMiles) => setState(prev => ({ ...prev, radiusMiles }))}
+                  onSubmit={planRoute}
+                />
+              )}
+
+              {state.error && (
+                <div
+                  className="mt-6 p-4 flex items-start gap-3"
+                  style={{
+                    background: 'white',
+                    border: '2px solid var(--accent-primary)'
+                  }}
+                >
+                  <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--accent-primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="font-body" style={{ color: 'var(--text-primary)' }}>{state.error}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="roadtrip-hero-accent" />
+      </section>
+
+      <main id="main-content" style={{ background: 'var(--bg-primary)' }} className="roadtrip-main">
 
         {/* Results Section */}
         {state.route && (

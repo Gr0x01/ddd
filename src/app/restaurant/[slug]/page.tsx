@@ -1,12 +1,12 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { db } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { RestaurantHero } from '@/components/restaurant/RestaurantHero';
 import { MiniMapWrapper } from '@/components/restaurant/MiniMapWrapper';
+import { RestaurantCardOverlay } from '@/components/restaurant/RestaurantCardOverlay';
 import { generateRestaurantSchema, generateBreadcrumbSchema, safeStringifySchema } from '@/lib/schema';
 
 interface RestaurantPageProps {
@@ -27,14 +27,6 @@ async function getStateRestaurants(state: string | null, excludeId: string) {
   }
 }
 
-// Filter photos to only include valid URL strings
-function getFirstPhoto(photos: string[] | null | undefined): string | null {
-  if (!photos || !Array.isArray(photos)) return null;
-  const validPhoto = photos.find(
-    (photo): photo is string => typeof photo === 'string' && photo.startsWith('http')
-  );
-  return validPhoto || null;
-}
 
 export async function generateMetadata({ params }: RestaurantPageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -278,43 +270,13 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                 </div>
 
                 <div className="restaurant-more-grid">
-                  {stateRestaurants.map((r, index) => {
-                    const photoUrl = getFirstPhoto(r.photos);
-                    return (
-                      <Link
-                        key={r.id}
-                        href={`/restaurant/${r.slug}`}
-                        className="restaurant-more-card"
-                        style={{ animationDelay: `${index * 50}ms` }}
-                      >
-                        <div className="restaurant-more-card-image">
-                          {photoUrl ? (
-                            <Image
-                              src={photoUrl}
-                              alt={r.name}
-                              fill
-                              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                              className="restaurant-more-card-img"
-                            />
-                          ) : (
-                            <div className="restaurant-more-card-placeholder">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                              </svg>
-                            </div>
-                          )}
-                          {r.status === 'open' && (
-                            <span className="restaurant-more-card-status">OPEN</span>
-                          )}
-                          <div className="restaurant-more-card-overlay" />
-                          <div className="restaurant-more-card-content">
-                            <h3 className="restaurant-more-card-name">{r.name}</h3>
-                            <p className="restaurant-more-card-location">{r.city}</p>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
+                  {stateRestaurants.map((r, index) => (
+                    <RestaurantCardOverlay
+                      key={r.id}
+                      restaurant={r}
+                      index={index}
+                    />
+                  ))}
                 </div>
 
                 <div className="restaurant-more-cta">

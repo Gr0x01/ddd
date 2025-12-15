@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { db } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
-import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
+import { RestaurantCardOverlay } from '@/components/restaurant/RestaurantCardOverlay';
 import Link from 'next/link';
 import RouteMapSection from '@/components/route/RouteMapSection';
 import { generateRouteSchema, generateRouteFAQSchema, generateBreadcrumbSchema, safeStringifySchema } from '@/lib/schema';
@@ -126,51 +126,76 @@ export default async function RoutePage({ params }: RoutePageProps) {
       <Header currentPage="roadtrip" />
 
       <main className="route-page">
-        <div className="route-page-container">
-          {/* Hero Section */}
-          <section className="route-hero">
-            <div className="route-breadcrumb">
+        {/* Hero Section - Two Column */}
+        <section className="route-detail-hero">
+          {/* Racing stripe top */}
+          <div className="route-detail-hero-stripe" />
+
+          <div className="route-detail-hero-container">
+            {/* Breadcrumbs */}
+            <div className="route-detail-breadcrumb">
               <Link href="/">Home</Link>
-              <span>→</span>
+              <span className="route-detail-breadcrumb-sep">→</span>
               <Link href="/roadtrip">Road Trips</Link>
-              <span>→</span>
+              <span className="route-detail-breadcrumb-sep">→</span>
               <span>{route.title}</span>
             </div>
 
-            <h1 className="route-title">
-              {route.origin_text}
-              <span className="route-arrow">→</span>
-              {route.destination_text}
-            </h1>
+            {/* Two Column Layout */}
+            <div className="route-detail-hero-grid">
+              {/* Left: Route Info */}
+              <div className="route-detail-hero-info">
+                <div className="route-detail-hero-cities">
+                  <div className="route-detail-city">
+                    <span className="route-detail-city-label">FROM</span>
+                    <span className="route-detail-city-name">{route.origin_text.split(',')[0]}</span>
+                  </div>
+                  <div className="route-detail-arrow-container">
+                    <div className="route-detail-arrow-line" />
+                    <span className="route-detail-arrow">→</span>
+                    <div className="route-detail-arrow-line" />
+                  </div>
+                  <div className="route-detail-city">
+                    <span className="route-detail-city-label">TO</span>
+                    <span className="route-detail-city-name">{route.destination_text.split(',')[0]}</span>
+                  </div>
+                </div>
 
-            <div className="route-stats">
-              <div className="route-stat">
-                <span className="route-stat-value">{restaurants.length}</span>
-                <span className="route-stat-label">Restaurants</span>
+                <div className="route-detail-stats">
+                  <div className="route-detail-stat">
+                    <span className="route-detail-stat-value">{restaurants.length}</span>
+                    <span className="route-detail-stat-label">STOPS</span>
+                  </div>
+                  <div className="route-detail-stat">
+                    <span className="route-detail-stat-value">{distanceMiles}</span>
+                    <span className="route-detail-stat-label">MILES</span>
+                  </div>
+                  <div className="route-detail-stat">
+                    <span className="route-detail-stat-value">{durationHours}</span>
+                    <span className="route-detail-stat-label">HOURS</span>
+                  </div>
+                </div>
+
+                {route.description && (
+                  <p className="route-detail-description">{route.description}</p>
+                )}
               </div>
-              <div className="route-stat">
-                <span className="route-stat-value">{distanceMiles} mi</span>
-                <span className="route-stat-label">Distance</span>
-              </div>
-              <div className="route-stat">
-                <span className="route-stat-value">{durationHours} hrs</span>
-                <span className="route-stat-label">Drive Time</span>
+
+              {/* Right: Map */}
+              <div className="route-detail-hero-map">
+                <RouteMapSection
+                  polylinePoints={route.polyline_points as Array<{ lat: number; lng: number }>}
+                  restaurants={restaurants}
+                />
               </div>
             </div>
+          </div>
 
-            {route.description && (
-              <p className="route-description">{route.description}</p>
-            )}
-          </section>
+          {/* Bottom accent */}
+          <div className="route-detail-hero-accent" />
+        </section>
 
-          {/* Map Section */}
-          <section className="route-map-section">
-            <RouteMapSection
-              polylinePoints={route.polyline_points as Array<{ lat: number; lng: number }>}
-              restaurants={restaurants}
-            />
-          </section>
-
+        <div className="route-page-container">
           {/* Restaurants Section */}
           <section className="route-restaurants-section">
             <h2 className="route-section-title">
@@ -183,9 +208,9 @@ export default async function RoutePage({ params }: RoutePageProps) {
                 <p>Try searching with a different route or larger radius.</p>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="restaurant-more-grid">
                 {restaurants.map((restaurant, index) => (
-                  <RestaurantCardCompact
+                  <RestaurantCardOverlay
                     key={restaurant.id}
                     restaurant={restaurant}
                     index={index}

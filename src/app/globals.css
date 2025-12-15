@@ -4219,15 +4219,291 @@ body::before {
 
 .route-page {
   min-height: calc(100vh - 200px);
-  padding: 40px 0 80px;
-  background: var(--warm-cream);
+  background: white;
 }
 
 .route-page-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 48px 24px 80px;
 }
+
+/* ==============================================
+   ROUTE DETAIL HERO - Two Column Layout
+   ============================================== */
+
+.route-detail-hero {
+  position: relative;
+  background: var(--ddd-yellow);
+  padding: 0 0 48px;
+  overflow: hidden;
+}
+
+.route-detail-hero-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--asphalt-dark);
+}
+
+.route-detail-hero-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 20px,
+    rgba(0, 0, 0, 0.03) 20px,
+    rgba(0, 0, 0, 0.03) 40px
+  );
+  pointer-events: none;
+}
+
+.route-detail-hero-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.route-detail-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 32px;
+}
+
+.route-detail-breadcrumb a {
+  color: var(--asphalt-dark);
+  opacity: 0.6;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.route-detail-breadcrumb a:hover {
+  opacity: 1;
+}
+
+.route-detail-breadcrumb-sep {
+  color: var(--asphalt-dark);
+  opacity: 0.3;
+}
+
+.route-detail-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: stretch;
+}
+
+.route-detail-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.route-detail-hero-cities {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.route-detail-city {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.route-detail-city-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--accent-primary);
+}
+
+.route-detail-city-name {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 400;
+  line-height: 0.95;
+  color: var(--asphalt-dark);
+  text-shadow:
+    3px 3px 0 var(--accent-primary),
+    6px 6px 0 rgba(230, 57, 70, 0.15);
+}
+
+.route-detail-arrow-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.route-detail-arrow-line {
+  flex: 1;
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--asphalt-dark) 0,
+    var(--asphalt-dark) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+}
+
+.route-detail-arrow {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.route-detail-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.route-detail-stat {
+  text-align: center;
+  padding: 16px 20px;
+  background: var(--asphalt-dark);
+  border: 3px solid var(--asphalt-dark);
+  box-shadow: 4px 4px 0 rgba(26, 26, 29, 0.3);
+}
+
+.route-detail-stat-value {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.route-detail-stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--ddd-yellow);
+  margin-top: 4px;
+  display: block;
+}
+
+.route-detail-description {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--asphalt-dark);
+  max-width: 480px;
+}
+
+.route-detail-hero-map {
+  position: relative;
+  min-height: 320px;
+  border: 4px solid var(--asphalt-dark);
+  box-shadow: 8px 8px 0 rgba(26, 26, 29, 0.2);
+  overflow: hidden;
+}
+
+.route-detail-hero-accent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--accent-primary);
+}
+
+/* Route Detail Hero - Tablet */
+@media (max-width: 900px) {
+  .route-detail-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .route-detail-hero-map {
+    min-height: 280px;
+  }
+
+  .route-detail-city-name {
+    font-size: clamp(28px, 6vw, 42px);
+  }
+
+  .route-detail-stats {
+    justify-content: flex-start;
+  }
+}
+
+/* Route Detail Hero - Mobile */
+@media (max-width: 640px) {
+  .route-detail-hero {
+    padding: 0 0 32px;
+  }
+
+  .route-detail-hero-stripe {
+    height: 6px;
+  }
+
+  .route-detail-hero-container {
+    padding: 20px 16px 0;
+  }
+
+  .route-detail-breadcrumb {
+    font-size: 11px;
+    margin-bottom: 24px;
+  }
+
+  .route-detail-city-name {
+    font-size: clamp(24px, 8vw, 36px);
+    text-shadow:
+      2px 2px 0 var(--accent-primary),
+      4px 4px 0 rgba(230, 57, 70, 0.15);
+  }
+
+  .route-detail-stats {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .route-detail-stat {
+    padding: 12px 16px;
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .route-detail-stat-value {
+    font-size: 28px;
+  }
+
+  .route-detail-stat-label {
+    font-size: 9px;
+  }
+
+  .route-detail-hero-map {
+    min-height: 240px;
+    border-width: 3px;
+    box-shadow: 6px 6px 0 rgba(26, 26, 29, 0.2);
+  }
+
+  .route-detail-hero-accent {
+    height: 4px;
+  }
+}
+
+/* ==============================================
+   ROUTE PAGE OLD STYLES (keeping for backward compat)
+   ============================================== */
 
 /* Breadcrumb */
 .route-breadcrumb {
@@ -4638,6 +4914,162 @@ body::before {
   right: 0;
   height: 6px;
   background: var(--accent-primary);
+}
+
+/* ==============================================
+   ROAD TRIP PLANNER HERO
+   ============================================== */
+
+.roadtrip-hero {
+  position: relative;
+  background: var(--ddd-yellow);
+  padding: 0 0 64px;
+  overflow: hidden;
+}
+
+.roadtrip-hero-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--asphalt-dark);
+}
+
+.roadtrip-hero-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.06;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 20px,
+    var(--accent-primary) 20px,
+    var(--accent-primary) 22px
+  );
+  pointer-events: none;
+}
+
+.roadtrip-hero-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.roadtrip-hero-breadcrumbs {
+  margin-bottom: 24px;
+}
+
+.roadtrip-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.roadtrip-hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.roadtrip-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 400;
+  line-height: 0.95;
+  color: var(--asphalt-dark);
+  text-shadow:
+    3px 3px 0 var(--accent-primary),
+    6px 6px 0 rgba(230, 57, 70, 0.15);
+}
+
+.roadtrip-hero-description {
+  font-family: var(--font-body);
+  font-size: 22px;
+  line-height: 1.45;
+  color: var(--asphalt-medium);
+}
+
+.roadtrip-hero-description strong {
+  color: var(--asphalt-dark);
+  font-weight: 700;
+}
+
+/* Right column - form */
+.roadtrip-hero-right {
+  margin-top: 24px;
+}
+
+/* Bottom accent */
+.roadtrip-hero-accent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--accent-primary);
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+  .roadtrip-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .roadtrip-hero-title {
+    font-size: clamp(32px, 6vw, 48px);
+  }
+
+  .roadtrip-hero-right {
+    margin-top: 0;
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 640px) {
+  .roadtrip-hero {
+    padding: 0 0 48px;
+  }
+
+  .roadtrip-hero-stripe {
+    height: 6px;
+  }
+
+  .roadtrip-hero-container {
+    padding: 20px 16px 0;
+  }
+
+  .roadtrip-hero-breadcrumbs {
+    margin-bottom: 16px;
+  }
+
+  .roadtrip-hero-grid {
+    gap: 28px;
+  }
+
+  .roadtrip-hero-left {
+    gap: 16px;
+  }
+
+  .roadtrip-hero-title {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+
+  .roadtrip-hero-description {
+    font-size: 17px;
+  }
+
+  .roadtrip-hero-accent {
+    height: 4px;
+  }
 }
 
 /* Page Hero - Tablet */
@@ -5606,6 +6038,27 @@ body::before {
   text-transform: uppercase;
   padding: 6px 12px;
   background: var(--accent-success);
+  color: white;
+  z-index: 2;
+}
+
+.restaurant-more-card-status-closed {
+  background: var(--text-muted);
+}
+
+.restaurant-more-card-distance {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.85);
   color: white;
   z-index: 2;
 }

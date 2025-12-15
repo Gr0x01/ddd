@@ -217,8 +217,24 @@ export interface RouteWithRestaurantCount extends RouteCache {
   restaurant_count: number;
 }
 
-// Restaurant with distance from route
-export interface RestaurantNearRoute extends Restaurant {
+// Restaurant with distance from route (from get_restaurants_near_route function)
+export interface RestaurantNearRoute {
+  id: string;
+  name: string;
+  slug: string;
+  city: string;
+  state: string | null;
+  country: string | null;
+  latitude: number;
+  longitude: number;
+  status: 'open' | 'closed' | 'unknown';
+  price_tier: string | null;
+  description: string | null;
+  photo_url: string | null;
+  photos: string[] | null;
+  google_rating: number | null;
+  google_review_count: number | null;
+  cuisine_tags: string[] | null;
   distance_miles: number;
 }
 

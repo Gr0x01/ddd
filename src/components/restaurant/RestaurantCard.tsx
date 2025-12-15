@@ -4,7 +4,7 @@ import { getRestaurantStatus, getChefAchievements, validateImageUrl } from '@/li
 import { getStorageUrl } from '@/lib/utils/storage';
 import { getLocationLink } from '@/lib/utils/location';
 import { MichelinStar } from '../icons/MichelinStar';
-import { Donut } from 'lucide-react';
+import { Donut, Navigation } from 'lucide-react';
 
 interface ChefInfo {
   name: string;
@@ -34,8 +34,16 @@ interface RestaurantCardProps {
     michelin_stars?: number | null;
     chef?: ChefInfo | null;
     chefs?: Array<{ chef?: ChefInfo | null; is_primary?: boolean }>;
+    distance_miles?: number | null;
   };
   index?: number;
+}
+
+function formatDistance(miles: number): string {
+  if (miles < 1) {
+    return `${Math.round(miles * 10) / 10} mi`;
+  }
+  return `${Math.round(miles)} mi from route`;
 }
 
 function getChefNames(restaurant: RestaurantCardProps['restaurant']): { names: string; hasWinner: boolean; hasJBWinner: boolean } {
@@ -88,10 +96,21 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
             priority={isPriority}
             quality={60}
           />
-          
+
+          {/* Distance badge for route pages */}
+          {typeof restaurant.distance_miles === 'number' && (
+            <div
+              className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 font-mono text-[10px] tracking-wide"
+              style={{ background: 'rgba(0,0,0,0.8)', color: 'white' }}
+            >
+              <Navigation size={10} />
+              <span>{formatDistance(restaurant.distance_miles)}</span>
+            </div>
+          )}
+
           {restaurant.michelin_stars && restaurant.michelin_stars > 0 && (
             <div className="absolute top-3 right-3">
-              <div 
+              <div
                 className="flex items-center gap-1 px-2 py-1"
                 style={{ background: '#D3072B' }}
               >
@@ -103,27 +122,39 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
           )}
         </div>
       ) : (
-        <div 
+        <div
           className="relative w-full h-48 overflow-hidden flex items-center justify-center"
           style={{ background: 'var(--slate-900)' }}
         >
-          <div 
+          <div
             className="absolute inset-0 opacity-5"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
             }}
           />
-          <Donut 
-            className="relative w-16 h-16" 
+          <Donut
+            className="relative w-16 h-16"
             style={{ color: 'var(--accent-primary)' }}
             strokeWidth={1.5}
           />
+
+          {/* Distance badge for route pages */}
+          {typeof restaurant.distance_miles === 'number' && (
+            <div
+              className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 font-mono text-[10px] tracking-wide"
+              style={{ background: 'rgba(0,0,0,0.8)', color: 'white' }}
+            >
+              <Navigation size={10} />
+              <span>{formatDistance(restaurant.distance_miles)}</span>
+            </div>
+          )}
+
           {status.isClosed && (
-            <div 
+            <div
               className="absolute inset-0 flex items-center justify-center"
               style={{ background: 'rgba(0,0,0,0.7)' }}
             >
-              <span 
+              <span
                 className="font-mono text-lg font-bold tracking-widest"
                 style={{ color: 'var(--text-muted)' }}
               >
