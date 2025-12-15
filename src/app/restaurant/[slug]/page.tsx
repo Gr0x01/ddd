@@ -6,6 +6,7 @@ import { db } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { RestaurantHero } from '@/components/restaurant/RestaurantHero';
+import { MiniMapWrapper } from '@/components/restaurant/MiniMapWrapper';
 import { generateRestaurantSchema, generateBreadcrumbSchema, safeStringifySchema } from '@/lib/schema';
 
 interface RestaurantPageProps {
@@ -246,15 +247,11 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                 </div>
 
                 <div className="restaurant-location-map">
-                  <div className="restaurant-map-placeholder">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                      <circle cx="12" cy="10" r="3"/>
-                    </svg>
-                    <span className="restaurant-map-coords">
-                      {restaurant.latitude!.toFixed(4)}, {restaurant.longitude!.toFixed(4)}
-                    </span>
-                  </div>
+                  <MiniMapWrapper
+                    lat={restaurant.latitude!}
+                    lng={restaurant.longitude!}
+                    name={restaurant.name}
+                  />
                 </div>
               </div>
             </section>
