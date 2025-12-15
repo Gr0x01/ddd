@@ -247,7 +247,7 @@ export default function RoadTripPlanner() {
         {/* Attribution */}
         <section className="py-4 border-t" style={{ borderColor: 'var(--border-light)' }}>
           <div className="max-w-6xl mx-auto px-4">
-            <p className="font-mono text-[10px] tracking-wider text-center" style={{ color: 'var(--text-muted)' }}>
+            <p className="font-mono text-[13px] tracking-wider text-center" style={{ color: 'var(--text-muted)' }}>
               CITY DATA BY{' '}
               <a
                 href="https://simplemaps.com/data/us-cities"

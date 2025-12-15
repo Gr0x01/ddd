@@ -83,7 +83,7 @@ export function FilterBar({ searchPlaceholder, searchDefaultValue, filterOptions
               <Link
                 key={index}
                 href={option.href}
-                className="font-mono text-xs tracking-wider font-semibold px-4 py-2.5 transition-all flex items-center gap-1.5"
+                className="font-mono text-sm tracking-wider font-semibold px-4 py-2.5 transition-all flex items-center gap-1.5"
                 style={getVariantStyles(option.variant, option.isActive)}
               >
                 {option.icon}

@@ -152,18 +152,18 @@ export default function RouteMap({
       popupContent.appendChild(title);
 
       const location = document.createElement('p');
-      location.className = 'text-xs text-gray-600';
+      location.className = 'text-sm text-gray-600';
       location.textContent = `${restaurant.city}, ${restaurant.state}`;
       popupContent.appendChild(location);
 
       const distance = document.createElement('p');
-      distance.className = 'text-xs text-gray-500 mt-1';
+      distance.className = 'text-sm text-gray-500 mt-1';
       distance.textContent = `${restaurant.distance_miles.toFixed(1)} mi from route`;
       popupContent.appendChild(distance);
 
       const link = document.createElement('a');
       link.href = `/restaurant/${restaurant.slug}`;
-      link.className = 'text-xs text-blue-600 hover:underline';
+      link.className = 'text-sm text-blue-600 hover:underline';
       link.textContent = 'View Details →';
       popupContent.appendChild(link);
 

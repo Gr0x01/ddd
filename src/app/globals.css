@@ -361,7 +361,7 @@ body::before {
 
 .compact-closed-text {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--text-muted);
@@ -405,7 +405,7 @@ body::before {
 
 .compact-price {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--accent-primary);
   flex-shrink: 0;
@@ -413,7 +413,7 @@ body::before {
 
 .compact-price-closed {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.05em;
   color: #991b1b;
@@ -461,12 +461,12 @@ body::before {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 14px;
 }
 
 .compact-location {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -493,7 +493,7 @@ body::before {
 
 .compact-rating span {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -506,7 +506,7 @@ body::before {
 
 .compact-tag {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.03em;
   color: var(--text-secondary);
@@ -524,7 +524,7 @@ body::before {
 
 .compact-tag-more {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-muted);
 }
@@ -796,7 +796,7 @@ body::before {
 }
 
 .popup-badge {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -958,7 +958,7 @@ body::before {
 
 .popup-badge {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   padding: 3px 6px;
@@ -1027,7 +1027,7 @@ body::before {
 
 .popup-review-count {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-muted);
 }
 
@@ -1039,7 +1039,7 @@ body::before {
 
 .popup-cuisine-tag {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.03em;
   color: var(--text-secondary);
@@ -1051,7 +1051,7 @@ body::before {
 
 .popup-cuisine-more {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-muted);
   padding: 3px 5px;
@@ -1067,7 +1067,7 @@ body::before {
 
 .popup-status {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1075,7 +1075,7 @@ body::before {
 
 .popup-view-link {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.03em;
   color: var(--accent-primary);
@@ -1120,14 +1120,14 @@ body::before {
 
 .popup-simple-chef {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-secondary);
   margin: 0 0 6px 0;
 }
 
 .popup-simple-location {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-muted);
   margin: 0 0 10px 0;
 }
@@ -1139,7 +1139,7 @@ body::before {
 
 .popup-simple-link {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.03em;
   color: var(--accent-primary);
@@ -1287,7 +1287,7 @@ body::before {
 
 .mobile-section-label {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -1494,7 +1494,7 @@ body::before {
   background: var(--asphalt-dark);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -1521,7 +1521,7 @@ body::before {
 
 .discovery-card-location {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.03em;
   color: var(--text-muted);
@@ -1538,7 +1538,7 @@ body::before {
 
 .discovery-card-price {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--accent-primary);
 }
@@ -1549,7 +1549,7 @@ body::before {
   gap: 3px;
   padding: 3px 6px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -1807,7 +1807,7 @@ body::before {
 
 .episode-badge-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   color: white;
   letter-spacing: 0.1em;
@@ -1840,7 +1840,7 @@ body::before {
 
 .episode-date {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--ddd-yellow);
   text-transform: uppercase;
@@ -2071,7 +2071,7 @@ body::before {
   }
 
   .hero-compact-subtitle {
-    font-size: 11px;
+    font-size: 14px;
   }
 
   .hero-compact-episode {
@@ -2084,7 +2084,7 @@ body::before {
   }
 
   .hero-stat-label {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .map-filters-overlay {
@@ -2293,7 +2293,7 @@ body::before {
 .shows-showcase-card-network {
   display: inline-block;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -2327,7 +2327,7 @@ body::before {
 
 .shows-showcase-stat-label {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -2462,7 +2462,7 @@ body::before {
 
 .hero-badge-text {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: white;
   letter-spacing: 0.15em;
@@ -2587,7 +2587,7 @@ body::before {
 
 .hero-newest-episode-num {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--ddd-yellow);
   letter-spacing: 0.08em;
@@ -2608,7 +2608,7 @@ body::before {
 
 .hero-newest-date {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.6);
   letter-spacing: 0.05em;
@@ -2733,7 +2733,7 @@ body::before {
   align-items: center;
   gap: 6px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 0.1em;
@@ -3019,7 +3019,7 @@ body::before {
 .city-autocomplete-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 0.1em;
@@ -3131,7 +3131,7 @@ body::before {
 .city-autocomplete-hint {
   padding: 10px 16px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
   background: var(--bg-secondary);
@@ -3143,7 +3143,7 @@ body::before {
 .city-autocomplete-no-match {
   margin-top: 8px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--accent-primary);
   letter-spacing: 0.05em;
@@ -3446,7 +3446,7 @@ body::before {
 
 .route-card-stat-label {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -3670,7 +3670,7 @@ body::before {
 
 .recently-verified-badge-text {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: white;
   letter-spacing: 0.15em;
@@ -3806,7 +3806,7 @@ body::before {
 
 .verified-open-text {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   color: white;
   letter-spacing: 0.1em;
@@ -3821,7 +3821,7 @@ body::before {
   background: rgba(26, 26, 29, 0.9);
   border: 2px solid var(--ddd-yellow);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--ddd-yellow);
   letter-spacing: 0.05em;
@@ -3846,7 +3846,7 @@ body::before {
 
 .verified-card-location {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-muted);
   letter-spacing: 0.05em;
@@ -3863,7 +3863,7 @@ body::before {
 
 .verified-cuisine-tag {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -3876,7 +3876,7 @@ body::before {
 
 .verified-cuisine-more {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-muted);
   padding: 4px 6px;
@@ -3907,7 +3907,7 @@ body::before {
 
 .verified-meta-text {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--accent-success);
   letter-spacing: 0.05em;
@@ -4034,7 +4034,7 @@ body::before {
 
 .iconic-badge-text {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: white;
   letter-spacing: 0.15em;
@@ -4195,7 +4195,7 @@ body::before {
 
 .iconic-card-location {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--ddd-yellow);
   letter-spacing: 0.08em;
@@ -4235,7 +4235,7 @@ body::before {
 
 .iconic-quote-author {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--ddd-yellow);
   letter-spacing: 0.1em;
@@ -4374,7 +4374,7 @@ body::before {
 
 .route-detail-city-label {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.15em;
   color: var(--accent-primary);
@@ -4440,7 +4440,7 @@ body::before {
 
 .route-detail-stat-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.15em;
   color: var(--ddd-yellow);
@@ -4508,7 +4508,7 @@ body::before {
   }
 
   .route-detail-breadcrumb {
-    font-size: 11px;
+    font-size: 14px;
     margin-bottom: 24px;
   }
 
@@ -4535,7 +4535,7 @@ body::before {
   }
 
   .route-detail-stat-label {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .route-detail-hero-map {
@@ -4620,7 +4620,7 @@ body::before {
 
 .route-stat-label {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -4710,7 +4710,7 @@ body::before {
   background: var(--accent-success);
   color: white;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.1em;
   border-radius: 4px;
@@ -4923,7 +4923,7 @@ body::before {
 .page-hero-stats {
   display: flex;
   gap: 24px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .page-hero-stat {
@@ -4932,6 +4932,8 @@ body::before {
   background: var(--asphalt-dark);
   border: 3px solid var(--asphalt-dark);
   box-shadow: 4px 4px 0 rgba(26, 26, 29, 0.3);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .page-hero-stat-value {
@@ -4944,7 +4946,7 @@ body::before {
 
 .page-hero-stat-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.15em;
   color: var(--ddd-yellow);
@@ -5187,7 +5189,7 @@ body::before {
   }
 
   .page-hero-stat-label {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .page-hero-bottom-accent {
@@ -5389,7 +5391,7 @@ body::before {
 
 .restaurant-hero-cuisine-tag {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -5510,7 +5512,7 @@ body::before {
   bottom: -12px;
   right: 16px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: white;
   background: var(--accent-primary);
@@ -5530,7 +5532,7 @@ body::before {
   align-items: center;
   gap: 8px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--accent-primary);
   letter-spacing: 0.12em;
@@ -5742,7 +5744,7 @@ body::before {
   color: white;
   border: 3px solid var(--ddd-yellow);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -5814,7 +5816,7 @@ body::before {
   background: var(--ddd-yellow);
   color: var(--asphalt-dark);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -5994,7 +5996,7 @@ body::before {
   color: white;
   border: 3px solid var(--ddd-yellow);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -6080,7 +6082,7 @@ body::before {
   top: 12px;
   left: 12px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -6102,7 +6104,7 @@ body::before {
   align-items: center;
   gap: 4px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.05em;
   padding: 6px 10px;
@@ -6214,13 +6216,13 @@ body::before {
   }
 
   .restaurant-hero-cuisine-tag {
-    font-size: 10px;
+    font-size: 13px;
     padding: 6px 10px;
   }
 
   .restaurant-hero-button {
     padding: 12px 16px;
-    font-size: 11px;
+    font-size: 14px;
   }
 
   .restaurant-hero-episodes {
@@ -6338,7 +6340,7 @@ body::before {
 
   .restaurant-hero-status {
     padding: 6px 10px;
-    font-size: 10px;
+    font-size: 13px;
   }
 
   .restaurant-hero-name {
@@ -6384,7 +6386,7 @@ body::before {
   }
 
   .restaurant-hero-cuisine-tag {
-    font-size: 9px;
+    font-size: 12px;
     padding: 5px 8px;
     letter-spacing: 0.08em;
   }
@@ -6399,7 +6401,7 @@ body::before {
     width: 100%;
     justify-content: center;
     padding: 14px 16px;
-    font-size: 11px;
+    font-size: 14px;
     border-width: 2px;
     box-shadow: 3px 3px 0 var(--asphalt-dark);
   }
@@ -6416,7 +6418,7 @@ body::before {
   }
 
   .restaurant-hero-episodes-label {
-    font-size: 10px;
+    font-size: 13px;
     margin-bottom: 12px;
   }
 
@@ -6437,7 +6439,7 @@ body::before {
   }
 
   .restaurant-hero-episode-number {
-    font-size: 10px;
+    font-size: 13px;
   }
 
   .restaurant-hero-episode-title {
@@ -6474,7 +6476,7 @@ body::before {
   }
 
   .restaurant-dishes-badge {
-    font-size: 10px;
+    font-size: 13px;
     padding: 6px 10px;
   }
 
@@ -6529,7 +6531,7 @@ body::before {
 
   .restaurant-location-button {
     padding: 12px 16px;
-    font-size: 11px;
+    font-size: 14px;
   }
 
   .restaurant-location-map {
@@ -6544,7 +6546,7 @@ body::before {
   }
 
   .restaurant-more-badge {
-    font-size: 10px;
+    font-size: 13px;
     padding: 6px 10px;
   }
 
@@ -6571,7 +6573,7 @@ body::before {
   }
 
   .restaurant-more-card-location {
-    font-size: 11px;
+    font-size: 14px;
   }
 
   .restaurant-more-cta {
@@ -6636,7 +6638,7 @@ body::before {
   background: var(--accent-primary);
   color: white;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.1em;
   padding: 6px 12px;
@@ -6695,7 +6697,7 @@ body::before {
 .route-card-city-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.15em;
   color: var(--text-muted);
@@ -6769,7 +6771,7 @@ body::before {
   align-items: center;
   gap: 4px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--text-muted);
@@ -6850,7 +6852,7 @@ body::before {
   align-items: center;
   gap: 8px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0.05em;
   color: var(--text-muted);
 }

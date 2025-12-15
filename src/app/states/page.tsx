@@ -167,7 +167,7 @@ export default async function StatesPage() {
                         {state.name}
                       </h3>
                       <span
-                        className="font-mono text-xs font-semibold px-2 py-1 rounded"
+                        className="font-mono text-sm font-semibold px-2 py-1 rounded"
                         style={{ background: 'var(--accent-primary)', color: 'white' }}
                       >
                         {state.abbreviation}
@@ -209,7 +209,7 @@ export default async function StatesPage() {
                         {state.name}
                       </h3>
                       <span
-                        className="font-mono text-xs font-semibold px-2 py-1 rounded"
+                        className="font-mono text-sm font-semibold px-2 py-1 rounded"
                         style={{ background: 'var(--accent-primary)', color: 'white' }}
                       >
                         {state.abbreviation}

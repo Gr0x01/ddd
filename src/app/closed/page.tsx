@@ -113,7 +113,7 @@ export default async function ClosedPage() {
                             {restaurant.name}
                           </h3>
                           <span
-                            className="px-2 py-1 rounded text-xs font-semibold flex-shrink-0 ml-2"
+                            className="px-2 py-1 rounded text-sm font-semibold flex-shrink-0 ml-2"
                             style={{ background: 'var(--text-muted)', color: 'white' }}
                           >
                             CLOSED
@@ -123,7 +123,7 @@ export default async function ClosedPage() {
                           {restaurant.city}{restaurant.state ? `, ${restaurant.state}` : ''}
                         </p>
                         {restaurant.closed_date && (
-                          <p className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+                          <p className="font-mono text-sm" style={{ color: 'var(--text-muted)' }}>
                             Closed: {new Date(restaurant.closed_date).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'long',

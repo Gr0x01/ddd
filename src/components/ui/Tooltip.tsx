@@ -34,7 +34,7 @@ export function Tooltip({ content, children, position = 'top', delay = 500 }: To
     >
       {children}
       <span
-        className="absolute left-0 z-50 pointer-events-none font-ui text-xs whitespace-nowrap px-3 py-2"
+        className="absolute left-0 z-50 pointer-events-none font-ui text-sm whitespace-nowrap px-3 py-2"
         style={{
           ...positionStyles,
           background: 'white',

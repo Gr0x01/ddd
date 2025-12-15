@@ -56,7 +56,7 @@ export function Header({ currentPage }: HeaderProps) {
             Triple D Map
           </span>
           <span
-            className="font-mono text-[9px] font-bold tracking-[0.12em] uppercase inline-block px-2 py-1 border transition-all duration-300 group-hover:!text-[#d35e0f] group-hover:!border-[#d35e0f]"
+            className="font-mono text-xs font-bold tracking-[0.12em] uppercase inline-block px-2 py-1 border transition-all duration-300 group-hover:!text-[#d35e0f] group-hover:!border-[#d35e0f]"
             style={{
               color: 'var(--text-muted)',
               borderColor: 'var(--border-light)'
@@ -70,7 +70,7 @@ export function Header({ currentPage }: HeaderProps) {
         <nav className="hidden md:flex gap-8" aria-label="Main navigation">
           <Link
             href="/restaurants"
-            className={`font-mono text-xs tracking-wider transition-colors ${
+            className={`font-mono text-sm tracking-wider transition-colors ${
               currentPage === 'restaurants'
                 ? 'font-semibold'
                 : 'hover:text-[var(--accent-primary)]'
@@ -86,7 +86,7 @@ export function Header({ currentPage }: HeaderProps) {
           </Link>
           <Link
             href="/states"
-            className={`font-mono text-xs tracking-wider transition-colors ${
+            className={`font-mono text-sm tracking-wider transition-colors ${
               currentPage === 'states'
                 ? 'font-semibold'
                 : 'hover:text-[var(--accent-primary)]'
@@ -102,7 +102,7 @@ export function Header({ currentPage }: HeaderProps) {
           </Link>
           <Link
             href="/episodes"
-            className={`font-mono text-xs tracking-wider transition-colors ${
+            className={`font-mono text-sm tracking-wider transition-colors ${
               currentPage === 'episodes'
                 ? 'font-semibold'
                 : 'hover:text-[var(--accent-primary)]'
@@ -118,7 +118,7 @@ export function Header({ currentPage }: HeaderProps) {
           </Link>
           <Link
             href="/roadtrip"
-            className={`font-mono text-xs tracking-wider transition-colors ${
+            className={`font-mono text-sm tracking-wider transition-colors ${
               currentPage === 'roadtrip'
                 ? 'font-semibold'
                 : 'hover:text-[var(--accent-primary)]'
@@ -134,7 +134,7 @@ export function Header({ currentPage }: HeaderProps) {
           </Link>
           <Link
             href="/about"
-            className={`font-mono text-xs tracking-wider transition-colors ${
+            className={`font-mono text-sm tracking-wider transition-colors ${
               currentPage === 'about'
                 ? 'font-semibold'
                 : 'hover:text-[var(--accent-primary)]'

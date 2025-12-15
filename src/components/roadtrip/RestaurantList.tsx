@@ -128,14 +128,14 @@ export default function RestaurantList({
                   </h3>
                   {isClosed ? (
                     <span
-                      className="font-mono text-[10px] tracking-wider px-2 py-0.5 flex-shrink-0"
+                      className="font-mono text-[13px] tracking-wider px-2 py-0.5 flex-shrink-0"
                       style={{ background: 'var(--text-muted)', color: 'white' }}
                     >
                       CLOSED
                     </span>
                   ) : restaurant.price_tier ? (
                     <span
-                      className="font-mono text-xs flex-shrink-0"
+                      className="font-mono text-sm flex-shrink-0"
                       style={{ color: 'var(--accent-primary)' }}
                     >
                       {restaurant.price_tier}
@@ -145,7 +145,7 @@ export default function RestaurantList({
 
                 {/* Location */}
                 <p
-                  className="font-mono text-[11px] tracking-wider uppercase mb-2"
+                  className="font-mono text-sm tracking-wider uppercase mb-2"
                   style={{ color: 'var(--text-muted)' }}
                 >
                   {restaurant.city}, {restaurant.state}
@@ -155,7 +155,7 @@ export default function RestaurantList({
                 <div className="flex flex-wrap items-center gap-2">
                   {/* Distance Badge */}
                   <span
-                    className="font-mono text-[10px] tracking-wider px-2 py-0.5"
+                    className="font-mono text-[13px] tracking-wider px-2 py-0.5"
                     style={{
                       background: 'var(--bg-tertiary)',
                       color: 'var(--text-secondary)'
@@ -174,7 +174,7 @@ export default function RestaurantList({
                         strokeWidth={0}
                       />
                       <span
-                        className="font-mono text-[11px]"
+                        className="font-mono text-sm"
                         style={{ color: 'var(--text-secondary)' }}
                       >
                         {restaurant.google_rating}
@@ -185,7 +185,7 @@ export default function RestaurantList({
                   {/* Open Status */}
                   {!isClosed && (
                     <span
-                      className="font-mono text-[10px] tracking-wider px-2 py-0.5"
+                      className="font-mono text-[13px] tracking-wider px-2 py-0.5"
                       style={{
                         background: 'rgba(16, 185, 129, 0.1)',
                         color: 'var(--accent-success)'
@@ -199,7 +199,7 @@ export default function RestaurantList({
                 {/* View Details Link */}
                 <Link
                   href={`/restaurant/${restaurant.slug}`}
-                  className="inline-flex items-center gap-1 font-mono text-[11px] tracking-wider mt-3 transition-colors"
+                  className="inline-flex items-center gap-1 font-mono text-sm tracking-wider mt-3 transition-colors"
                   style={{ color: 'var(--accent-primary)' }}
                   onClick={(e) => e.stopPropagation()}
                 >

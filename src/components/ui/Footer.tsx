@@ -9,14 +9,14 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
         <Link
           href="/about"
-          className="font-mono text-[11px] tracking-wider transition-colors hover:text-[var(--accent-primary)]"
+          className="font-mono text-sm tracking-wider transition-colors hover:text-[var(--accent-primary)]"
           style={{ color: 'var(--text-muted)' }}
         >
           ABOUT
         </Link>
         <Link
           href="/privacy"
-          className="font-mono text-[11px] tracking-wider transition-colors hover:text-[var(--accent-primary)]"
+          className="font-mono text-sm tracking-wider transition-colors hover:text-[var(--accent-primary)]"
           style={{ color: 'var(--text-muted)' }}
         >
           PRIVACY

@@ -20,7 +20,7 @@ interface EpisodeFiltersProps {
   seasons: number[];
 }
 
-const CHIP = "font-mono text-[11px] tracking-wider font-medium px-3 py-1.5 transition-all border flex items-center gap-1.5";
+const CHIP = "font-mono text-sm tracking-wider font-medium px-3 py-1.5 transition-all border flex items-center gap-1.5";
 
 export function EpisodeFilters({ episodes, seasons }: EpisodeFiltersProps) {
   const router = useRouter();
@@ -115,7 +115,7 @@ export function EpisodeFilters({ episodes, seasons }: EpisodeFiltersProps) {
                 placeholder="Search episodes..."
                 value={searchQuery}
                 onChange={e => setFilters({ q: e.target.value })}
-                className="w-52 h-8 pl-8 pr-3 font-mono text-[11px] border transition-colors focus:outline-none focus:border-[#B87333]"
+                className="w-52 h-8 pl-8 pr-3 font-mono text-sm border transition-colors focus:outline-none focus:border-[#B87333]"
                 style={{
                   background: 'var(--bg-primary)',
                   borderColor: 'var(--border-light)',
@@ -149,7 +149,7 @@ export function EpisodeFilters({ episodes, seasons }: EpisodeFiltersProps) {
                 >
                   <button
                     onClick={() => { setFilters({ season: null }); setSeasonDropdownOpen(false); }}
-                    className="w-full px-3 py-2 text-left font-mono text-[11px] tracking-wider hover:bg-slate-50 transition-colors flex items-center justify-between"
+                    className="w-full px-3 py-2 text-left font-mono text-sm tracking-wider hover:bg-slate-50 transition-colors flex items-center justify-between"
                     style={{ color: !selectedSeason ? 'var(--accent-primary)' : 'var(--text-secondary)' }}
                   >
                     All Seasons
@@ -160,7 +160,7 @@ export function EpisodeFilters({ episodes, seasons }: EpisodeFiltersProps) {
                     <button
                       key={season}
                       onClick={() => { setFilters({ season }); setSeasonDropdownOpen(false); }}
-                      className="w-full px-3 py-2 text-left font-mono text-[11px] tracking-wider hover:bg-slate-50 transition-colors flex items-center justify-between"
+                      className="w-full px-3 py-2 text-left font-mono text-sm tracking-wider hover:bg-slate-50 transition-colors flex items-center justify-between"
                       style={{
                         color: selectedSeason === season ? 'var(--accent-primary)' : 'var(--text-secondary)',
                         fontWeight: selectedSeason === season ? 600 : 400,
@@ -179,7 +179,7 @@ export function EpisodeFilters({ episodes, seasons }: EpisodeFiltersProps) {
                 <div className="h-4 w-px bg-slate-200" />
                 <button
                   onClick={clearFilters}
-                  className="font-mono text-[11px] tracking-wider font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"
+                  className="font-mono text-sm tracking-wider font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"
                 >
                   <X className="w-3 h-3" /> Clear
                 </button>
@@ -195,7 +195,7 @@ export function EpisodeFilters({ episodes, seasons }: EpisodeFiltersProps) {
         style={{ background: 'var(--bg-primary)', borderColor: 'var(--border-light)' }}
       >
         <div className="max-w-7xl mx-auto px-4">
-          <p className="font-mono text-[11px] tracking-wider text-slate-500">
+          <p className="font-mono text-sm tracking-wider text-slate-500">
             {filteredEpisodes.length === episodes.length ? (
               <span>Showing all <strong className="text-slate-700">{episodes.length}</strong> episodes</span>
             ) : (
@@ -240,14 +240,14 @@ export function EpisodeFilters({ episodes, seasons }: EpisodeFiltersProps) {
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <span
-                              className="font-mono text-xs font-semibold px-2 py-1 rounded"
+                              className="font-mono text-sm font-semibold px-2 py-1 rounded"
                               style={{ background: 'var(--accent-primary)', color: 'white' }}
                             >
                               S{episode.season}E{episode.episode_number}
                             </span>
                             {isNew && (
                               <span
-                                className="font-mono text-xs font-semibold px-2 py-1 rounded"
+                                className="font-mono text-sm font-semibold px-2 py-1 rounded"
                                 style={{ background: '#dc2626', color: 'white' }}
                                 aria-label="New episode"
                               >
@@ -256,7 +256,7 @@ export function EpisodeFilters({ episodes, seasons }: EpisodeFiltersProps) {
                             )}
                           </div>
                           {episode.air_date && (
-                            <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+                            <span className="font-mono text-sm" style={{ color: 'var(--text-muted)' }}>
                               {new Date(episode.air_date).toLocaleDateString('en-US', {
                                 month: 'short',
                                 year: 'numeric'

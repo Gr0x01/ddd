@@ -118,7 +118,7 @@ export function ReportIssueButton({ entityType, entityId, entityName, variant = 
                 <h3 className="font-display font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
                   Report Issue
                 </h3>
-                <p className="font-ui text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                <p className="font-ui text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
                   {entityName}
                 </p>
               </div>
@@ -137,14 +137,14 @@ export function ReportIssueButton({ entityType, entityId, entityName, variant = 
                   <p className="font-ui text-sm font-medium text-slate-900">
                     Thank you for your feedback!
                   </p>
-                  <p className="font-ui text-xs text-slate-500 mt-1">
+                  <p className="font-ui text-sm text-slate-500 mt-1">
                     We'll review this report shortly.
                   </p>
                 </div>
               ) : (
                 <>
                   <div>
-                    <label className="font-mono text-xs uppercase tracking-wide block mb-2" style={{ color: 'var(--text-secondary)' }}>
+                    <label className="font-mono text-sm uppercase tracking-wide block mb-2" style={{ color: 'var(--text-secondary)' }}>
                       Issue Type
                     </label>
                     <div className="space-y-2">
@@ -167,7 +167,7 @@ export function ReportIssueButton({ entityType, entityId, entityName, variant = 
 
                   {selectedIssue && (
                     <div>
-                      <label className="font-mono text-xs uppercase tracking-wide block mb-2" style={{ color: 'var(--text-secondary)' }}>
+                      <label className="font-mono text-sm uppercase tracking-wide block mb-2" style={{ color: 'var(--text-secondary)' }}>
                         Additional Details {selectedIssue !== 'other' && '(Optional)'}
                       </label>
                       <textarea
@@ -184,7 +184,7 @@ export function ReportIssueButton({ entityType, entityId, entityName, variant = 
                           '--tw-ring-color': 'var(--accent-primary)',
                         } as React.CSSProperties}
                       />
-                      <p className="font-mono text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                      <p className="font-mono text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
                         {message.length}/1000
                       </p>
                     </div>
@@ -193,7 +193,7 @@ export function ReportIssueButton({ entityType, entityId, entityName, variant = 
                   {submitStatus === 'error' && (
                     <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded">
                       <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                      <p className="font-ui text-xs text-red-800">
+                      <p className="font-ui text-sm text-red-800">
                         Failed to submit. Please try again.
                       </p>
                     </div>

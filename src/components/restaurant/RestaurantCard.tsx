@@ -100,7 +100,7 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
           {/* Distance badge for route pages */}
           {typeof restaurant.distance_miles === 'number' && (
             <div
-              className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 font-mono text-[10px] tracking-wide"
+              className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 font-mono text-[13px] tracking-wide"
               style={{ background: 'rgba(0,0,0,0.8)', color: 'white' }}
             >
               <Navigation size={10} />
@@ -141,7 +141,7 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
           {/* Distance badge for route pages */}
           {typeof restaurant.distance_miles === 'number' && (
             <div
-              className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 font-mono text-[10px] tracking-wide"
+              className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 font-mono text-[13px] tracking-wide"
               style={{ background: 'rgba(0,0,0,0.8)', color: 'white' }}
             >
               <Navigation size={10} />
@@ -175,11 +175,11 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
               {restaurant.name}
             </h3>
             {locationLink ? (
-              <span className="block font-mono text-xs tracking-wide mt-1" style={{ color: 'var(--text-muted)' }}>
+              <span className="block font-mono text-sm tracking-wide mt-1" style={{ color: 'var(--text-muted)' }}>
                 {restaurant.city}{restaurant.state ? `, ${restaurant.state}` : ''}
               </span>
             ) : (
-              <p className="font-mono text-xs tracking-wide mt-1" style={{ color: 'var(--text-muted)' }}>
+              <p className="font-mono text-sm tracking-wide mt-1" style={{ color: 'var(--text-muted)' }}>
                 {restaurant.city}{restaurant.state ? `, ${restaurant.state}` : ''}
               </p>
             )}
@@ -202,7 +202,7 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
             by {chefNames}
             {isShowWinner && (
               <span 
-                className="ml-2 font-mono text-[10px] tracking-wider px-1.5 py-0.5"
+                className="ml-2 font-mono text-[13px] tracking-wider px-1.5 py-0.5"
                 style={{ background: 'var(--accent-success)', color: 'white' }}
                 aria-label="Show winner"
               >
@@ -211,7 +211,7 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
             )}
             {isJBWinner && (
               <span 
-                className="ml-1 font-mono text-[10px] tracking-wider px-1.5 py-0.5"
+                className="ml-1 font-mono text-[13px] tracking-wider px-1.5 py-0.5"
                 style={{ background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', color: '#78350f' }}
                 aria-label="James Beard Award winner"
               >
@@ -228,7 +228,7 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
               <span className="font-mono text-sm font-bold">{restaurant.google_rating}</span>
             </div>
             {restaurant.google_review_count && (
-              <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span className="font-mono text-sm" style={{ color: 'var(--text-muted)' }}>
                 ({restaurant.google_review_count.toLocaleString()})
               </span>
             )}
@@ -240,7 +240,7 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
             {restaurant.cuisine_tags.slice(0, 3).map((tag, i) => (
               <span
                 key={i}
-                className="font-mono text-[10px] tracking-wide px-2 py-0.5"
+                className="font-mono text-[13px] tracking-wide px-2 py-0.5"
                 style={{ 
                   background: 'var(--bg-tertiary)', 
                   color: 'var(--text-secondary)',
@@ -251,7 +251,7 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
               </span>
             ))}
             {restaurant.cuisine_tags.length > 3 && (
-              <span className="font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              <span className="font-mono text-[13px]" style={{ color: 'var(--text-muted)' }}>
                 +{restaurant.cuisine_tags.length - 3}
               </span>
             )}
@@ -263,13 +263,13 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
           style={{ borderColor: 'var(--border-light)' }}
         >
           <span 
-            className="font-mono text-[10px] tracking-widest"
+            className="font-mono text-[13px] tracking-widest"
             style={{ color: status.statusColor }}
           >
             {status.displayStatus}
           </span>
           <span 
-            className="font-mono text-xs font-semibold tracking-wide transition-transform group-hover:translate-x-1"
+            className="font-mono text-sm font-semibold tracking-wide transition-transform group-hover:translate-x-1"
             style={{ color: 'var(--accent-primary)' }}
           >
             VIEW →

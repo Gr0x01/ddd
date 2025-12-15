@@ -67,7 +67,7 @@ export default async function CuisinesPage() {
                     {cuisine.name}
                   </h3>
                   <span
-                    className="font-mono text-xs px-2 py-1 flex-shrink-0 ml-2"
+                    className="font-mono text-sm px-2 py-1 flex-shrink-0 ml-2"
                     style={{ background: 'var(--accent-primary)', color: 'white' }}
                   >
                     {cuisine.restaurantCount}
