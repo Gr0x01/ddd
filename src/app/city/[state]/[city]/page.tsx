@@ -169,7 +169,7 @@ export default async function CityPage({ params }: CityPageProps) {
 
   const itemListSchema = generateItemListSchema(
     openRestaurants,
-    `DDD Restaurants in ${city.name}, ${state.abbreviation}`,
+    `Diners, Drive-ins and Dives Restaurants in ${city.name}, ${state.abbreviation}`,
     `/city/${validatedStateSlug}/${validatedCitySlug}`
   );
 
@@ -201,7 +201,7 @@ export default async function CityPage({ params }: CityPageProps) {
 
         <PageHero
           title={`${city.name}, ${city.state_name}`}
-          subtitle="DDD Restaurants"
+          subtitle="Diners, Drive-ins and Dives Restaurants"
           stats={[
             { value: restaurants.length, label: 'RESTAURANTS' },
             { value: openRestaurants.length, label: 'OPEN' }

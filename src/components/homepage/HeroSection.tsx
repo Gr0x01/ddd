@@ -31,7 +31,7 @@ export function HeroSection({ stats, onSearchFocus }: HeroSectionProps) {
         <div style={{ transform: 'skew(-2deg)' }}>
           <h1 className="text-display-brutal mb-6 leading-none">
             <span className="block text-concrete-light" style={{ transform: 'translateX(-20px)' }}>FIND</span>
-            <span className="block text-pure-white text-[1.2em]" style={{ transform: 'translateX(40px)' }}>DDD SPOTS</span>
+            <span className="block text-pure-white text-[1.2em]" style={{ transform: 'translateX(40px)' }}>DINERS, DRIVE-INS & DIVES</span>
             <span className="block text-safety-orange text-[0.8em]" style={{ transform: 'translateX(60px)' }}>NOW</span>
           </h1>
           <p className="text-subheading-brutal max-w-md">

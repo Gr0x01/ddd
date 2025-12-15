@@ -7,6 +7,7 @@
 
 import { useState, useRef, useMemo, useCallback } from 'react';
 import { matchCities, formatCity, expandAbbreviation, type City } from '@/lib/cityMatcher';
+import { X } from 'lucide-react';
 
 interface CityAutocompleteProps {
   value: string;
@@ -143,9 +144,7 @@ export default function CityAutocomplete({
             className="city-autocomplete-clear"
             aria-label="Clear input"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-              <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X strokeWidth={2.5} />
           </button>
         )}
       </div>

@@ -7,7 +7,7 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'About Triple D Map | Your Guide to Diners, Drive-ins and Dives',
   description:
-    'Your comprehensive guide to every restaurant featured on Guy Fieri\'s Diners, Drive-ins and Dives. Find locations, check if they\'re still open, and plan your Triple D road trip.',
+    'Your comprehensive guide to every restaurant featured on Guy Fieri\'s Diners, Drive-ins and Dives. Find locations, check if they\'re still open, and plan your Diners, Drive-ins and Dives road trip.',
   openGraph: {
     title: 'About Triple D Map',
     description:
@@ -43,7 +43,7 @@ export default function AboutPage() {
               Why does this exist?
             </h2>
             <p className="font-ui text-lg leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              You're watching DDD and Guy visits this amazing-looking burger joint or BBQ spot, and you want to visit it yourself. But finding out where it is, if it's still open, and what to order takes way too much googling. This site saves you that hassle.
+              You're watching Diners, Drive-ins and Dives and Guy visits this amazing-looking burger joint or BBQ spot, and you want to visit it yourself. But finding out where it is, if it's still open, and what to order takes way too much googling. This site saves you that hassle.
             </p>
           </section>
 
@@ -52,7 +52,7 @@ export default function AboutPage() {
               How does it work?
             </h2>
             <p className="font-ui text-lg leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              We track every restaurant featured on the show, organize them by location and episode, and keep the information current. Browse by state, search by name, or explore the map to find DDD restaurants near you.
+              We track every restaurant featured on the show, organize them by location and episode, and keep the information current. Browse by state, search by name, or explore the map to find Diners, Drive-ins and Dives restaurants near you.
             </p>
           </section>
 

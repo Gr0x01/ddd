@@ -420,7 +420,7 @@ export function generateStateFAQSchema(
       },
       {
         '@type': 'Question',
-        name: `Which cities in ${stateName} have the most DDD restaurants?`,
+        name: `Which cities in ${stateName} have the most Diners, Drive-ins and Dives restaurants?`,
         acceptedAnswer: {
           '@type': 'Answer',
           text: cityText,
@@ -428,7 +428,7 @@ export function generateStateFAQSchema(
       },
       {
         '@type': 'Question',
-        name: `Are all DDD restaurants in ${stateName} still open?`,
+        name: `Are all Diners, Drive-ins and Dives restaurants in ${stateName} still open?`,
         acceptedAnswer: {
           '@type': 'Answer',
           text: `No, ${openRestaurants} out of ${totalRestaurants} are still open. We verify status regularly.`,
@@ -476,7 +476,7 @@ export function generateRouteSchema(
     subjectOf: {
       '@type': 'Article',
       name: `${route.origin_text} to ${route.destination_text} Road Trip Guide`,
-      description: `Plan your DDD road trip: ${distanceMiles} miles, approximately ${durationHours} hours of driving, ${restaurantCount} restaurant stops.`,
+      description: `Plan your Diners, Drive-ins and Dives road trip: ${distanceMiles} miles, approximately ${durationHours} hours of driving, ${restaurantCount} restaurant stops.`,
     },
     provider: {
       '@type': 'Organization',
@@ -510,7 +510,7 @@ export function generateRouteFAQSchema(
     mainEntity: [
       {
         '@type': 'Question',
-        name: `How many DDD restaurants are on the ${routeName} route?`,
+        name: `How many Diners, Drive-ins and Dives restaurants are on the ${routeName} route?`,
         acceptedAnswer: {
           '@type': 'Answer',
           text: `There are ${restaurantCount} Diners, Drive-ins and Dives restaurants along the ${routeName} route. ${openCount} are currently open.`,

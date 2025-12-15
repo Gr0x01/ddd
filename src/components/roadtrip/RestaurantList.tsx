@@ -3,7 +3,7 @@
 import { RestaurantNearRoute } from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Donut } from 'lucide-react';
+import { UtensilsCrossed, Star, ChevronRight } from 'lucide-react';
 
 interface RestaurantListProps {
   restaurants: RestaurantNearRoute[];
@@ -35,7 +35,7 @@ export default function RestaurantList({
           className="w-16 h-16 mx-auto mb-4 flex items-center justify-center"
           style={{ background: 'var(--bg-tertiary)' }}
         >
-          <Donut className="w-8 h-8" style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
+          <UtensilsCrossed className="w-8 h-8" style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
         </div>
         <p className="font-display text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
           No Restaurants Found
@@ -111,7 +111,7 @@ export default function RestaurantList({
                     className="w-full h-full flex items-center justify-center"
                     style={{ background: 'var(--bg-tertiary)' }}
                   >
-                    <Donut className="w-6 h-6" style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
+                    <UtensilsCrossed className="w-6 h-6" style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
                   </div>
                 )}
               </div>
@@ -167,14 +167,12 @@ export default function RestaurantList({
                   {/* Rating */}
                   {restaurant.google_rating && (
                     <div className="flex items-center gap-1">
-                      <svg
+                      <Star
                         className="w-3 h-3"
                         style={{ color: 'var(--accent-secondary)' }}
-                        viewBox="0 0 20 20"
                         fill="currentColor"
-                      >
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                      </svg>
+                        strokeWidth={0}
+                      />
                       <span
                         className="font-mono text-[11px]"
                         style={{ color: 'var(--text-secondary)' }}
@@ -206,9 +204,7 @@ export default function RestaurantList({
                   onClick={(e) => e.stopPropagation()}
                 >
                   VIEW DETAILS
-                  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M9 18l6-6-6-6"/>
-                  </svg>
+                  <ChevronRight className="w-3 h-3" strokeWidth={2.5} />
                 </Link>
               </div>
             </div>

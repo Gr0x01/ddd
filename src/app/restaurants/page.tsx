@@ -62,7 +62,7 @@ export default async function RestaurantsPage() {
 
   const itemListSchema = generateItemListSchema(
     openRestaurants,
-    'All DDD Restaurants',
+    'All Diners, Drive-ins and Dives Restaurants',
     '/restaurants'
   );
 
@@ -83,7 +83,7 @@ export default async function RestaurantsPage() {
 
         <PageHero
           title="All Restaurants"
-          subtitle="DDD Locations"
+          subtitle="Diners, Drive-ins and Dives Locations"
           stats={[
             { value: restaurants.length, label: 'RESTAURANTS' },
             { value: openRestaurants.length, label: 'OPEN' },

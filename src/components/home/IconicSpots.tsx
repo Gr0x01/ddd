@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { RestaurantWithEpisodes } from '@/lib/supabase';
+import { Star } from 'lucide-react';
 
 // Filter photos to only include valid URL strings
 function getFirstPhoto(photos: string[] | null | undefined): string | null {
@@ -23,9 +24,7 @@ export default function IconicSpots({ restaurants }: IconicSpotsProps) {
       <div className="iconic-spots-container">
         <div className="iconic-spots-header">
           <div className="iconic-badge">
-            <svg className="iconic-badge-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
+            <Star className="iconic-badge-icon" fill="currentColor" strokeWidth={0} />
             <span className="iconic-badge-text">LEGENDARY</span>
           </div>
           <h2 className="iconic-spots-title">
@@ -58,17 +57,13 @@ export default function IconicSpots({ restaurants }: IconicSpotsProps) {
                   />
                 ) : (
                   <div className="iconic-card-placeholder">
-                    <svg className="iconic-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
+                    <Star className="iconic-placeholder-icon" />
                   </div>
                 )}
 
                 {/* Legendary Badge */}
                 <div className="iconic-legendary-badge">
-                  <svg className="iconic-legendary-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
+                  <Star className="iconic-legendary-icon" fill="currentColor" strokeWidth={0} />
                 </div>
 
                 {/* Overlay gradient */}

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Hamburger, Car } from 'lucide-react';
+import { UtensilsCrossed, Car, ArrowRight } from 'lucide-react';
 import type { RouteCache, RouteWithRestaurantCount } from '@/lib/supabase';
 
 interface RouteCardProps {
@@ -29,9 +29,7 @@ export function RouteCard({
             <span className="route-card-city-name">{route.origin_text.split(',')[0]}</span>
           </div>
           <div className="route-card-connector">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
+            <ArrowRight strokeWidth={2.5} />
           </div>
           <div className="route-card-city">
             <span className="route-card-city-name">{route.destination_text.split(',')[0]}</span>
@@ -41,7 +39,7 @@ export function RouteCard({
         {/* Stats */}
         <div className="route-card-stats">
           <div className="route-card-stat">
-            <Hamburger className="route-card-stat-icon" size={16} />
+            <UtensilsCrossed className="route-card-stat-icon" size={16} />
             <span className="route-card-stat-value">{'restaurant_count' in route ? route.restaurant_count : '?'}</span>
             <span className="route-card-stat-label">stops</span>
           </div>
@@ -64,9 +62,7 @@ export function RouteCard({
         {!compact && (
           <div className="route-card-cta">
             <span>EXPLORE ROUTE</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
+            <ArrowRight strokeWidth={3} />
           </div>
         )}
       </div>

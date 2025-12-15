@@ -10,7 +10,7 @@ export function BrowseSection({ stats }: BrowseSectionProps) {
     <section className="py-16 px-8" style={{ background: 'var(--bg-tertiary)' }}>
       <div className="max-w-6xl mx-auto">
         <h2 className="font-display text-4xl font-bold text-center mb-12" style={{ color: 'var(--text-primary)' }}>
-          Browse DDD Locations
+          Browse Diners, Drive-ins and Dives Locations
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
           <Link href="/restaurants" className="p-6 rounded-lg hover:shadow-lg transition-shadow" style={{ background: 'var(--bg-secondary)' }}>
@@ -18,7 +18,7 @@ export function BrowseSection({ stats }: BrowseSectionProps) {
               🍔 All Restaurants
             </h3>
             <p className="font-ui" style={{ color: 'var(--text-secondary)' }}>
-              Browse all {stats.restaurants} DDD restaurants
+              Browse all {stats.restaurants} Diners, Drive-ins and Dives restaurants
             </p>
           </Link>
           <div className="p-6 rounded-lg opacity-50" style={{ background: 'var(--bg-secondary)' }}>

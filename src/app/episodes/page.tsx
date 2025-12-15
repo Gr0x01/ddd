@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const episodes = await db.getEpisodes();
     const seasonCount = new Set(episodes.map(e => e.season)).size;
 
-    const title = `All ${episodes.length} DDD Episodes | Diners, Drive-ins and Dives`;
+    const title = `All ${episodes.length} Diners, Drive-ins and Dives Episodes`;
     const description = `Browse all ${episodes.length} episodes across ${seasonCount} seasons of Guy Fieri's Diners, Drive-ins and Dives. Find restaurants featured in each episode.`;
 
     return {
@@ -38,7 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
   } catch (error) {
     console.error('Episodes page metadata generation failed:', error);
     return {
-      title: 'Browse DDD Episodes | Triple D Map',
+      title: 'Browse Diners, Drive-ins and Dives Episodes | Triple D Map',
       description: 'Browse all Diners, Drive-ins and Dives episodes.',
     };
   }
@@ -91,7 +91,7 @@ export default async function EpisodesPage() {
       <div className="min-h-screen" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
         <Header currentPage="episodes" />
         <PageHero
-          title="DDD Episodes"
+          title="Diners, Drive-ins and Dives Episodes"
           subtitle="Browse all Diners, Drive-ins and Dives episodes"
           stats={[
             { value: episodes.length, label: 'EPISODES' },

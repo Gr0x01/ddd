@@ -4,7 +4,7 @@ import { getRestaurantStatus, getChefAchievements, validateImageUrl } from '@/li
 import { getStorageUrl } from '@/lib/utils/storage';
 import { getLocationLink } from '@/lib/utils/location';
 import { MichelinStar } from '../icons/MichelinStar';
-import { Donut, Navigation } from 'lucide-react';
+import { UtensilsCrossed, Navigation, Star } from 'lucide-react';
 
 interface ChefInfo {
   name: string;
@@ -132,7 +132,7 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
             }}
           />
-          <Donut
+          <UtensilsCrossed
             className="relative w-16 h-16"
             style={{ color: 'var(--accent-primary)' }}
             strokeWidth={1.5}
@@ -224,9 +224,7 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
         {restaurant.google_rating && (
           <div className="mt-3 flex items-center gap-2">
             <div className="flex items-center gap-1" style={{ color: '#f59e0b' }}>
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20" aria-hidden="true">
-                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-              </svg>
+              <Star className="w-4 h-4" fill="currentColor" strokeWidth={0} aria-hidden="true" />
               <span className="font-mono text-sm font-bold">{restaurant.google_rating}</span>
             </div>
             {restaurant.google_review_count && (

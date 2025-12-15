@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Breadcrumbs } from '../seo/Breadcrumbs';
+import { Check, X, MapPin, Star, ExternalLink, Phone, Maximize2, Tv } from 'lucide-react';
 
 function getRestaurantStatus(status: 'open' | 'closed' | 'unknown') {
   if (status === 'open') {
@@ -86,14 +87,10 @@ export function RestaurantHero({ restaurant, breadcrumbItems }: RestaurantHeroPr
             {/* Status Badge */}
             <div className={`restaurant-hero-status ${status.isOpen ? 'status-open' : status.isClosed ? 'status-closed' : 'status-unknown'}`}>
               {status.isOpen && (
-                <svg className="restaurant-hero-status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <path d="M20 6L9 17l-5-5"/>
-                </svg>
+                <Check className="restaurant-hero-status-icon" strokeWidth={3} />
               )}
               {status.isClosed && (
-                <svg className="restaurant-hero-status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <path d="M18 6L6 18M6 6l12 12"/>
-                </svg>
+                <X className="restaurant-hero-status-icon" strokeWidth={3} />
               )}
               <span>{status.displayStatus}</span>
             </div>
@@ -105,10 +102,7 @@ export function RestaurantHero({ restaurant, breadcrumbItems }: RestaurantHeroPr
 
             {/* Location */}
             <p className="restaurant-hero-location">
-              <svg className="restaurant-hero-location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
-              </svg>
+              <MapPin className="restaurant-hero-location-icon" />
               {locationText}
             </p>
 
@@ -116,9 +110,7 @@ export function RestaurantHero({ restaurant, breadcrumbItems }: RestaurantHeroPr
             <div className="restaurant-hero-meta">
               {restaurant.google_rating && (
                 <div className="restaurant-hero-rating">
-                  <svg className="restaurant-hero-rating-star" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                  </svg>
+                  <Star className="restaurant-hero-rating-star" fill="currentColor" strokeWidth={0} />
                   <span className="restaurant-hero-rating-value">{restaurant.google_rating}</span>
                   {restaurant.google_review_count && (
                     <span className="restaurant-hero-rating-count">
@@ -152,10 +144,7 @@ export function RestaurantHero({ restaurant, breadcrumbItems }: RestaurantHeroPr
                   rel="noopener noreferrer"
                   className="restaurant-hero-button primary"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                  </svg>
+                  <MapPin />
                   GET DIRECTIONS
                 </a>
               )}
@@ -166,19 +155,13 @@ export function RestaurantHero({ restaurant, breadcrumbItems }: RestaurantHeroPr
                   rel="noopener noreferrer"
                   className="restaurant-hero-button secondary"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                    <polyline points="15 3 21 3 21 9"/>
-                    <line x1="10" y1="14" x2="21" y2="3"/>
-                  </svg>
+                  <ExternalLink />
                   WEBSITE
                 </a>
               )}
               {restaurant.phone && (
                 <a href={`tel:${restaurant.phone}`} className="restaurant-hero-button secondary">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                  </svg>
+                  <Phone />
                   {restaurant.phone}
                 </a>
               )}
@@ -204,9 +187,7 @@ export function RestaurantHero({ restaurant, breadcrumbItems }: RestaurantHeroPr
                   priority
                 />
                 <div className="restaurant-hero-photo-overlay">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
-                  </svg>
+                  <Maximize2 />
                 </div>
               </a>
               {photos.length > 1 && (
@@ -222,10 +203,7 @@ export function RestaurantHero({ restaurant, breadcrumbItems }: RestaurantHeroPr
         {restaurant.episodes && restaurant.episodes.length > 0 && (
           <div className="restaurant-hero-episodes">
             <span className="restaurant-hero-episodes-label">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
-                <polyline points="17 2 12 7 7 2"/>
-              </svg>
+              <Tv />
               FEATURED ON
             </span>
             <div className="restaurant-hero-episodes-list">

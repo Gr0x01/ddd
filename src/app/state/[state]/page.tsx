@@ -158,7 +158,7 @@ export default async function StatePage({ params }: StatePageProps) {
 
   const itemListSchema = generateItemListSchema(
     openRestaurants,
-    `DDD Restaurants in ${state.name}`,
+    `Diners, Drive-ins and Dives Restaurants in ${state.name}`,
     `/state/${validatedSlug}`
   );
 
@@ -196,7 +196,7 @@ export default async function StatePage({ params }: StatePageProps) {
 
         <PageHero
           title={state.name}
-          subtitle="DDD Restaurants"
+          subtitle="Diners, Drive-ins and Dives Restaurants"
           stats={[
             { value: restaurants.length, label: 'RESTAURANTS' },
             { value: openRestaurants.length, label: 'OPEN' },
@@ -221,7 +221,7 @@ export default async function StatePage({ params }: StatePageProps) {
           <div className="space-y-8">
             <section>
               <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                Cities with DDD Restaurants
+                Cities with Diners, Drive-ins and Dives Restaurants
               </h2>
               <div className="grid md:grid-cols-3 gap-4">
                 {cities

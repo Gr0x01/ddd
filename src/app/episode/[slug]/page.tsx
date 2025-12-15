@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: EpisodePageProps): Promise<Me
       },
       twitter: {
         card: 'summary_large_image',
-        title: `${episode.title} | DDD`,
+        title: `${episode.title} | Diners, Drive-ins and Dives`,
         description,
       },
     };

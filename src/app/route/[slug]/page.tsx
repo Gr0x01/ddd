@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: RoutePageProps): Promise<Meta
     }
 
   const title = `${route.title} - Diners, Drive-ins and Dives Road Trip`;
-  const description = route.description || `Find all Guy Fieri restaurants on the ${route.title} route. Plan your Triple D road trip adventure!`;
+  const description = route.description || `Find all Guy Fieri restaurants on the ${route.title} route. Plan your Diners, Drive-ins and Dives road trip adventure!`;
 
     return {
       title,
