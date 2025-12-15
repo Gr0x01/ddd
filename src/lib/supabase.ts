@@ -456,14 +456,16 @@ export const db = {
   // Get stats for homepage
   async getStats() {
     const client = getSupabaseClient();
-    const [restaurantsResult, episodesResult, citiesResult] = await Promise.all([
+    const [restaurantsResult, openResult, episodesResult, citiesResult] = await Promise.all([
       client.from('restaurants').select('id', { count: 'exact', head: true }).eq('is_public', true),
+      client.from('restaurants').select('id', { count: 'exact', head: true }).eq('is_public', true).eq('status', 'open'),
       client.from('episodes').select('id', { count: 'exact', head: true }),
       client.from('cities').select('id', { count: 'exact', head: true })
     ]);
 
     return {
       restaurants: restaurantsResult.count || 0,
+      openRestaurants: openResult.count || 0,
       episodes: episodesResult.count || 0,
       cities: citiesResult.count || 0
     };

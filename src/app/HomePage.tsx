@@ -12,7 +12,7 @@ import { MapPin, Tv, CheckCircle, Car, ArrowRight } from 'lucide-react';
 
 interface HomePageProps {
   iconicRestaurants: RestaurantWithEpisodes[];
-  stats: { restaurants: number; episodes: number; cities: number };
+  stats: { restaurants: number; openRestaurants: number; episodes: number; cities: number };
   recentEpisodes: Episode[];
   cities: City[];
   curatedRoutes: RouteCache[];
@@ -25,7 +25,7 @@ export default function HomePage({
   cities,
   curatedRoutes
 }: HomePageProps) {
-  const verifiedOpen = stats.restaurants; // Will be updated to actual verified count
+  const verifiedOpen = stats.openRestaurants;
 
   return (
     <div className="app-container">
