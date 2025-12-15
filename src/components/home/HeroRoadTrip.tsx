@@ -6,8 +6,18 @@ import Link from 'next/link';
 import CityAutocomplete from '@/components/roadtrip/CityAutocomplete';
 import type { City } from '@/lib/cityMatcher';
 import type { Episode } from '@/lib/supabase';
+import { Car, MapPin, Flag, ArrowUpDown, Sparkles, ChevronRight, Search } from 'lucide-react';
 
 const EPISODE_ROTATE_INTERVAL = 5000; // 5 seconds
+
+// Valid radius options (must match SearchForm and route detail page)
+const ALLOWED_RADIUS = [10, 25, 50, 100] as const;
+
+interface RoadTripAPIResponse {
+  slug?: string;
+  cached?: boolean;
+  error?: string;
+}
 
 interface HeroRoadTripProps {
   cities: City[];
@@ -50,13 +60,35 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
     if (!origin || !destination) return;
 
     setIsLoading(true);
-    // Navigate to road trip page with params
-    const params = new URLSearchParams({
-      origin,
-      destination,
-      radius: radiusMiles.toString(),
-    });
-    router.push(`/roadtrip?${params.toString()}`);
+
+    try {
+      const response = await fetch('/api/roadtrip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ origin, destination })
+      });
+
+      const data: RoadTripAPIResponse = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to plan route');
+      }
+
+      // Validate slug is a non-empty string
+      if (typeof data.slug === 'string' && data.slug.length > 0) {
+        // Validate radius is an allowed value
+        const safeRadius = ALLOWED_RADIUS.includes(radiusMiles as typeof ALLOWED_RADIUS[number])
+          ? radiusMiles
+          : 25;
+        router.push(`/route/${data.slug}?radius=${safeRadius}`);
+      } else {
+        throw new Error('Failed to generate route');
+      }
+    } catch (err) {
+      console.error('Road trip error:', err);
+      // Fall back to roadtrip page on error
+      setIsLoading(false);
+    }
   }, [origin, destination, radiusMiles, router]);
 
   const swapLocations = () => {
@@ -73,11 +105,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
       <div className="hero-roadtrip-container">
         <div className="hero-roadtrip-left">
           <div className="hero-badge">
-            <svg className="hero-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 17h14v-5l-1.5-4.5h-11L5 12v5z"/>
-              <circle cx="7.5" cy="17.5" r="1.5"/>
-              <circle cx="16.5" cy="17.5" r="1.5"/>
-            </svg>
+            <Car className="hero-badge-icon" />
             <span className="hero-badge-text">PLAN YOUR TRIP</span>
           </div>
 
@@ -100,9 +128,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
               className={`hero-newest-episode ${isTransitioning ? 'hero-newest-transitioning' : ''}`}
             >
               <div className="hero-newest-badge">
-                <svg className="hero-newest-badge-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19.65 9.04l-4.84-.42-1.89-4.45c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5 4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.73 3.67-3.18c.67-.58.32-1.68-.56-1.75zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/>
-                </svg>
+                <Sparkles className="hero-newest-badge-icon" />
                 <span className="hero-newest-badge-text">NEW</span>
               </div>
               <div className="hero-newest-content">
@@ -130,9 +156,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
                 </div>
               )}
               <div className="hero-newest-arrow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <path d="M9 18l6-6-6-6"/>
-                </svg>
+                <ChevronRight strokeWidth={3} />
               </div>
             </Link>
           )}
@@ -146,10 +170,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
               {/* Origin */}
               <div className="hero-form-field">
                 <label className="hero-form-label">
-                  <svg className="hero-form-label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                  </svg>
+                  <MapPin className="hero-form-label-icon" />
                   START
                 </label>
                 <CityAutocomplete
@@ -170,19 +191,13 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
                 title="Swap locations"
                 aria-label="Swap origin and destination"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M7 16V4M7 4L3 8M7 4L11 8" />
-                  <path d="M17 8V20M17 20L21 16M17 20L13 16" />
-                </svg>
+                <ArrowUpDown strokeWidth={2.5} />
               </button>
 
               {/* Destination */}
               <div className="hero-form-field">
                 <label className="hero-form-label">
-                  <svg className="hero-form-label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-                    <line x1="4" y1="22" x2="4" y2="15"/>
-                  </svg>
+                  <Flag className="hero-form-label-icon" />
                   END
                 </label>
                 <CityAutocomplete
@@ -235,10 +250,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
                 </>
               ) : (
                 <>
-                  <svg className="hero-submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M3 11h18M3 11a2 2 0 0 0 0 4h18a2 2 0 0 0 0-4M5 15v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/>
-                    <path d="M5 11V9a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/>
-                  </svg>
+                  <Search className="hero-submit-icon" />
                   FIND RESTAURANTS
                 </>
               )}
