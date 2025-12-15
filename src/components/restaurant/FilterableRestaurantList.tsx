@@ -60,7 +60,7 @@ function toRestaurantData(restaurant: RestaurantInput): RestaurantData {
     google_rating: restaurant.google_rating ?? null,
     google_review_count: restaurant.google_review_count ?? null,
     cuisine_tags: restaurant.cuisines?.map(c => c.name) ?? null,
-    photo_urls: restaurant.photos ?? null,
+    photos: restaurant.photos ?? null,
     michelin_stars: null,
     chef: null,
   };

@@ -26,7 +26,7 @@ export interface RestaurantData {
   status: 'open' | 'closed' | 'unknown';
   google_rating: number | null;
   google_review_count: number | null;
-  photo_urls: string[] | null;
+  photos: string[] | null;
   michelin_stars: number | null;
   chef: {
     id: string;

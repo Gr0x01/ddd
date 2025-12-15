@@ -1,10 +1,25 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getRestaurantStatus, getChefAchievements, validateImageUrl } from '@/lib/utils/restaurant';
-import { getStorageUrl } from '@/lib/utils/storage';
+import { getRestaurantStatus, getChefAchievements } from '@/lib/utils/restaurant';
 import { getLocationLink } from '@/lib/utils/location';
 import { MichelinStar } from '../icons/MichelinStar';
 import { UtensilsCrossed, Navigation, Star } from 'lucide-react';
+
+// Get first valid photo URL from photos array
+function getFirstPhoto(photos: string[] | null | undefined, fallbackUrl: string | null | undefined): string | null {
+  // Try photos array first
+  if (photos && Array.isArray(photos)) {
+    const validPhoto = photos.find(
+      (photo): photo is string => typeof photo === 'string' && photo.startsWith('http')
+    );
+    if (validPhoto) return validPhoto;
+  }
+  // Fallback to single photo_url if it's a valid URL
+  if (fallbackUrl && typeof fallbackUrl === 'string' && fallbackUrl.startsWith('http')) {
+    return fallbackUrl;
+  }
+  return null;
+}
 
 interface ChefInfo {
   name: string;
@@ -70,8 +85,8 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
   const status = getRestaurantStatus(restaurant.status);
   const { names: chefNames, hasWinner: isShowWinner, hasJBWinner: isJBWinner } = getChefNames(restaurant);
 
-  // Use photos array first, fallback to single photo_url
-  const photoUrl = getStorageUrl('restaurant-photos', restaurant.photos?.[0] || restaurant.photo_url);
+  // Use photos array first, fallback to single photo_url - validate both are URLs
+  const photoUrl = getFirstPhoto(restaurant.photos, restaurant.photo_url);
   const locationLink = getLocationLink(restaurant.state, restaurant.country);
 
   return (

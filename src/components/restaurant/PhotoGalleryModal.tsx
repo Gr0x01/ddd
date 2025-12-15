@@ -2,10 +2,9 @@
 
 import { useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { getStorageUrl } from '@/lib/utils/storage';
 
 interface PhotoGalleryModalProps {
-  photos: string[];
+  photos: string[];  // Photos should already be valid URLs
   currentIndex: number;
   isOpen: boolean;
   onClose: () => void;
@@ -112,7 +111,7 @@ export function PhotoGalleryModal({
 
           <div className="relative w-full h-full max-w-6xl max-h-[80vh]">
             <Image
-              src={getStorageUrl('restaurant-photos', photos[currentIndex])!}
+              src={photos[currentIndex]}
               alt={`${restaurantName} - Photo ${currentIndex + 1}`}
               fill
               className="object-contain"
@@ -143,7 +142,7 @@ export function PhotoGalleryModal({
                     aria-current={index === currentIndex ? 'true' : 'false'}
                   >
                     <Image
-                      src={getStorageUrl('restaurant-photos', photo)!}
+                      src={photo}
                       alt={`${restaurantName} thumbnail ${index + 1}`}
                       fill
                       className="object-cover"

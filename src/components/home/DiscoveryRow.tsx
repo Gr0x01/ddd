@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronRight } from 'lucide-react';
 import { getRestaurantStatus, getChefAchievements } from '@/lib/utils/restaurant';
-import { getStorageUrl } from '@/lib/utils/storage';
 import { MichelinStar } from '@/components/icons/MichelinStar';
 import type { RestaurantWithDetails } from '@/lib/types';
 
@@ -14,10 +13,19 @@ interface DiscoveryRowProps {
   viewAllHref?: string;
 }
 
+// Get first valid photo URL from photos array
+function getFirstPhoto(photos: string[] | null | undefined): string | null {
+  if (!photos || !Array.isArray(photos)) return null;
+  const validPhoto = photos.find(
+    (photo): photo is string => typeof photo === 'string' && photo.startsWith('http')
+  );
+  return validPhoto || null;
+}
+
 function DiscoveryCard({ restaurant, index }: { restaurant: RestaurantWithDetails; index: number }) {
   const status = getRestaurantStatus(restaurant.status);
   const chefAchievements = restaurant.chef ? getChefAchievements(restaurant.chef) : { isShowWinner: false, isJBWinner: false };
-  const photoUrl = getStorageUrl('restaurant-photos', restaurant.photo_urls?.[0]);
+  const photoUrl = getFirstPhoto(restaurant.photos);
   const michelinStars = restaurant.michelin_stars || 0;
 
   return (

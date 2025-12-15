@@ -2,8 +2,16 @@
 
 import type { RestaurantWithDetails } from '@/lib/types';
 import Image from 'next/image';
-import { getStorageUrl } from '@/lib/utils/storage';
 import { getRestaurantStatus, getChefAchievements } from '@/lib/utils/restaurant';
+
+// Get first valid photo URL from photos array
+function getFirstPhoto(photos: string[] | null | undefined): string | null {
+  if (!photos || !Array.isArray(photos)) return null;
+  const validPhoto = photos.find(
+    (photo): photo is string => typeof photo === 'string' && photo.startsWith('http')
+  );
+  return validPhoto || null;
+}
 
 interface RestaurantPopupProps {
   restaurant: RestaurantWithDetails;
@@ -13,7 +21,7 @@ export default function RestaurantPopup({ restaurant }: RestaurantPopupProps) {
   const chef = restaurant.chef;
   const status = getRestaurantStatus(restaurant.status);
   const chefAchievements = chef ? getChefAchievements(chef) : { isShowWinner: false, isJBWinner: false, isJBNominee: false, isJBSemifinalist: false };
-  const photoUrl = getStorageUrl('restaurant-photos', restaurant.photo_urls?.[0]);
+  const photoUrl = getFirstPhoto(restaurant.photos);
 
   return (
     <div className="popup-enhanced">

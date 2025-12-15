@@ -60,7 +60,7 @@ export interface Restaurant {
   is_public: boolean;
   created_at: string;
   updated_at: string;
-  photo_urls?: string[] | null;
+  photos?: string[] | null;
   google_rating?: number | null;
   google_review_count?: number | null;
   michelin_stars?: number | null;
