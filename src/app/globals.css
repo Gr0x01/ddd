@@ -6359,6 +6359,10 @@ h3.route-journey-group-label {
   transform: scale(1.08);
 }
 
+.restaurant-more-card-img--closed {
+  filter: grayscale(100%);
+}
+
 .restaurant-more-card-placeholder {
   width: 100%;
   height: 100%;

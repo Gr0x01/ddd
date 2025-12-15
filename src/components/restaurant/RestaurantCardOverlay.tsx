@@ -51,7 +51,7 @@ export function RestaurantCardOverlay({ restaurant, index = 0, hideStatus = fals
             alt={restaurant.name}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            className="restaurant-more-card-img"
+            className={`restaurant-more-card-img ${isClosed ? 'restaurant-more-card-img--closed' : ''}`}
           />
         ) : (
           <div className="restaurant-more-card-placeholder">
