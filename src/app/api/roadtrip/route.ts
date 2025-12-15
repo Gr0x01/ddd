@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 const requestSchema = z.object({
   origin: z.string().min(1).max(200),
   destination: z.string().min(1).max(200),
-  radiusMiles: z.number().min(5).max(25).optional().default(10)
+  radiusMiles: z.number().min(10).max(100).optional().default(25)
 });
 
 export async function POST(request: NextRequest) {

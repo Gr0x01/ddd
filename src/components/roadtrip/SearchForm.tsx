@@ -106,20 +106,19 @@ export default function SearchForm({
         <input
           type="range"
           id="radius"
-          min="5"
-          max="25"
-          step="5"
-          value={radiusMiles}
-          onChange={(e) => onRadiusChange(Number(e.target.value))}
+          min="0"
+          max="3"
+          step="1"
+          value={[10, 25, 50, 100].indexOf(radiusMiles)}
+          onChange={(e) => onRadiusChange([10, 25, 50, 100][Number(e.target.value)])}
           className="hero-radius-slider"
           disabled={isLoading}
         />
         <div className="hero-radius-labels">
-          <span>5 mi</span>
-          <span>10</span>
-          <span>15</span>
-          <span>20</span>
-          <span>25 mi</span>
+          <span>10 mi</span>
+          <span>25</span>
+          <span>50</span>
+          <span>100 mi</span>
         </div>
       </div>
 

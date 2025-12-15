@@ -52,7 +52,7 @@ export default function RoadTripPlanner() {
   const [state, setState] = useState<RoadTripState>({
     origin: '',
     destination: '',
-    radiusMiles: 10,
+    radiusMiles: 25,
     route: null,
     restaurants: [],
     isLoading: false,
