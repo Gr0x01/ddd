@@ -5061,8 +5061,8 @@ h3.route-journey-group-label {
   }
 
   .route-restaurants-list {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
 
   .route-journey-group {
@@ -5104,6 +5104,13 @@ h3.route-journey-group-label {
     width: 48px;
     height: 48px;
     margin-bottom: 16px;
+  }
+}
+
+/* Very small screens - single column */
+@media (max-width: 480px) {
+  .route-restaurants-list {
+    grid-template-columns: 1fr;
   }
 }
 
