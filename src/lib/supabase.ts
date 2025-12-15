@@ -463,7 +463,7 @@ export const db = {
       .eq('is_public', true)
       .eq('status', 'open')
       .not('google_rating', 'is', null)
-      .not('photo_url', 'is', null)
+      .not('photos', 'eq', '[]') // Filter for restaurants with photos
       .order('google_rating', { ascending: false })
       .limit(limit * 3); // Get more than needed for randomization
 

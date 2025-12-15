@@ -4,6 +4,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { RestaurantWithEpisodes } from '@/lib/supabase';
 
+// Filter photos to only include valid URL strings
+function getFirstPhoto(photos: string[] | null | undefined): string | null {
+  if (!photos || !Array.isArray(photos)) return null;
+  const validPhoto = photos.find(
+    (photo): photo is string => typeof photo === 'string' && photo.startsWith('http')
+  );
+  return validPhoto || null;
+}
+
 interface IconicSpotsProps {
   restaurants: RestaurantWithEpisodes[];
 }
@@ -30,7 +39,9 @@ export default function IconicSpots({ restaurants }: IconicSpotsProps) {
         </div>
 
         <div className="iconic-spots-grid">
-          {restaurants.slice(0, 10).map((restaurant, index) => (
+          {restaurants.slice(0, 10).map((restaurant, index) => {
+            const photoUrl = getFirstPhoto(restaurant.photos);
+            return (
             <Link
               key={restaurant.id}
               href={`/restaurant/${restaurant.slug}`}
@@ -39,9 +50,9 @@ export default function IconicSpots({ restaurants }: IconicSpotsProps) {
             >
               {/* Image */}
               <div className="iconic-card-image">
-                {restaurant.photos && restaurant.photos.length > 0 ? (
+                {photoUrl ? (
                   <Image
-                    src={restaurant.photos[0]}
+                    src={photoUrl}
                     alt={restaurant.name}
                     fill
                     sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
@@ -82,7 +93,8 @@ export default function IconicSpots({ restaurants }: IconicSpotsProps) {
                 </div>
               )}
             </Link>
-          ))}
+          );
+          })}
         </div>
       </div>
     </section>

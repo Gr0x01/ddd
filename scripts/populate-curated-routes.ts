@@ -7,7 +7,7 @@
  *
  * Usage:
  *   npm run populate-routes           # Populate all routes
- *   npm run populate-routes -- --slug=chicago-to-milwaukee  # Populate specific route
+ *   npm run populate-routes -- --slug=la-to-las-vegas  # Populate specific route
  *   npm run populate-routes -- --dry-run  # Test without making changes
  */
 
@@ -51,14 +51,14 @@ const POPULAR_ROUTES: PopularRoute[] = [
     color: 'yellow',
   },
   {
-    slug: 'chicago-to-milwaukee',
+    slug: 'chicago-to-indianapolis',
     from: 'Chicago, IL',
-    to: 'Milwaukee, WI',
+    to: 'Indianapolis, IN',
     fromCoords: { lat: 41.8781, lng: -87.6298 },
-    toCoords: { lat: 43.0389, lng: -87.9065 },
+    toCoords: { lat: 39.7684, lng: -86.1581 },
     restaurants: 15,
     highlight: 'Midwest comfort food',
-    description: 'A short but delicious trip from Chicago to Milwaukee along Lake Michigan. Discover 15+ Diners, Drive-ins & Dives spots featuring classic Midwest comfort food: deep-dish pizza, bratwurst, cheese curds, and hearty diner breakfasts.',
+    description: 'The heartland food tour from Chicago to Indianapolis. This Midwest road trip connects 15 Diners, Drive-ins & Dives restaurants featuring Chicago deep-dish pizza, legendary Italian beef sandwiches, and Indiana comfort food classics.',
     color: 'cream',
   },
   {
@@ -73,25 +73,25 @@ const POPULAR_ROUTES: PopularRoute[] = [
     color: 'red',
   },
   {
-    slug: 'portland-to-seattle',
-    from: 'Portland, OR',
-    to: 'Seattle, WA',
-    fromCoords: { lat: 45.5152, lng: -122.6784 },
-    toCoords: { lat: 47.6062, lng: -122.3321 },
+    slug: 'nashville-to-cincinnati',
+    from: 'Nashville, TN',
+    to: 'Cincinnati, OH',
+    fromCoords: { lat: 36.1627, lng: -86.7816 },
+    toCoords: { lat: 39.1031, lng: -84.5120 },
     restaurants: 18,
-    highlight: 'Pacific Northwest gems',
-    description: 'Explore the Pacific Northwest from Portland to Seattle through nearly 20 Diners, Drive-ins & Dives restaurants. Experience the region\'s farm-to-table ethos with fresh seafood, artisanal burgers, and creative fusion cuisine.',
+    highlight: 'Southern soul to Midwest',
+    description: 'From Music City to the Queen City, this route serves up 18 Diners, Drive-ins & Dives restaurants. Experience Nashville hot chicken and Southern BBQ, then roll into Cincinnati for legendary chili parlors and German-inspired comfort food.',
     color: 'yellow',
   },
   {
-    slug: 'miami-to-key-west',
-    from: 'Miami, FL',
-    to: 'Key West, FL',
-    fromCoords: { lat: 25.7617, lng: -80.1918 },
-    toCoords: { lat: 24.5551, lng: -81.7800 },
-    restaurants: 10,
-    highlight: 'Florida Keys seafood',
-    description: 'Drive the spectacular Overseas Highway from Miami to Key West. This tropical paradise route features 10 Diners, Drive-ins & Dives restaurants serving fresh-caught seafood, Cuban cuisine, and island-inspired dishes with ocean views.',
+    slug: 'la-to-las-vegas',
+    from: 'Los Angeles, CA',
+    to: 'Las Vegas, NV',
+    fromCoords: { lat: 34.0522, lng: -118.2437 },
+    toCoords: { lat: 36.1699, lng: -115.1398 },
+    restaurants: 19,
+    highlight: 'Desert road trip classics',
+    description: 'The ultimate desert road trip from Los Angeles to Las Vegas. Hit 19 Diners, Drive-ins & Dives restaurants along this iconic Route 66-adjacent corridor, from LA taco trucks and burger joints to Vegas steakhouses and off-Strip gems.',
     color: 'cream',
   },
 ];

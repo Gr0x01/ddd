@@ -1,8 +1,16 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { getRestaurantStatus, getChefAchievements } from '@/lib/utils/restaurant';
-import { getStorageUrl } from '@/lib/utils/storage';
 import { Donut } from 'lucide-react';
+
+// Filter photos to only include valid URL strings
+function getFirstPhoto(photos: string[] | null | undefined): string | null {
+  if (!photos || !Array.isArray(photos)) return null;
+  const validPhoto = photos.find(
+    (photo): photo is string => typeof photo === 'string' && photo.startsWith('http')
+  );
+  return validPhoto || null;
+}
 
 interface RestaurantCardCompactProps {
   restaurant: {
@@ -36,8 +44,8 @@ export function RestaurantCardCompact({ restaurant, index = 0, asButton = false 
   const status = getRestaurantStatus(restaurant.status);
   const chefAchievements = restaurant.chef ? getChefAchievements(restaurant.chef) : { isShowWinner: false, isJBWinner: false, isJBNominee: false, isJBSemifinalist: false };
 
-  // Use photos array first, fallback to single photo_url
-  const photoUrl = getStorageUrl('restaurant-photos', restaurant.photos?.[0] || restaurant.photo_url);
+  // Use photos array, filtering to only valid URL strings
+  const photoUrl = getFirstPhoto(restaurant.photos);
 
   const content = (
     <>
