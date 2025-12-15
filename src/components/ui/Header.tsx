@@ -56,13 +56,15 @@ export function Header({ currentPage }: HeaderProps) {
             Triple D Map
           </span>
           <span
-            className="font-mono text-xs font-bold tracking-[0.12em] uppercase inline-block px-2 py-1 border transition-all duration-300 group-hover:!text-[#d35e0f] group-hover:!border-[#d35e0f]"
+            className="relative font-mono text-[10px] font-black tracking-[0.15em] uppercase inline-flex items-center px-2.5 py-1 rounded-sm transition-all duration-300 group-hover:scale-105 group-hover:-rotate-2"
             style={{
-              color: 'var(--text-muted)',
-              borderColor: 'var(--border-light)'
+              background: 'var(--accent-secondary)',
+              color: 'var(--bg-dark)',
+              boxShadow: '2px 2px 0 var(--accent-primary)',
+              transform: 'rotate(1deg)',
             }}
           >
-            Beta
+            <span className="relative z-10">Beta</span>
           </span>
         </Link>
 

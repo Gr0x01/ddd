@@ -2121,11 +2121,6 @@ body::before {
   }
 }
 
-.beta-tag:hover {
-  color: var(--accent-primary);
-  border-color: var(--accent-primary);
-}
-
 /* Browse Section - Retro Card Style */
 .shows-showcase {
   background: var(--bg-primary);
@@ -7019,18 +7014,22 @@ body::before {
 
 .browse-title {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5vw, 3.5rem);
-  font-weight: 400;
+  font-size: clamp(40px, 5vw, 56px);
+  font-weight: 800;
   color: white;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin: 0 0 12px 0;
+  letter-spacing: 0.02em;
+  margin: 0 0 16px 0;
+  line-height: 1;
 }
 
 .browse-subtitle {
-  font-family: var(--font-body);
-  font-size: 1rem;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
   color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   margin: 0;
 }
 
