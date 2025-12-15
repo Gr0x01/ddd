@@ -41,7 +41,6 @@ export default function HomePage({
   cities,
   curatedRoutes
 }: HomePageProps) {
-  const newestEpisode = recentEpisodes[0];
   const verifiedOpen = stats.restaurants; // Will be updated to actual verified count
 
   return (
@@ -55,41 +54,6 @@ export default function HomePage({
         verifiedOpen={verifiedOpen}
         recentEpisodes={recentEpisodes}
       />
-
-      {/* Newest Episode Banner (keep from original) */}
-      {newestEpisode && (
-        <section className="hero-compact">
-          <div className="hero-compact-container">
-            <Link
-              href={`/episode/${newestEpisode.slug}`}
-              className="hero-compact-episode"
-              style={{ margin: '0 auto', maxWidth: '800px' }}
-            >
-              <div className="episode-badge">
-                <span className="episode-badge-label">NEWEST</span>
-                <span className="episode-badge-number">S{newestEpisode.season}E{newestEpisode.episode_number}</span>
-              </div>
-              <div className="episode-content">
-                <h2 className="episode-title">{newestEpisode.title}</h2>
-                {newestEpisode.air_date && (
-                  <p className="episode-date">
-                    {new Date(newestEpisode.air_date).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </p>
-                )}
-              </div>
-              <div className="episode-arrow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <path d="M9 18l6-6-6-6"/>
-                </svg>
-              </div>
-            </Link>
-          </div>
-        </section>
-      )}
 
       {/* Popular Routes */}
       <PopularRoutes routes={curatedRoutes} />
