@@ -30,12 +30,24 @@ Status: Phase 4 - Live & Indexing 🚀
 - **High-value SEO pages (/still-open, /closed, /cuisines)**
 - **1,541 restaurants fully enriched** (100% complete, 0 unknown)
 - **App deployed and indexing** 🚀
+- **Road trip planner with basic map** (MapLibre GL JS)
+- **Free city autocomplete** (SimpleMaps, 1,444 cities, $0 cost)
 
 **🚧 In Progress:**
+- City autocomplete polish (functional but needs UX refinement)
 - Interactive map with filtering (basic map exists, needs enhancement)
 - Playwright tests (not yet run)
 
-**📍 Map Components (Existing):**
+**📍 Road Trip Components:**
+- `src/app/roadtrip/page.tsx` - Road trip planner page
+- `src/components/roadtrip/SearchForm.tsx` - Route search form
+- `src/components/roadtrip/CityAutocomplete.tsx` - City autocomplete (free, fuzzy matching)
+- `src/components/roadtrip/RouteMap.tsx` - MapLibre GL JS map
+- `src/components/roadtrip/RestaurantList.tsx` - Restaurant results list
+- `src/lib/cityMatcher.ts` - Fuzzy matching logic (1,444 cities)
+- `scripts/process-cities.ts` - SimpleMaps data processor
+
+**📍 Other Map Components:**
 - `src/components/RestaurantMap.tsx` - Main Leaflet map component
 - `src/components/RestaurantMapPins.tsx` - Map pins with clustering
 - `src/components/restaurant/MiniMap.tsx` - Restaurant detail mini-map
