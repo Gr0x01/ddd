@@ -203,6 +203,13 @@ export interface RouteCache {
   hit_count: number;
   created_at: string;
   expires_at: string;
+  // New metadata fields for curated routes
+  slug?: string | null;
+  is_curated?: boolean;
+  view_count?: number;
+  description?: string | null;
+  map_image_url?: string | null;
+  title?: string | null;
 }
 
 // Restaurant with distance from route
@@ -833,6 +840,47 @@ export const db = {
 
     if (error) throw error;
     return data as RestaurantNearRoute[];
+  },
+
+  // Get a route by its slug (for curated route pages)
+  async getRouteBySlug(slug: string): Promise<RouteCache | null> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('route_cache')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // Not found
+      throw error;
+    }
+    return data as RouteCache;
+  },
+
+  // Increment view count for a route page
+  async incrementRouteViews(routeId: string): Promise<void> {
+    const client = getSupabaseClient();
+
+    // First get current count
+    const { data: route } = await client
+      .from('route_cache')
+      .select('view_count')
+      .eq('id', routeId)
+      .single();
+
+    if (!route) return;
+
+    // Increment
+    const { error } = await client
+      .from('route_cache')
+      .update({ view_count: (route.view_count || 0) + 1 })
+      .eq('id', routeId);
+
+    if (error) {
+      // Log but don't throw - view count is non-critical
+      console.error('Failed to increment route views:', error);
+    }
   },
 };
 

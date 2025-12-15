@@ -2703,10 +2703,6 @@ body::before {
 /* Radius Slider */
 .hero-form-radius {
   margin-bottom: 24px;
-  padding: 20px;
-  background: var(--bg-tertiary);
-  border: 2px dashed var(--border-light);
-  border-radius: 4px;
 }
 
 .hero-radius-header {
@@ -2924,21 +2920,7 @@ body::before {
 
 .popular-routes-header {
   margin-bottom: 56px;
-  text-align: center;
-}
-
-.popular-routes-title-group {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.popular-routes-accent {
-  width: 60px;
-  height: 6px;
-  background: linear-gradient(90deg, var(--ddd-red), var(--ddd-yellow));
+  text-align: left;
 }
 
 .popular-routes-title {
@@ -2946,7 +2928,7 @@ body::before {
   font-size: clamp(40px, 5vw, 56px);
   font-weight: 400;
   color: var(--text-primary);
-  margin: 0;
+  margin: 0 0 12px 0;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   position: relative;
@@ -3074,33 +3056,19 @@ body::before {
   letter-spacing: 0.03em;
 }
 
-.route-card-restaurants {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 16px;
-  background: var(--bg-tertiary);
-  border: 2px solid var(--border-light);
+.route-card-map {
   margin-bottom: 16px;
+  border: 3px solid var(--asphalt-dark);
+  border-radius: 4px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.route-restaurants-count {
-  font-family: var(--font-display);
-  font-size: 42px;
-  font-weight: 800;
-  color: var(--accent-primary);
-  line-height: 1;
-  letter-spacing: 0.02em;
-}
-
-.route-restaurants-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.route-preview-svg {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .route-card-highlight {
@@ -3830,5 +3798,294 @@ body::before {
   .iconic-spots-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+  }
+}
+
+/* ==============================================
+   ROUTE PAGES
+   ============================================== */
+
+.route-page {
+  min-height: calc(100vh - 200px);
+  padding: 40px 0 80px;
+  background: var(--warm-cream);
+}
+
+.route-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Breadcrumb */
+.route-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.route-breadcrumb a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.route-breadcrumb a:hover {
+  color: var(--ddd-red);
+}
+
+/* Hero Section */
+.route-hero {
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.route-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0 0 32px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
+.route-arrow {
+  color: var(--accent-primary);
+  margin: 0 12px;
+}
+
+.route-stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.route-stat {
+  text-align: center;
+}
+
+.route-stat-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.route-stat-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.route-description {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Map Section */
+.route-map-section {
+  margin-bottom: 56px;
+  border: 4px solid var(--asphalt-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.route-map-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Restaurants Section */
+.route-restaurants-section {
+  margin-bottom: 56px;
+}
+
+.route-section-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 400;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 32px;
+  text-align: left;
+}
+
+.route-restaurants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.route-restaurant-card {
+  background: white;
+  border: 3px solid var(--asphalt-dark);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.route-restaurant-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.route-restaurant-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--bg-tertiary);
+}
+
+.route-restaurant-img {
+  object-fit: cover;
+}
+
+.route-restaurant-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  background: var(--accent-success);
+  color: white;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.route-restaurant-content {
+  padding: 20px;
+}
+
+.route-restaurant-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  line-height: 1.3;
+}
+
+.route-restaurant-location {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+.route-restaurant-distance {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent-primary);
+  margin: 0;
+}
+
+.route-no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.route-no-results p {
+  margin: 0 0 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+}
+
+/* CTA Section */
+.route-cta-section {
+  text-align: center;
+  padding: 60px 24px;
+  background: linear-gradient(135deg, var(--ddd-red), #c72a36);
+  border-radius: 8px;
+  border: 4px solid var(--asphalt-dark);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.route-cta-section h2 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  color: white;
+  margin: 0 0 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.route-cta-section p {
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 32px;
+}
+
+.route-cta-button {
+  display: inline-block;
+  padding: 16px 40px;
+  background: white;
+  color: var(--ddd-red);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  border: 3px solid var(--asphalt-dark);
+  border-radius: 4px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.route-cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .route-page {
+    padding: 24px 0 48px;
+  }
+
+  .route-page-container {
+    padding: 0 16px;
+  }
+
+  .route-stats {
+    gap: 24px;
+  }
+
+  .route-restaurants-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .route-cta-section {
+    padding: 40px 20px;
   }
 }
