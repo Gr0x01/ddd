@@ -71,12 +71,15 @@ export default async function EpisodePage({ params }: EpisodePageProps) {
 
   // Fetch restaurants for this episode
   let restaurants: Restaurant[] = [];
+
   try {
     restaurants = await db.getRestaurantsByEpisode(episode.id);
   } catch (error) {
-    console.error('Failed to load episode restaurants:', error);
-    // Page will render with empty restaurant list
+    console.error('Failed to load episode data:', error);
   }
+
+  const openRestaurants = restaurants.filter(r => r.status === 'open');
+  const closedRestaurants = restaurants.filter(r => r.status === 'closed');
 
   // Generate structured data for SEO
   const breadcrumbSchema = generateBreadcrumbSchema([
@@ -124,23 +127,23 @@ export default async function EpisodePage({ params }: EpisodePageProps) {
           ]}
         />
 
-        <main id="main-content" className="max-w-6xl mx-auto px-4 py-12">
-          {/* Episode Description */}
-          {episode.description && (
-            <section className="mb-12">
-              <h2 className="font-display text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-                About This Episode
-              </h2>
-              <p
-                className="font-ui text-lg leading-relaxed max-w-4xl"
-                style={{ color: 'var(--text-secondary)', lineHeight: '1.8' }}
-              >
-                {episode.description}
-              </p>
-            </section>
-          )}
+        {/* Episode Description */}
+        {episode.description && (
+          <section className="max-w-6xl mx-auto px-4 pt-12">
+            <h2 className="font-display text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              About This Episode
+            </h2>
+            <p
+              className="font-ui text-lg leading-relaxed max-w-4xl mb-8"
+              style={{ color: 'var(--text-secondary)', lineHeight: '1.8' }}
+            >
+              {episode.description}
+            </p>
+          </section>
+        )}
 
-          {/* Featured Restaurants */}
+        {/* Restaurants */}
+        <main id="main-content" className="max-w-6xl mx-auto px-4 py-12">
           {restaurants.length === 0 ? (
             <div className="p-8 rounded-lg text-center" style={{ background: 'var(--bg-secondary)' }}>
               <p className="font-ui text-xl" style={{ color: 'var(--text-muted)' }}>
@@ -148,20 +151,47 @@ export default async function EpisodePage({ params }: EpisodePageProps) {
               </p>
             </div>
           ) : (
-            <section>
-              <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                Featured Restaurants
-              </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {restaurants.map((restaurant) => (
-                  <RestaurantCardCompact key={restaurant.id} restaurant={restaurant} />
-                ))}
-              </div>
-            </section>
-          )}
+            <div className="space-y-8">
+              {openRestaurants.length > 0 && (
+                <section>
+                  <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+                    Open Now ({openRestaurants.length})
+                  </h2>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {openRestaurants.map((restaurant, index) => (
+                      <RestaurantCardCompact
+                        key={restaurant.id}
+                        restaurant={restaurant}
+                        index={index}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
 
-          {/* Navigation to other episodes */}
-          <div className="mt-12 pt-8 border-t" style={{ borderColor: 'var(--border-light)' }}>
+              {closedRestaurants.length > 0 && (
+                <section>
+                  <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+                    Closed ({closedRestaurants.length})
+                  </h2>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
+                    {closedRestaurants.map((restaurant, index) => (
+                      <RestaurantCardCompact
+                        key={restaurant.id}
+                        restaurant={restaurant}
+                        index={index}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+          )}
+        </main>
+
+        {/* Navigation to other episodes */}
+        <div className="max-w-6xl mx-auto px-4 pb-12">
+          <div className="pt-8 border-t" style={{ borderColor: 'var(--border-light)' }}>
             <Link
               href="/episodes"
               className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-6 py-3 transition-colors"
@@ -176,7 +206,7 @@ export default async function EpisodePage({ params }: EpisodePageProps) {
               VIEW ALL EPISODES
             </Link>
           </div>
-        </main>
+        </div>
       </div>
       <Footer />
     </>

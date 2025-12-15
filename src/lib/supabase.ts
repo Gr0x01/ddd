@@ -504,34 +504,28 @@ export const db = {
     return restaurants.slice(0, limit);
   },
 
-  // Get cities with restaurant counts
+  // Get cities with restaurant counts (restaurant_count is a column on cities table)
   async getCitiesWithCounts() {
     const client = getSupabaseClient();
     const { data, error } = await client
       .from('cities')
-      .select(`
-        *,
-        restaurants(count)
-      `)
+      .select('*')
       .order('name');
 
     if (error) throw error;
-    return data;
+    return data as City[];
   },
 
-  // Get states with restaurant counts
+  // Get states with restaurant counts (restaurant_count is a column on states table)
   async getStatesWithCounts() {
     const client = getSupabaseClient();
     const { data, error } = await client
       .from('states')
-      .select(`
-        *,
-        restaurants(count)
-      `)
+      .select('*')
       .order('name');
 
     if (error) throw error;
-    return data;
+    return data as State[];
   },
 
   // Get recent episodes

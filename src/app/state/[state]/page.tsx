@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
-import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
+import { FilterableRestaurantList } from '@/components/restaurant/FilterableRestaurantList';
 import { generateBreadcrumbSchema, generateItemListSchema, generateStateFAQSchema, safeStringifySchema } from '@/lib/schema';
 
 interface StatePageProps {
@@ -137,17 +137,16 @@ export default async function StatePage({ params }: StatePageProps) {
     restaurants = [];
   }
 
-  // Group restaurants by city
-  const restaurantsByCity = restaurants.reduce((acc, restaurant) => {
-    const city = restaurant.city;
-    if (!acc[city]) {
-      acc[city] = [];
-    }
-    acc[city].push(restaurant);
-    return acc;
-  }, {} as Record<string, typeof restaurants>);
-
   const openRestaurants = restaurants.filter(r => r.status === 'open');
+
+  // Prepare cities for filter dropdown (only cities in this state)
+  const citiesForFilter = cities
+    .filter(c => (c.restaurant_count ?? 0) > 0)
+    .map(c => ({
+      name: c.name,
+      state: state.abbreviation,
+      count: c.restaurant_count ?? 0,
+    }));
 
   // Generate structured data for SEO
   const breadcrumbSchema = generateBreadcrumbSchema([
@@ -208,72 +207,42 @@ export default async function StatePage({ params }: StatePageProps) {
           ]}
         />
 
-        <main id="main-content" className="max-w-6xl mx-auto px-4 py-12">
-
         {/* Cities List */}
-        {cities.length === 0 ? (
-          <div className="p-8 rounded-lg text-center" style={{ background: 'var(--bg-secondary)' }}>
-            <p className="font-ui text-xl" style={{ color: 'var(--text-muted)' }}>
-              No restaurants found in {state.name} yet. Check back soon!
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            <section>
-              <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                Cities with Diners, Drive-ins and Dives Restaurants
-              </h2>
-              <div className="grid md:grid-cols-3 gap-4">
-                {cities
-                  .filter(city => (city.restaurant_count ?? 0) > 0)
-                  .sort((a, b) => (b.restaurant_count ?? 0) - (a.restaurant_count ?? 0))
-                  .map((city) => (
-                    <Link
-                      key={city.id}
-                      href={`/city/${validatedSlug}/${city.slug}`}
-                      className="p-6 rounded-lg block hover:shadow-lg transition-shadow"
-                      style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
-                    >
-                      <h3 className="font-ui text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-                        {city.name}
-                      </h3>
-                      <p className="font-ui text-sm" style={{ color: 'var(--text-muted)' }}>
-                        {city.restaurant_count} {city.restaurant_count === 1 ? 'restaurant' : 'restaurants'}
-                      </p>
-                    </Link>
-                  ))}
-              </div>
-            </section>
-
-            {/* All Restaurants by City */}
-            <section>
-              <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                All Restaurants
-              </h2>
-              <div className="space-y-8">
-                {Object.entries(restaurantsByCity)
-                  .sort(([cityA], [cityB]) => cityA.localeCompare(cityB))
-                  .map(([cityName, cityRestaurants]) => (
-                    <div key={cityName}>
-                      <h3 className="font-display text-2xl font-semibold mb-4" style={{ color: 'var(--text-secondary)' }}>
-                        {cityName}
-                      </h3>
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {cityRestaurants.map((restaurant, index) => (
-                          <RestaurantCardCompact
-                            key={restaurant.id}
-                            restaurant={restaurant}
-                            index={index}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </section>
-          </div>
+        {cities.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 pt-12">
+            <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+              Cities with Diners, Drive-ins and Dives Restaurants
+            </h2>
+            <div className="grid md:grid-cols-3 gap-4 mb-8">
+              {cities
+                .filter(city => (city.restaurant_count ?? 0) > 0)
+                .sort((a, b) => (b.restaurant_count ?? 0) - (a.restaurant_count ?? 0))
+                .map((city) => (
+                  <Link
+                    key={city.id}
+                    href={`/city/${validatedSlug}/${city.slug}`}
+                    className="p-6 rounded-lg block hover:shadow-lg transition-shadow"
+                    style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
+                  >
+                    <h3 className="font-ui text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                      {city.name}
+                    </h3>
+                    <p className="font-ui text-sm" style={{ color: 'var(--text-muted)' }}>
+                      {city.restaurant_count} {city.restaurant_count === 1 ? 'restaurant' : 'restaurants'}
+                    </p>
+                  </Link>
+                ))}
+            </div>
+          </section>
         )}
-        </main>
+
+        {/* Filterable Restaurant List */}
+        <FilterableRestaurantList
+          restaurants={restaurants}
+          cities={citiesForFilter}
+          hideLocationDropdown={true}
+          emptyMessage={`No restaurants found in ${state.name} yet. Check back soon!`}
+        />
       </div>
       <Footer />
     </>

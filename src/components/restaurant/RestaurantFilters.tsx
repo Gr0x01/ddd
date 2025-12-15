@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Search, ChevronDown, Check, X, Star, MapPin } from 'lucide-react';
+import { Search, ChevronDown, Check, X, MapPin } from 'lucide-react';
 import { 
   useRestaurantFilters, 
   filterRestaurants, 
@@ -86,7 +86,6 @@ export function RestaurantFilters({ cities = [], states = [], restaurants, total
     : null;
 
   const openCount = filteredRestaurants.filter(r => r.status === 'open').length;
-  const michelinCount = filteredRestaurants.filter(r => r.michelin_stars && r.michelin_stars > 0).length;
 
   return (
     <>
@@ -238,20 +237,6 @@ export function RestaurantFilters({ cities = [], states = [], restaurants, total
               OPEN
             </button>
 
-            {/* Michelin toggle */}
-            <button
-              onClick={() => setFilters({ michelinOnly: !filters.michelinOnly })}
-              className={CHIP}
-              style={{
-                background: filters.michelinOnly ? '#D3072B' : 'transparent',
-                color: filters.michelinOnly ? 'white' : 'var(--text-secondary)',
-                borderColor: filters.michelinOnly ? '#D3072B' : 'var(--border-light)',
-              }}
-            >
-              <Star className="w-3 h-3" fill={filters.michelinOnly ? 'currentColor' : 'none'} />
-              MICHELIN
-            </button>
-
             <div className="h-4 w-px bg-slate-200" />
 
             {/* Price tier chips */}
@@ -304,11 +289,6 @@ export function RestaurantFilters({ cities = [], states = [], restaurants, total
             {openCount > 0 && openCount < filteredRestaurants.length && (
               <span className="ml-2 text-green-600">
                 · {openCount} open
-              </span>
-            )}
-            {michelinCount > 0 && (
-              <span className="ml-2 text-red-600">
-                · {michelinCount} Michelin
               </span>
             )}
           </p>

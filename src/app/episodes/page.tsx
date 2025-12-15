@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
+import { EpisodeFilters } from '@/components/episode/EpisodeFilters';
 import { db, Episode } from '@/lib/supabase';
-import { isRecentEpisode } from '@/lib/date-utils';
 import { generateBreadcrumbSchema, safeStringifySchema } from '@/lib/schema';
-import Link from 'next/link';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -55,24 +55,12 @@ export default async function EpisodesPage() {
     ]);
   } catch (error) {
     console.error('Failed to load episodes data:', error);
-    // Page will render with empty data
   }
 
   const totalRestaurants = stats.restaurants;
 
-  // Group episodes by season
-  const episodesBySeason = episodes.reduce((acc: Record<number, typeof episodes>, episode) => {
-    const season = episode.season;
-    if (!acc[season]) {
-      acc[season] = [];
-    }
-    acc[season].push(episode);
-    return acc;
-  }, {});
-
-  const seasons = Object.keys(episodesBySeason)
-    .map(Number)
-    .sort((a, b) => b - a); // Descending order
+  // Get unique seasons sorted descending
+  const seasons = [...new Set(episodes.map(e => e.season))].sort((a, b) => b - a);
 
   // Generate structured data for SEO
   const breadcrumbSchema = generateBreadcrumbSchema([
@@ -101,75 +89,15 @@ export default async function EpisodesPage() {
           breadcrumbItems={[{ label: 'Episodes' }]}
         />
 
-        <main id="main-content" className="max-w-6xl mx-auto px-4 py-12">
-          {seasons.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="font-ui text-lg" style={{ color: 'var(--text-muted)' }}>
-                No episodes found.
-              </p>
+        <Suspense fallback={
+          <div className="sticky top-16 z-40 py-4 px-4" style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-light)' }}>
+            <div className="max-w-6xl mx-auto">
+              <div className="h-12 rounded animate-pulse" style={{ background: 'var(--bg-secondary)' }} />
             </div>
-          ) : (
-            <div className="space-y-12">
-              {seasons.map(season => (
-                <section key={season}>
-                  <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                    Season {season}
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {episodesBySeason[season].map(episode => {
-                      // Check if episode is new (within last 6 months)
-                      const isNew = isRecentEpisode(episode.air_date, 6);
-
-                      return (
-                        <Link
-                          key={episode.id}
-                          href={`/episode/${episode.slug}`}
-                          className="p-6 rounded-lg border block hover:shadow-lg transition-shadow"
-                          aria-label={`View episode: ${episode.title}`}
-                          style={{
-                            background: 'var(--bg-secondary)',
-                            borderColor: 'var(--border-light)'
-                          }}
-                        >
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className="font-mono text-xs font-semibold px-2 py-1 rounded"
-                                style={{ background: 'var(--accent-primary)', color: 'white' }}
-                              >
-                                S{episode.season}E{episode.episode_number}
-                              </span>
-                              {isNew && (
-                                <span
-                                  className="font-mono text-xs font-semibold px-2 py-1 rounded"
-                                  style={{ background: '#dc2626', color: 'white' }}
-                                  aria-label="New episode"
-                                >
-                                  NEW
-                                </span>
-                              )}
-                            </div>
-                            {episode.air_date && (
-                              <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
-                                {new Date(episode.air_date).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  year: 'numeric'
-                                })}
-                              </span>
-                            )}
-                          </div>
-                          <h3 className="font-display text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                            {episode.title}
-                          </h3>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </section>
-              ))}
-            </div>
-          )}
-        </main>
+          </div>
+        }>
+          <EpisodeFilters episodes={episodes} seasons={seasons} />
+        </Suspense>
       </div>
       <Footer />
     </>

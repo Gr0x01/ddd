@@ -12,7 +12,6 @@ export interface RestaurantFilters {
   state: string | null;
   price: PriceTier | null;
   openOnly: boolean;
-  michelinOnly: boolean;
   sort: SortOption;
 }
 
@@ -54,7 +53,6 @@ export function useRestaurantFilters() {
       state: searchParams.get('state'),
       price: priceParam as PriceTier | null,
       openOnly: searchParams.get('status') === 'open',
-      michelinOnly: searchParams.get('michelin') === 'true',
       sort: (searchParams.get('sort') as SortOption) || 'name',
     };
   }, [searchParams]);
@@ -78,9 +76,6 @@ export function useRestaurantFilters() {
     if (merged.openOnly) params.set('status', 'open');
     else params.delete('status');
 
-    if (merged.michelinOnly) params.set('michelin', 'true');
-    else params.delete('michelin');
-
     if (merged.sort !== 'name') params.set('sort', merged.sort);
     else params.delete('sort');
 
@@ -92,12 +87,11 @@ export function useRestaurantFilters() {
   }, [router, pathname]);
 
   const hasActiveFilters = useMemo(() => {
-    return filters.q !== '' || 
-           filters.city !== null || 
+    return filters.q !== '' ||
+           filters.city !== null ||
            filters.state !== null ||
-           filters.price !== null || 
-           filters.openOnly || 
-           filters.michelinOnly;
+           filters.price !== null ||
+           filters.openOnly;
   }, [filters]);
 
   return {
@@ -147,10 +141,6 @@ export function filterRestaurants(
 
   if (filters.openOnly) {
     result = result.filter(r => r.status === 'open');
-  }
-
-  if (filters.michelinOnly) {
-    result = result.filter(r => r.michelin_stars && r.michelin_stars > 0);
   }
 
   return sortRestaurants(result, filters.sort);

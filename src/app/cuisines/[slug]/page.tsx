@@ -1,10 +1,10 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getCachedCuisine, getCachedRestaurantsByCuisine } from '@/lib/supabase';
+import { db, getCachedCuisine, getCachedRestaurantsByCuisine } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
-import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
+import { FilterableRestaurantList } from '@/components/restaurant/FilterableRestaurantList';
 import { generateBreadcrumbSchema, generateItemListSchema, safeStringifySchema } from '@/lib/schema';
 
 interface CuisinePageProps {
@@ -53,17 +53,35 @@ export default async function CuisinePage({ params }: CuisinePageProps) {
 
   let cuisine;
   let restaurants;
+  let states: Array<{ name: string; abbreviation: string; count: number }> = [];
+  let cities: Array<{ name: string; state: string | null; count: number }> = [];
+
   try {
     // Use cached functions - same calls as metadata, deduplicated by React cache
-    cuisine = await getCachedCuisine(slug);
-    restaurants = await getCachedRestaurantsByCuisine(slug);
+    const [cuisineData, restaurantsData, statesData, citiesData] = await Promise.all([
+      getCachedCuisine(slug),
+      getCachedRestaurantsByCuisine(slug),
+      db.getStatesWithCounts(),
+      db.getCitiesWithCounts(),
+    ]);
+    cuisine = cuisineData;
+    restaurants = restaurantsData;
+    states = statesData.map((s: { name: string; abbreviation: string; restaurant_count?: number }) => ({
+      name: s.name,
+      abbreviation: s.abbreviation,
+      count: s.restaurant_count ?? 0,
+    }));
+    cities = citiesData.map((c: { name: string; state_name: string; restaurant_count?: number }) => ({
+      name: c.name,
+      state: c.state_name,
+      count: c.restaurant_count ?? 0,
+    }));
   } catch (error) {
     console.error('Error loading cuisine page:', error);
     notFound();
   }
 
   const openRestaurants = restaurants.filter(r => r.status === 'open');
-  const closedRestaurants = restaurants.filter(r => r.status === 'closed');
 
   // Generate structured data for SEO
   const breadcrumbSchema = generateBreadcrumbSchema([
@@ -106,55 +124,24 @@ export default async function CuisinePage({ params }: CuisinePageProps) {
           ]}
         />
 
-        <main id="main-content" className="max-w-6xl mx-auto px-4 py-12">
-          {cuisine.description && (
-            <div className="mb-8 p-6 rounded-lg" style={{ background: 'var(--bg-secondary)' }}>
+        {/* Cuisine Description */}
+        {cuisine.description && (
+          <section className="max-w-6xl mx-auto px-4 pt-12">
+            <div className="p-6 rounded-lg mb-8" style={{ background: 'var(--bg-secondary)' }}>
               <p className="font-ui text-lg" style={{ color: 'var(--text-secondary)' }}>
                 {cuisine.description}
               </p>
             </div>
-          )}
+          </section>
+        )}
 
-          {restaurants.length === 0 ? (
-            <div className="p-8 rounded-lg text-center" style={{ background: 'var(--bg-secondary)' }}>
-              <p className="font-ui text-xl" style={{ color: 'var(--text-muted)' }}>
-                No {cuisine.name.toLowerCase()} restaurants found yet. Check back soon!
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              {/* Open Restaurants */}
-              {openRestaurants.length > 0 && (
-                <section>
-                  <h2 className="font-display text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                    Open Now ({openRestaurants.length})
-                  </h2>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {openRestaurants
-                      .sort((a, b) => (b.google_rating || 0) - (a.google_rating || 0))
-                      .map((restaurant) => (
-                        <RestaurantCardCompact key={restaurant.id} restaurant={restaurant} />
-                      ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Closed Restaurants */}
-              {closedRestaurants.length > 0 && (
-                <section className="mt-12">
-                  <h2 className="font-display text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                    Closed ({closedRestaurants.length})
-                  </h2>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
-                    {closedRestaurants.map((restaurant) => (
-                      <RestaurantCardCompact key={restaurant.id} restaurant={restaurant} />
-                    ))}
-                  </div>
-                </section>
-              )}
-            </div>
-          )}
-        </main>
+        {/* Filterable Restaurant List */}
+        <FilterableRestaurantList
+          restaurants={restaurants}
+          states={states}
+          cities={cities}
+          emptyMessage={`No ${cuisine.name.toLowerCase()} restaurants found yet. Check back soon!`}
+        />
       </div>
       <Footer />
     </>

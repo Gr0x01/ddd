@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
-import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
+import { FilterableRestaurantList } from '@/components/restaurant/FilterableRestaurantList';
 import { generateBreadcrumbSchema, generateItemListSchema, safeStringifySchema } from '@/lib/schema';
 
 export const revalidate = 3600; // Revalidate every hour
@@ -39,16 +39,32 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RestaurantsPage() {
-  let restaurants: Restaurant[];
+  let restaurants: Restaurant[] = [];
+  let states: Array<{ name: string; abbreviation: string; count: number }> = [];
+  let cities: Array<{ name: string; state: string | null; count: number }> = [];
+
   try {
-    restaurants = await db.getRestaurants();
+    const [restaurantsData, statesData, citiesData] = await Promise.all([
+      db.getRestaurants(),
+      db.getStatesWithCounts(),
+      db.getCitiesWithCounts(),
+    ]);
+    restaurants = restaurantsData;
+    states = statesData.map((s: { name: string; abbreviation: string; restaurant_count?: number }) => ({
+      name: s.name,
+      abbreviation: s.abbreviation,
+      count: s.restaurant_count ?? 0,
+    }));
+    cities = citiesData.map((c: { name: string; state_name: string; restaurant_count?: number }) => ({
+      name: c.name,
+      state: c.state_name,
+      count: c.restaurant_count ?? 0,
+    }));
   } catch (error) {
     console.error('Error fetching restaurants:', error);
-    restaurants = [];
   }
 
   const openRestaurants = restaurants.filter(r => r.status === 'open');
-  const closedRestaurants = restaurants.filter(r => r.status === 'closed');
 
   // Get unique cities count
   const uniqueCities = new Set(restaurants.map(r => `${r.city}, ${r.state}`));
@@ -94,43 +110,12 @@ export default async function RestaurantsPage() {
           ]}
         />
 
-        <main id="main-content" className="max-w-6xl mx-auto px-4 py-12">
-          {restaurants.length === 0 ? (
-            <div className="p-8 rounded-lg text-center" style={{ background: 'var(--bg-secondary)' }}>
-              <p className="font-ui text-xl" style={{ color: 'var(--text-muted)' }}>
-                No restaurants found yet. Check back soon!
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              {openRestaurants.length > 0 && (
-                <section>
-                  <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                    Open Now ({openRestaurants.length})
-                  </h2>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {openRestaurants.map((restaurant) => (
-                      <RestaurantCardCompact key={restaurant.id} restaurant={restaurant} />
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {closedRestaurants.length > 0 && (
-                <section>
-                  <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                    Closed ({closedRestaurants.length})
-                  </h2>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
-                    {closedRestaurants.map((restaurant) => (
-                      <RestaurantCardCompact key={restaurant.id} restaurant={restaurant} />
-                    ))}
-                  </div>
-                </section>
-              )}
-            </div>
-          )}
-        </main>
+        <FilterableRestaurantList
+          restaurants={restaurants}
+          states={states}
+          cities={cities}
+          emptyMessage="No restaurants found yet. Check back soon!"
+        />
       </div>
       <Footer />
     </>

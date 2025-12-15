@@ -1,11 +1,10 @@
 import { db, Restaurant } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
-import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
+import { FilterableRestaurantList } from '@/components/restaurant/FilterableRestaurantList';
 import { generateBreadcrumbSchema, generateItemListSchema, generateCityBusinessSchema, safeStringifySchema } from '@/lib/schema';
 
 interface CityPageProps {
@@ -157,7 +156,6 @@ export default async function CityPage({ params }: CityPageProps) {
   }
 
   const openRestaurants = restaurants.filter(r => r.status === 'open');
-  const closedRestaurants = restaurants.filter(r => r.status === 'closed');
 
   // Generate structured data for SEO
   const breadcrumbSchema = generateBreadcrumbSchema([
@@ -213,53 +211,11 @@ export default async function CityPage({ params }: CityPageProps) {
           ]}
         />
 
-        <main id="main-content" className="max-w-6xl mx-auto px-4 py-12">
-
-        {/* Restaurants List */}
-        {restaurants.length === 0 ? (
-          <div className="p-8 rounded-lg text-center" style={{ background: 'var(--bg-secondary)' }}>
-            <p className="font-ui text-xl" style={{ color: 'var(--text-muted)' }}>
-              No restaurants found in {city.name} yet. Check back soon!
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {openRestaurants.length > 0 && (
-              <section>
-                <h2 className="font-display text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                  Open Now ({openRestaurants.length})
-                </h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {openRestaurants.map((restaurant, index) => (
-                    <RestaurantCardCompact
-                      key={restaurant.id}
-                      restaurant={restaurant}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {closedRestaurants.length > 0 && (
-              <section>
-                <h2 className="font-display text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                  Closed ({closedRestaurants.length})
-                </h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {closedRestaurants.map((restaurant, index) => (
-                    <RestaurantCardCompact
-                      key={restaurant.id}
-                      restaurant={restaurant}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-        )}
-        </main>
+        <FilterableRestaurantList
+          restaurants={restaurants}
+          hideLocationDropdown={true}
+          emptyMessage={`No restaurants found in ${city.name} yet. Check back soon!`}
+        />
       </div>
       <Footer />
     </>
