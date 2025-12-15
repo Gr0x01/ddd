@@ -29,7 +29,8 @@ interface RestaurantCardProps {
     status: 'open' | 'closed' | 'unknown';
     google_rating?: number | null;
     google_review_count?: number | null;
-    photo_urls?: string[] | null;
+    photo_url?: string | null;
+    photos?: string[] | null;
     michelin_stars?: number | null;
     chef?: ChefInfo | null;
     chefs?: Array<{ chef?: ChefInfo | null; is_primary?: boolean }>;
@@ -60,8 +61,9 @@ export function RestaurantCard({ restaurant, index = 0 }: RestaurantCardProps) {
   const isPriority = index < 4;
   const status = getRestaurantStatus(restaurant.status);
   const { names: chefNames, hasWinner: isShowWinner, hasJBWinner: isJBWinner } = getChefNames(restaurant);
-  
-  const photoUrl = getStorageUrl('restaurant-photos', restaurant.photo_urls?.[0]);
+
+  // Use photos array first, fallback to single photo_url
+  const photoUrl = getStorageUrl('restaurant-photos', restaurant.photos?.[0] || restaurant.photo_url);
   const locationLink = getLocationLink(restaurant.state, restaurant.country);
 
   return (

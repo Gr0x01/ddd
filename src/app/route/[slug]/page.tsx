@@ -3,13 +3,9 @@ import { notFound } from 'next/navigation';
 import { db } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
+import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-
-const RouteMap = dynamic(() => import('@/components/roadtrip/RouteMap'), {
-  ssr: false,
-  loading: () => <div className="map-loading">Loading map...</div>
-});
+import RouteMapSection from '@/components/route/RouteMapSection';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -67,7 +63,7 @@ export default async function RoutePage({ params }: RoutePageProps) {
 
   // Get restaurants along this route and increment view count in parallel
   const [restaurants] = await Promise.all([
-    db.getRestaurantsNearRoute(route.id, 10),
+    db.getRestaurantsNearRoute(route.id, 25), // 25 mile radius to catch more restaurants
     db.incrementRouteViews(route.id), // Fire and forget
   ]);
 
@@ -76,7 +72,7 @@ export default async function RoutePage({ params }: RoutePageProps) {
 
   return (
     <div className="app-container">
-      <Header currentPage="roadtrip" />
+      <Header currentPage="restaurants" />
 
       <main className="route-page">
         <div className="route-page-container">
@@ -118,17 +114,9 @@ export default async function RoutePage({ params }: RoutePageProps) {
 
           {/* Map Section */}
           <section className="route-map-section">
-            <RouteMap
-              route={{
-                polylinePoints: route.polyline_points as Array<{ lat: number; lng: number }>,
-                bounds: {
-                  northeast: { lat: 0, lng: 0 },
-                  southwest: { lat: 0, lng: 0 }
-                }
-              }}
+            <RouteMapSection
+              polylinePoints={route.polyline_points as Array<{ lat: number; lng: number }>}
               restaurants={restaurants}
-              selectedRestaurant={null}
-              onRestaurantSelect={() => {}}
             />
           </section>
 
@@ -144,40 +132,13 @@ export default async function RoutePage({ params }: RoutePageProps) {
                 <p>Try searching with a different route or larger radius.</p>
               </div>
             ) : (
-              <div className="route-restaurants-grid">
-                {restaurants.map((restaurant) => (
-                  <Link
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {restaurants.map((restaurant, index) => (
+                  <RestaurantCardCompact
                     key={restaurant.id}
-                    href={`/restaurant/${restaurant.slug}`}
-                    className="route-restaurant-card"
-                  >
-                    {restaurant.photo_url && (
-                      <div className="route-restaurant-image">
-                        <Image
-                          src={restaurant.photo_url}
-                          alt={restaurant.name}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="route-restaurant-img"
-                        />
-                        {restaurant.status === 'open' && (
-                          <div className="route-restaurant-status">OPEN</div>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="route-restaurant-content">
-                      <h3 className="route-restaurant-name">{restaurant.name}</h3>
-                      <p className="route-restaurant-location">
-                        {restaurant.city}, {restaurant.state}
-                      </p>
-                      {restaurant.distance_miles && (
-                        <p className="route-restaurant-distance">
-                          {Math.round(restaurant.distance_miles * 10) / 10} miles from route
-                        </p>
-                      )}
-                    </div>
-                  </Link>
+                    restaurant={restaurant}
+                    index={index}
+                  />
                 ))}
               </div>
             )}

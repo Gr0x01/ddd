@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
+import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
 import { generateBreadcrumbSchema, generateItemListSchema, generateStateFAQSchema, safeStringifySchema } from '@/lib/schema';
 
 interface StatePageProps {
@@ -249,55 +250,21 @@ export default async function StatePage({ params }: StatePageProps) {
               <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
                 All Restaurants
               </h2>
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {Object.entries(restaurantsByCity)
                   .sort(([cityA], [cityB]) => cityA.localeCompare(cityB))
                   .map(([cityName, cityRestaurants]) => (
                     <div key={cityName}>
-                      <h3 className="font-display text-2xl font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
+                      <h3 className="font-display text-2xl font-semibold mb-4" style={{ color: 'var(--text-secondary)' }}>
                         {cityName}
                       </h3>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        {cityRestaurants.map((restaurant) => (
-                          <Link
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {cityRestaurants.map((restaurant, index) => (
+                          <RestaurantCardCompact
                             key={restaurant.id}
-                            href={`/restaurant/${restaurant.slug}`}
-                            className="p-4 rounded-lg block hover:shadow-md transition-shadow"
-                            style={{
-                              background: restaurant.status === 'open' ? 'var(--bg-secondary)' : 'var(--bg-tertiary)',
-                              boxShadow: 'var(--shadow-sm)',
-                              opacity: restaurant.status === 'closed' ? 0.6 : 1
-                            }}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h4 className="font-ui text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
-                                  {restaurant.name}
-                                </h4>
-                                <div className="flex gap-2 items-center">
-                                  {restaurant.price_tier && (
-                                    <span className="font-mono text-sm" style={{ color: 'var(--text-muted)' }}>
-                                      {restaurant.price_tier}
-                                    </span>
-                                  )}
-                                  {restaurant.google_rating && (
-                                    <span className="font-ui text-sm" style={{ color: 'var(--text-muted)' }}>
-                                      ⭐ {restaurant.google_rating}/5
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                              <span
-                                className="px-2 py-1 rounded text-xs font-semibold"
-                                style={{
-                                  background: restaurant.status === 'open' ? 'var(--accent-success)' : 'var(--text-muted)',
-                                  color: 'white'
-                                }}
-                              >
-                                {restaurant.status === 'open' ? 'Open' : 'Closed'}
-                              </span>
-                            </div>
-                          </Link>
+                            restaurant={restaurant}
+                            index={index}
+                          />
                         ))}
                       </div>
                     </div>
