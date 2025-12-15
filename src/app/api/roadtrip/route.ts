@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/lib/supabase';
 import { getDirections } from '@/lib/server/google-directions';
+import { checkRateLimit, getClientIP, rateLimiters } from '@/lib/server/rate-limiter';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,37 @@ const requestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting - 10 requests per minute per IP
+    const clientIP = getClientIP(request);
+    const rateLimit = checkRateLimit(clientIP, rateLimiters.roadtrip);
+
+    if (!rateLimit.success) {
+      const retryAfterSeconds = Math.ceil(rateLimit.resetIn / 1000);
+      const resetTimestamp = Math.ceil((Date.now() + rateLimit.resetIn) / 1000);
+
+      console.warn('[RATE_LIMITED]', {
+        clientIP,
+        retryAfterSeconds,
+        timestamp: new Date().toISOString(),
+      });
+
+      return NextResponse.json(
+        {
+          error: 'Too many requests. Please try again later.',
+          retryAfter: retryAfterSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(retryAfterSeconds),
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': String(resetTimestamp), // Unix timestamp in seconds
+          },
+        }
+      );
+    }
+
     const body = await request.json();
 
     // Validate inputs with Zod
