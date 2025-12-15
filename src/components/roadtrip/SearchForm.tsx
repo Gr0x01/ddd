@@ -15,13 +15,6 @@ interface SearchFormProps {
   onSubmit: () => void;
 }
 
-const EXAMPLE_ROUTES = [
-  { origin: 'San Francisco, CA', destination: 'Los Angeles, CA', label: 'SF → LA' },
-  { origin: 'New York, NY', destination: 'Boston, MA', label: 'NYC → Boston' },
-  { origin: 'Chicago, IL', destination: 'Milwaukee, WI', label: 'Chicago → Milwaukee' },
-  { origin: 'Austin, TX', destination: 'San Antonio, TX', label: 'Austin → SA' },
-];
-
 export default function SearchForm({
   origin,
   destination,
@@ -44,33 +37,9 @@ export default function SearchForm({
     onDestinationChange(temp);
   };
 
-  const loadExample = (exampleOrigin: string, exampleDestination: string) => {
-    onOriginChange(exampleOrigin);
-    onDestinationChange(exampleDestination);
-  };
-
   return (
     <form onSubmit={handleSubmit} className="hero-search-form">
       <div className="hero-form-accent" />
-
-      {/* Example Routes */}
-      {!origin && !destination && (
-        <div className="hero-quick-routes" style={{ marginBottom: '24px' }}>
-          <p className="hero-quick-label">Popular Routes:</p>
-          <div className="hero-quick-buttons">
-            {EXAMPLE_ROUTES.map((route) => (
-              <button
-                key={route.label}
-                type="button"
-                onClick={() => loadExample(route.origin, route.destination)}
-                className="hero-quick-button"
-              >
-                <span className="hero-quick-button-label">{route.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Origin & Destination Row */}
       <div className="hero-form-row hero-form-row-locations">
