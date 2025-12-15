@@ -16,6 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Diners, Drive-ins and Dives Locations | Plan Your Guy Fieri Road Trip',
     description,
+    alternates: {
+      canonical: '/',
+    },
     openGraph: {
       title: 'Plan Your Diners, Drive-ins and Dives Road Trip | Guy Fieri Restaurant Map',
       description: shortDescription,

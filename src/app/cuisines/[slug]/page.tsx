@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { db, getCachedCuisine, getCachedRestaurantsByCuisine } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
@@ -29,6 +30,9 @@ export async function generateMetadata({ params }: CuisinePageProps): Promise<Me
     return {
       title,
       description,
+      alternates: {
+        canonical: `/cuisines/${slug}`,
+      },
       openGraph: {
         title: `${cuisine.name} Restaurants | Diners, Drive-ins and Dives`,
         description,
@@ -55,14 +59,16 @@ export default async function CuisinePage({ params }: CuisinePageProps) {
   let restaurants;
   let states: Array<{ name: string; abbreviation: string; count: number }> = [];
   let cities: Array<{ name: string; state: string | null; count: number }> = [];
+  let relatedCuisines: Array<{ id: string; name: string; slug: string; restaurantCount: number }> = [];
 
   try {
     // Use cached functions - same calls as metadata, deduplicated by React cache
-    const [cuisineData, restaurantsData, statesData, citiesData] = await Promise.all([
+    const [cuisineData, restaurantsData, statesData, citiesData, allCuisines] = await Promise.all([
       getCachedCuisine(slug),
       getCachedRestaurantsByCuisine(slug),
       db.getStatesWithCounts(),
       db.getCitiesWithCounts(),
+      db.getCuisinesWithCounts(),
     ]);
     cuisine = cuisineData;
     restaurants = restaurantsData;
@@ -76,6 +82,11 @@ export default async function CuisinePage({ params }: CuisinePageProps) {
       state: c.state_name,
       count: c.restaurant_count ?? 0,
     }));
+    // Get related cuisines (exclude current, sort by count, take top 6)
+    relatedCuisines = allCuisines
+      .filter(c => c.slug !== slug)
+      .sort((a, b) => b.restaurantCount - a.restaurantCount)
+      .slice(0, 6);
   } catch (error) {
     console.error('Error loading cuisine page:', error);
     notFound();
@@ -142,6 +153,44 @@ export default async function CuisinePage({ params }: CuisinePageProps) {
           cities={cities}
           emptyMessage={`No ${cuisine.name.toLowerCase()} restaurants found yet. Check back soon!`}
         />
+
+        {/* Related Cuisines - Internal Linking */}
+        {relatedCuisines.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 py-12">
+            <h2 className="font-display text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+              Explore Other Cuisines
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              {relatedCuisines.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/cuisines/${c.slug}`}
+                  className="p-4 rounded-lg text-center transition-all hover:scale-105"
+                  style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
+                >
+                  <span className="font-ui font-semibold block mb-1" style={{ color: 'var(--text-primary)' }}>
+                    {c.name}
+                  </span>
+                  <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+                    {c.restaurantCount} restaurants
+                  </span>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-6 text-center">
+              <Link
+                href="/cuisines"
+                className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-6 py-3 transition-colors"
+                style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+              >
+                VIEW ALL CUISINES
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </div>
+          </section>
+        )}
       </div>
       <Footer />
     </>

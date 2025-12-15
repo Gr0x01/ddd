@@ -1,6 +1,7 @@
-import { db, Restaurant } from '@/lib/supabase';
+import { db, Restaurant, City } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import Link from 'next/link';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
@@ -103,6 +104,9 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
     return {
       title,
       description,
+      alternates: {
+        canonical: `/city/${validatedStateSlug}/${validatedCitySlug}`,
+      },
       openGraph: {
         title: `Diners, Drive-ins and Dives Restaurants in ${city.name}, ${state.abbreviation}`,
         description,
@@ -146,10 +150,20 @@ export default async function CityPage({ params }: CityPageProps) {
     notFound();
   }
 
-  // Fetch restaurants using city name and state abbreviation
+  // Fetch restaurants and other cities in state
   let restaurants: Restaurant[];
+  let otherCitiesInState: City[] = [];
   try {
-    restaurants = await db.getRestaurantsByCity(city.name, state.abbreviation);
+    const [restaurantsData, citiesData] = await Promise.all([
+      db.getRestaurantsByCity(city.name, state.abbreviation),
+      db.getCitiesByState(state.name),
+    ]);
+    restaurants = restaurantsData;
+    // Get other cities in state (exclude current, sort by count, take top 6)
+    otherCitiesInState = citiesData
+      .filter((c: City) => c.slug !== validatedCitySlug && (c.restaurant_count ?? 0) > 0)
+      .sort((a: City, b: City) => (b.restaurant_count ?? 0) - (a.restaurant_count ?? 0))
+      .slice(0, 6);
   } catch (error) {
     console.error('Error fetching restaurants for city:', error);
     restaurants = [];
@@ -216,6 +230,44 @@ export default async function CityPage({ params }: CityPageProps) {
           hideLocationDropdown={true}
           emptyMessage={`No restaurants found in ${city.name} yet. Check back soon!`}
         />
+
+        {/* Other Cities in State - Internal Linking */}
+        {otherCitiesInState.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 py-12">
+            <h2 className="font-display text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+              More Cities in {state.name}
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              {otherCitiesInState.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/city/${validatedStateSlug}/${c.slug}`}
+                  className="p-4 rounded-lg text-center transition-all hover:scale-105"
+                  style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
+                >
+                  <span className="font-ui font-semibold block mb-1" style={{ color: 'var(--text-primary)' }}>
+                    {c.name}
+                  </span>
+                  <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+                    {c.restaurant_count} restaurants
+                  </span>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-6 text-center">
+              <Link
+                href={`/state/${validatedStateSlug}`}
+                className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-6 py-3 transition-colors"
+                style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+              >
+                VIEW ALL {state.name.toUpperCase()} CITIES
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </div>
+          </section>
+        )}
       </div>
       <Footer />
     </>

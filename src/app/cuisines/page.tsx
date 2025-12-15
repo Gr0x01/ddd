@@ -10,6 +10,9 @@ export const revalidate = 3600; // Revalidate every hour
 export const metadata: Metadata = {
   title: 'Browse by Cuisine | Diners, Drive-ins and Dives Restaurants',
   description: 'Explore Diners, Drive-ins and Dives restaurants by cuisine type. Find BBQ joints, burger spots, Mexican restaurants, diners, and more featured by Guy Fieri.',
+  alternates: {
+    canonical: '/cuisines',
+  },
   openGraph: {
     title: 'Browse Diners, Drive-ins and Dives by Cuisine',
     description: 'Explore restaurants by cuisine type - BBQ, burgers, Mexican, Italian, and more.',

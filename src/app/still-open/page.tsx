@@ -19,6 +19,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
+    alternates: {
+      canonical: '/still-open',
+    },
     openGraph: {
       title: `${openRestaurants.length} Diners, Drive-ins and Dives Restaurants Still Open`,
       description,

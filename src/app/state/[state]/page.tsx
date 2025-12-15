@@ -88,6 +88,9 @@ export async function generateMetadata({ params }: StatePageProps): Promise<Meta
     return {
       title,
       description,
+      alternates: {
+        canonical: `/state/${validatedSlug}`,
+      },
       openGraph: {
         title: `Diners, Drive-ins and Dives Restaurants in ${state.name}`,
         description,

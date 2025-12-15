@@ -19,6 +19,9 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       title,
       description,
+      alternates: {
+        canonical: '/restaurants',
+      },
       openGraph: {
         title: `All Diners, Drive-ins and Dives Restaurants`,
         description,

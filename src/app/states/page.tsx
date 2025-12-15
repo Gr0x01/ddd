@@ -7,6 +7,19 @@ import Link from 'next/link';
 export const metadata = {
   title: 'Diners, Drive-ins and Dives Restaurants by State | Guy Fieri Locations',
   description: 'Complete list of Diners, Drive-ins and Dives restaurants organized by state. Find Guy Fieri-featured locations across the US, Canada, and internationally.',
+  alternates: {
+    canonical: '/states',
+  },
+  openGraph: {
+    title: 'Diners, Drive-ins and Dives Restaurants by State',
+    description: 'Browse all Guy Fieri-featured restaurants by state across the US, Canada, and internationally.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Diners, Drive-ins and Dives Restaurants by State',
+    description: 'Browse all Guy Fieri-featured restaurants by state.',
+  },
 };
 
 export const revalidate = 3600; // Revalidate every hour

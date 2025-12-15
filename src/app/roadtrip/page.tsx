@@ -9,11 +9,19 @@ import { RouteCard } from '@/components/ui/RouteCard';
 export const metadata: Metadata = {
   title: 'Road Trip Planner | Diners, Drive-ins and Dives',
   description: 'Plan your Diners, Drive-ins and Dives road trip! Find Guy Fieri restaurants along your route. Browse popular routes or create your own to discover the best Diners, Drive-ins and Dives restaurants along the way.',
+  alternates: {
+    canonical: '/roadtrip',
+  },
   openGraph: {
     title: 'Road Trip Planner - Diners, Drive-ins and Dives',
     description: 'Discover Diners, Drive-ins and Dives restaurants along your route. Browse popular road trips or plan your own adventure.',
-    type: 'website'
-  }
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Road Trip Planner - Diners, Drive-ins and Dives',
+    description: 'Discover Diners, Drive-ins and Dives restaurants along your route.',
+  },
 };
 
 export const revalidate = 3600; // Revalidate every hour
