@@ -47,7 +47,7 @@ export default async function Page() {
     db.getFeaturedRestaurants(20),
     db.getRecentEpisodes(10),
     loadCities(),
-    db.getCuratedRoutes(),
+    db.getCuratedRoutesWithCounts(),
   ]);
 
   // Iconic: hand-picked or highest-rated restaurants

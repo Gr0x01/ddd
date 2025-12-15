@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import type { RouteCache } from '@/lib/supabase';
+import type { RouteWithRestaurantCount } from '@/lib/supabase';
 import { RouteCard } from '@/components/ui/RouteCard';
 import { ArrowRight } from 'lucide-react';
 
 interface PopularRoutesProps {
-  routes: RouteCache[];
+  routes: RouteWithRestaurantCount[];
 }
 
 export default function PopularRoutes({ routes }: PopularRoutesProps) {

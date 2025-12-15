@@ -1,6 +1,6 @@
 'use client';
 
-import type { RestaurantWithEpisodes, Episode, RouteCache } from '@/lib/supabase';
+import type { RestaurantWithEpisodes, Episode, RouteWithRestaurantCount } from '@/lib/supabase';
 import type { City } from '@/lib/cityMatcher';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
@@ -15,7 +15,7 @@ interface HomePageProps {
   stats: { restaurants: number; openRestaurants: number; episodes: number; cities: number };
   recentEpisodes: Episode[];
   cities: City[];
-  curatedRoutes: RouteCache[];
+  curatedRoutes: RouteWithRestaurantCount[];
 }
 
 export default function HomePage({
