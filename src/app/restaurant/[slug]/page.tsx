@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { db } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { RestaurantHero } from '@/components/restaurant/RestaurantHero';
-import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
 import { generateRestaurantSchema, generateBreadcrumbSchema, safeStringifySchema } from '@/lib/schema';
 
 interface RestaurantPageProps {
@@ -24,6 +24,15 @@ async function getStateRestaurants(state: string | null, excludeId: string) {
   } catch {
     return [];
   }
+}
+
+// Filter photos to only include valid URL strings
+function getFirstPhoto(photos: string[] | null | undefined): string | null {
+  if (!photos || !Array.isArray(photos)) return null;
+  const validPhoto = photos.find(
+    (photo): photo is string => typeof photo === 'string' && photo.startsWith('http')
+  );
+  return validPhoto || null;
 }
 
 export async function generateMetadata({ params }: RestaurantPageProps): Promise<Metadata> {
@@ -91,6 +100,13 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
     { name: restaurant.name },
   ]);
 
+  // Determine what content we have
+  const hasDescription = Boolean(restaurant.description);
+  const hasQuote = Boolean(restaurant.guy_quote);
+  const hasDishes = restaurant.dishes && restaurant.dishes.length > 0;
+  const hasLocation = restaurant.latitude && restaurant.longitude;
+  const hasMoreRestaurants = stateRestaurants.length > 0 && restaurant.state;
+
   return (
     <>
       {/* Schema.org Structured Data */}
@@ -103,7 +119,7 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
         dangerouslySetInnerHTML={{ __html: safeStringifySchema(breadcrumbSchema) }}
       />
 
-      <div className="min-h-screen overflow-auto" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
+      <div className="app-container">
         <Header currentPage="restaurants" />
 
         <main>
@@ -115,99 +131,77 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
             ]}
           />
 
-          {/* About This Restaurant - Description */}
-          {restaurant.description && (
-            <section
-              className="py-12 border-t"
-              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }}
-            >
-              <div className="max-w-6xl mx-auto px-4">
-                <h2 className="font-display text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                  About This Restaurant
+          {/* Guy's Quote Section - Prominent, bold */}
+          {hasQuote && (
+            <section className="restaurant-quote-section">
+              <div className="restaurant-quote-container">
+                <div className="restaurant-quote-marks">&ldquo;</div>
+                <blockquote className="restaurant-quote-text">
+                  {restaurant.guy_quote}
+                </blockquote>
+                <cite className="restaurant-quote-author">
+                  <span className="restaurant-quote-dash">&mdash;</span>
+                  Guy Fieri
+                </cite>
+              </div>
+            </section>
+          )}
+
+          {/* About Section - Only if we have description AND no quote (to avoid redundancy) */}
+          {hasDescription && !hasQuote && (
+            <section className="restaurant-about-section">
+              <div className="restaurant-about-container">
+                <h2 className="restaurant-section-title">
+                  <span className="restaurant-section-title-accent">About</span>
                 </h2>
-                <p
-                  className="font-ui text-lg leading-relaxed max-w-4xl"
-                  style={{ color: 'var(--text-primary)', lineHeight: '1.8' }}
-                >
+                <p className="restaurant-about-text">
                   {restaurant.description}
                 </p>
               </div>
             </section>
           )}
 
-          {/* Guy's Quote Section */}
-          {restaurant.guy_quote && (
-            <section className="py-12 border-t" style={{ borderColor: 'var(--border-light)' }}>
-              <div className="max-w-6xl mx-auto px-4">
-                <blockquote
-                  className="font-display text-3xl font-bold italic max-w-4xl"
-                  style={{ color: 'var(--accent-primary)' }}
-                >
-                  &quot;{restaurant.guy_quote}&quot;
-                </blockquote>
-                <p
-                  className="font-ui text-base mt-4"
-                  style={{ color: 'var(--text-muted)' }}
-                >
-                  — Guy Fieri
-                </p>
-              </div>
-            </section>
-          )}
-
           {/* Featured Dishes Section */}
-          {restaurant.dishes && restaurant.dishes.length > 0 && (
-            <section
-              className="py-12 border-t"
-              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }}
-            >
-              <div className="max-w-6xl mx-auto px-4">
-                <h2 className="font-display text-2xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>
-                  Featured Dishes
-                </h2>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {restaurant.dishes.map((dish) => (
+          {hasDishes && (
+            <section className="restaurant-dishes-section">
+              <div className="restaurant-dishes-container">
+                <div className="restaurant-dishes-header">
+                  <div className="restaurant-dishes-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span>GUY&apos;S PICKS</span>
+                  </div>
+                  <h2 className="restaurant-dishes-title">
+                    Featured Dishes
+                  </h2>
+                  <p className="restaurant-dishes-subtitle">
+                    The dishes Guy Fieri highlighted on the show
+                  </p>
+                </div>
+
+                <div className="restaurant-dishes-grid">
+                  {restaurant.dishes!.map((dish, index) => (
                     <div
                       key={dish.id}
-                      className="p-6 rounded"
-                      style={{
-                        background: 'var(--bg-primary)',
-                        border: '1px solid var(--border-light)'
-                      }}
+                      className={`restaurant-dish-card ${dish.is_signature_dish ? 'signature' : ''}`}
+                      style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <div className="flex items-start justify-between mb-3">
-                        <h3
-                          className="font-display text-xl font-bold flex-1"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          {dish.name}
-                        </h3>
-                        {dish.is_signature_dish && (
-                          <span
-                            className="font-mono text-xs px-2 py-1 ml-2 flex-shrink-0"
-                            style={{
-                              background: 'var(--accent-primary)',
-                              color: 'white'
-                            }}
-                          >
-                            SIGNATURE
-                          </span>
-                        )}
-                      </div>
+                      {dish.is_signature_dish && (
+                        <div className="restaurant-dish-signature-badge">
+                          <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                          SIGNATURE
+                        </div>
+                      )}
+                      <h3 className="restaurant-dish-name">{dish.name}</h3>
                       {dish.description && (
-                        <p
-                          className="font-ui text-sm leading-relaxed mb-3"
-                          style={{ color: 'var(--text-secondary)' }}
-                        >
-                          {dish.description}
-                        </p>
+                        <p className="restaurant-dish-description">{dish.description}</p>
                       )}
                       {dish.guy_reaction && (
-                        <p
-                          className="font-ui text-sm italic"
-                          style={{ color: 'var(--accent-primary)' }}
-                        >
-                          &quot;{dish.guy_reaction}&quot;
+                        <p className="restaurant-dish-reaction">
+                          &ldquo;{dish.guy_reaction}&rdquo;
                         </p>
                       )}
                     </div>
@@ -217,95 +211,123 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
             </section>
           )}
 
-          {/* Map Section */}
-          {restaurant.latitude && restaurant.longitude && (
-            <section className="py-12 border-t" style={{ borderColor: 'var(--border-light)' }}>
-              <div className="max-w-6xl mx-auto px-4">
-                <h2 className="font-display text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-                  Location
-                </h2>
-                <div
-                  className="h-64 sm:h-80 overflow-hidden bg-gray-100 flex items-center justify-center"
-                  style={{ border: '2px solid var(--border-light)' }}
-                >
-                  <p className="font-mono text-sm" style={{ color: 'var(--text-muted)' }}>
-                    Map: {restaurant.latitude.toFixed(4)}, {restaurant.longitude.toFixed(4)}
+          {/* Location Section with Map Placeholder */}
+          {hasLocation && (
+            <section className="restaurant-location-section">
+              <div className="restaurant-location-container">
+                <div className="restaurant-location-info">
+                  <h2 className="restaurant-section-title">
+                    <span className="restaurant-section-title-accent">Location</span>
+                  </h2>
+
+                  {restaurant.address && (
+                    <p className="restaurant-location-address">
+                      {restaurant.address}
+                    </p>
+                  )}
+                  <p className="restaurant-location-city">
+                    {restaurant.city}{restaurant.state ? `, ${restaurant.state}` : ''}
                   </p>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-4">
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2 transition-colors"
-                    style={{
-                      background: 'var(--accent-primary)',
-                      color: 'white'
-                    }}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    GET DIRECTIONS
-                  </a>
-                  {restaurant.website_url && (
+
+                  <div className="restaurant-location-actions">
                     <a
-                      href={restaurant.website_url}
+                      href={`https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-4 py-2 transition-colors"
-                      style={{
-                        background: 'var(--bg-secondary)',
-                        color: 'var(--text-primary)',
-                        border: '2px solid var(--border-light)'
-                      }}
+                      className="restaurant-location-button"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
                       </svg>
-                      VISIT WEBSITE
+                      GET DIRECTIONS
                     </a>
-                  )}
+                  </div>
+                </div>
+
+                <div className="restaurant-location-map">
+                  <div className="restaurant-map-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    <span className="restaurant-map-coords">
+                      {restaurant.latitude!.toFixed(4)}, {restaurant.longitude!.toFixed(4)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </section>
           )}
 
           {/* More in State Section */}
-          {stateRestaurants.length > 0 && restaurant.state && (
-            <section
-              className="py-12 border-t"
-              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-light)' }}
-            >
-              <div className="max-w-6xl mx-auto px-4">
-                <div className="flex items-baseline gap-4 mb-8">
-                  <h2 className="font-display text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          {hasMoreRestaurants && (
+            <section className="restaurant-more-section">
+              <div className="restaurant-more-container">
+                <div className="restaurant-more-header">
+                  <div className="restaurant-more-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    <span>NEARBY</span>
+                  </div>
+                  <h2 className="restaurant-more-title">
                     More in {restaurant.state}
                   </h2>
-                  <span className="font-mono text-sm" style={{ color: 'var(--text-muted)' }}>
-                    {stateRestaurants.length}+ RESTAURANTS
-                  </span>
+                  <p className="restaurant-more-subtitle">
+                    Other Diners, Drive-ins and Dives restaurants in the area
+                  </p>
                 </div>
 
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {stateRestaurants.map((r) => (
-                    <RestaurantCardCompact key={r.id} restaurant={r} />
-                  ))}
+                <div className="restaurant-more-grid">
+                  {stateRestaurants.map((r, index) => {
+                    const photoUrl = getFirstPhoto(r.photos);
+                    return (
+                      <Link
+                        key={r.id}
+                        href={`/restaurant/${r.slug}`}
+                        className="restaurant-more-card"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        <div className="restaurant-more-card-image">
+                          {photoUrl ? (
+                            <Image
+                              src={photoUrl}
+                              alt={r.name}
+                              fill
+                              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                              className="restaurant-more-card-img"
+                            />
+                          ) : (
+                            <div className="restaurant-more-card-placeholder">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                              </svg>
+                            </div>
+                          )}
+                          {r.status === 'open' && (
+                            <span className="restaurant-more-card-status">OPEN</span>
+                          )}
+                          <div className="restaurant-more-card-overlay" />
+                          <div className="restaurant-more-card-content">
+                            <h3 className="restaurant-more-card-name">{r.name}</h3>
+                            <p className="restaurant-more-card-location">{r.city}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
 
-                <div className="mt-8 text-center">
+                <div className="restaurant-more-cta">
                   <Link
-                    href={`/state/${restaurant.state.toLowerCase()}`}
-                    className="inline-flex items-center gap-2 font-mono text-sm font-semibold px-6 py-3 transition-colors"
-                    style={{
-                      background: 'var(--accent-primary)',
-                      color: 'white'
-                    }}
+                    href={`/state/${restaurant.state!.toLowerCase()}`}
+                    className="restaurant-more-cta-button"
                   >
-                    VIEW ALL RESTAURANTS IN {restaurant.state.toUpperCase()}
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    VIEW ALL IN {restaurant.state!.toUpperCase()}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                     </svg>
                   </Link>
                 </div>
@@ -313,8 +335,9 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
             </section>
           )}
         </main>
+
+        <Footer />
       </div>
-      <Footer />
     </>
   );
 }
