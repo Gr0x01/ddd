@@ -3283,7 +3283,24 @@ body::before {
   opacity: 0.25;
 }
 
+.route-preview-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.route-preview-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.7;
+}
+
 .route-preview-map {
+  position: relative;
   width: 100%;
   height: auto;
   display: block;
@@ -6736,21 +6753,29 @@ body::before {
   color: var(--accent-primary);
 }
 
-/* Compact Route Card */
+/* Compact Route Card - same styling, tighter padding */
 .route-card-compact {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: block;
   background: var(--bg-primary);
-  border: 2px solid var(--border-light);
-  padding: 16px 20px;
-  transition: all 0.15s ease;
+  border: 3px solid var(--text-primary);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
   animation: fadeInUp 0.3s ease-out both;
 }
 
 .route-card-compact:hover {
-  border-color: var(--accent-primary);
-  background: var(--bg-secondary);
+  transform: translateY(-2px);
+  box-shadow: 6px 8px 0 var(--accent-primary);
+}
+
+.route-card-compact .route-card-content {
+  padding: 14px 18px 14px;
+  gap: 8px;
+}
+
+.route-card-compact .route-card-stats {
+  padding: 8px 0 0;
+  margin-bottom: 0;
 }
 
 .route-card-compact-main {

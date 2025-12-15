@@ -56,19 +56,49 @@ export default function RoutePreview({ polylinePoints, originText, destinationTe
   const endX = projectX(endPoint.lng);
   const endY = projectY(endPoint.lat);
 
+  // Center point and zoom for static map
+  const centerLat = (latMin + latMax) / 2;
+  const centerLng = (lngMin + lngMax) / 2;
+  const latDiff = viewLatMax - viewLatMin;
+  const zoom = latDiff > 10 ? 4 : latDiff > 5 ? 5 : latDiff > 2 ? 6 : 7;
+
+  // Use Stadia Maps free tier (no API key needed for low volume)
+  // Or OpenStreetMap tile server directly
+  const staticMapUrl = `https://maps.geoapify.com/v1/staticmap?style=osm-bright-smooth&width=${width}&height=${height}&center=lonlat:${centerLng},${centerLat}&zoom=${zoom}&apiKey=demo`;
+
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      className="route-preview-map"
-      preserveAspectRatio="xMidYMid meet"
-    >
-      {/* Background */}
+    <div className="route-preview-container">
+      {/* Real map background */}
+      <img
+        src={staticMapUrl}
+        alt=""
+        className="route-preview-bg"
+        loading="lazy"
+        onError={(e) => {
+          // Fallback to plain background if map fails
+          e.currentTarget.style.display = 'none';
+        }}
+      />
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="route-preview-map"
+        preserveAspectRatio="xMidYMid meet"
+      >
+      {/* Fallback background in case image fails */}
       <rect width={width} height={height} fill="#f8f5f0" />
 
-      {/* Route path */}
+      {/* Route path with shadow for visibility */}
       <path
         d={pathData}
-        stroke="#4A90E2"
+        stroke="rgba(0,0,0,0.4)"
+        strokeWidth="8"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d={pathData}
+        stroke="#E63946"
         strokeWidth="4"
         fill="none"
         strokeLinecap="round"
@@ -126,5 +156,6 @@ export default function RoutePreview({ polylinePoints, originText, destinationTe
         {destinationText.split(',')[0]}
       </text>
     </svg>
+    </div>
   );
 }

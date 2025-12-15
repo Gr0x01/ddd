@@ -4,7 +4,7 @@ import RoadTripPlanner from './RoadTripPlanner';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { db, RouteWithRestaurantCount } from '@/lib/supabase';
-import { RouteCard } from '@/components/roadtrip/RouteCard';
+import { RouteCard } from '@/components/ui/RouteCard';
 
 export const metadata: Metadata = {
   title: 'Road Trip Planner | Diners, Drive-ins and Dives',
@@ -62,18 +62,17 @@ function PopularRoutesSection({ routes }: { routes: RouteWithRestaurantCount[] }
           <div>
             <h2 className="routes-section-title">Popular Road Trips</h2>
             <p className="routes-section-subtitle">
-              Editor&apos;s picks for the best DDD food adventures
+              Editor&apos;s picks for the best Diners, Drive-ins and Dives food adventures
             </p>
           </div>
         </div>
 
-        <div className="routes-grid-featured">
+        <div className="popular-routes-grid">
           {routes.map((route, index) => (
             <RouteCard
               key={route.id}
               route={route}
               index={index}
-              variant="featured"
             />
           ))}
         </div>
@@ -103,7 +102,7 @@ function UserRoutesSection({ routes }: { routes: RouteWithRestaurantCount[] }) {
               key={route.id}
               route={route}
               index={index}
-              variant="compact"
+              compact
             />
           ))}
         </div>
