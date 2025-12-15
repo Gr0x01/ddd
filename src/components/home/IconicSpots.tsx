@@ -29,8 +29,6 @@ export default function IconicSpots({ restaurants }: IconicSpotsProps) {
             <span className="iconic-badge-text">LEGENDARY</span>
           </div>
           <h2 className="iconic-spots-title">
-            Iconic
-            <br />
             <span className="iconic-spots-title-accent">Diners, Drive-ins & Dives Destinations</span>
           </h2>
           <p className="iconic-spots-subtitle">

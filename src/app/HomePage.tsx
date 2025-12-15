@@ -53,6 +53,7 @@ export default function HomePage({
         cities={cities}
         totalRestaurants={stats.restaurants}
         verifiedOpen={verifiedOpen}
+        recentEpisodes={recentEpisodes}
       />
 
       {/* Newest Episode Banner (keep from original) */}

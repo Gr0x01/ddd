@@ -1,29 +1,49 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import CityAutocomplete from '@/components/roadtrip/CityAutocomplete';
 import type { City } from '@/lib/cityMatcher';
+import type { Episode } from '@/lib/supabase';
+
+const EPISODE_ROTATE_INTERVAL = 5000; // 5 seconds
 
 interface HeroRoadTripProps {
   cities: City[];
   totalRestaurants: number;
   verifiedOpen: number;
+  recentEpisodes?: Episode[];
 }
 
-const QUICK_ROUTES = [
-  { from: 'San Francisco, CA', to: 'Los Angeles, CA', label: 'SF → LA', restaurants: 42 },
-  { from: 'New York, NY', to: 'Boston, MA', label: 'NYC → Boston', restaurants: 28 },
-  { from: 'Chicago, IL', to: 'Milwaukee, WI', label: 'Chicago → Milwaukee', restaurants: 15 },
-  { from: 'Austin, TX', to: 'San Antonio, TX', label: 'Austin → SA', restaurants: 12 },
-];
-
-export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen }: HeroRoadTripProps) {
+export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, recentEpisodes = [] }: HeroRoadTripProps) {
   const router = useRouter();
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
   const [radiusMiles, setRadiusMiles] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Get the 3 most recent episodes
+  const episodesToShow = recentEpisodes.slice(0, 3);
+
+  // Auto-rotate episodes
+  useEffect(() => {
+    if (episodesToShow.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentEpisodeIndex((prev) => (prev + 1) % episodesToShow.length);
+        setIsTransitioning(false);
+      }, 300); // Match CSS transition duration
+    }, EPISODE_ROTATE_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [episodesToShow.length]);
+
+  const currentEpisode = episodesToShow[currentEpisodeIndex];
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,11 +58,6 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen }:
     });
     router.push(`/roadtrip?${params.toString()}`);
   }, [origin, destination, radiusMiles, router]);
-
-  const loadQuickRoute = (from: string, to: string) => {
-    setOrigin(from);
-    setDestination(to);
-  };
 
   const swapLocations = () => {
     const temp = origin;
@@ -78,23 +93,49 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen }:
             <strong className="text-green">{verifiedOpen.toLocaleString()}</strong> verified open
           </p>
 
-          {/* Quick Routes */}
-          <div className="hero-quick-routes">
-            <p className="hero-quick-label">Popular Routes:</p>
-            <div className="hero-quick-buttons">
-              {QUICK_ROUTES.map((route) => (
-                <button
-                  key={route.label}
-                  type="button"
-                  onClick={() => loadQuickRoute(route.from, route.to)}
-                  className="hero-quick-button"
-                >
-                  <span className="hero-quick-button-label">{route.label}</span>
-                  <span className="hero-quick-button-count">{route.restaurants}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Newest Episodes - Auto-rotating */}
+          {currentEpisode && (
+            <Link
+              href={`/episode/${currentEpisode.slug}`}
+              className={`hero-newest-episode ${isTransitioning ? 'hero-newest-transitioning' : ''}`}
+            >
+              <div className="hero-newest-badge">
+                <svg className="hero-newest-badge-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19.65 9.04l-4.84-.42-1.89-4.45c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5 4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.73 3.67-3.18c.67-.58.32-1.68-.56-1.75zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/>
+                </svg>
+                <span className="hero-newest-badge-text">NEW</span>
+              </div>
+              <div className="hero-newest-content">
+                <span className="hero-newest-episode-num">S{currentEpisode.season}E{currentEpisode.episode_number}</span>
+                <h3 className="hero-newest-title">{currentEpisode.title}</h3>
+                {currentEpisode.air_date && (
+                  <span className="hero-newest-date">
+                    {new Date(currentEpisode.air_date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </span>
+                )}
+              </div>
+              {/* Progress dots */}
+              {episodesToShow.length > 1 && (
+                <div className="hero-newest-dots">
+                  {episodesToShow.map((_, idx) => (
+                    <span
+                      key={idx}
+                      className={`hero-newest-dot ${idx === currentEpisodeIndex ? 'hero-newest-dot-active' : ''}`}
+                    />
+                  ))}
+                </div>
+              )}
+              <div className="hero-newest-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </div>
+            </Link>
+          )}
         </div>
 
         <div className="hero-roadtrip-right">
