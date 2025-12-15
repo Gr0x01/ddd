@@ -22,7 +22,7 @@ export default function IconicSpots({ restaurants }: IconicSpotsProps) {
           <h2 className="iconic-spots-title">
             Iconic
             <br />
-            <span className="iconic-spots-title-accent">Triple D Destinations</span>
+            <span className="iconic-spots-title-accent">Diners, Drive-ins & Dives Destinations</span>
           </h2>
           <p className="iconic-spots-subtitle">
             Hand-picked legendary spots every fan should experience

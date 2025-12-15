@@ -96,7 +96,7 @@ export default function HomePage({
         <RecentlyVerified restaurants={recentlyVerified} />
       )}
 
-      {/* Iconic Triple D Spots */}
+      {/* Iconic Diners, Drive-ins & Dives Spots */}
       {iconicRestaurants.length > 0 && (
         <IconicSpots restaurants={iconicRestaurants} />
       )}

@@ -10,20 +10,20 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   const stats = await db.getStats();
 
-  const description = `Discover ${stats.restaurants} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives across ${stats.cities} cities. Plan road trips, find restaurants near you, and explore Triple D locations.`;
-  const shortDescription = `Find ${stats.restaurants} Guy Fieri restaurants. Plan road trips & discover Triple D locations.`;
+  const description = `Discover ${stats.restaurants} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives across ${stats.cities} cities. Plan road trips, find restaurants near you, and explore Diners, Drive-ins and Dives locations.`;
+  const shortDescription = `Find ${stats.restaurants} Guy Fieri restaurants. Plan road trips & discover Diners, Drive-ins and Dives locations.`;
 
   return {
     title: 'Diners, Drive-ins and Dives Locations | Plan Your Guy Fieri Road Trip',
     description,
     openGraph: {
-      title: 'Plan Your Triple D Road Trip | Guy Fieri Restaurant Map',
+      title: 'Plan Your Diners, Drive-ins and Dives Road Trip | Guy Fieri Restaurant Map',
       description: shortDescription,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Triple D Road Trip Planner | Guy Fieri Restaurants',
+      title: 'Diners, Drive-ins and Dives Road Trip Planner | Guy Fieri Restaurants',
       description: shortDescription,
     },
   };

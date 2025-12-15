@@ -67,7 +67,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen }:
           </div>
 
           <h1 className="hero-roadtrip-title">
-            Find Triple D
+            Find Diners, Drive-ins & Dives
             <br />
             <span className="hero-roadtrip-title-accent">On Your Route</span>
           </h1>

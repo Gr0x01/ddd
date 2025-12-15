@@ -172,15 +172,12 @@ export default function CityAutocomplete({
               aria-selected={index === selectedIndex}
               onClick={() => selectCity(city)}
               onMouseEnter={() => setSelectedIndex(index)}
-              className={`w-full px-4 py-2 cursor-pointer text-left hover:bg-gray-50 flex items-center justify-between ${
+              className={`w-full px-4 py-2 cursor-pointer text-left hover:bg-gray-50 ${
                 index === selectedIndex ? 'bg-gray-100' : ''
               }`}
             >
               <span className="font-medium text-gray-900">
                 {city.city}, {city.state}
-              </span>
-              <span className="text-xs text-gray-500">
-                {city.population.toLocaleString()}
               </span>
             </div>
           ))}
