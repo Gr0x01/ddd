@@ -6,7 +6,7 @@ import Link from 'next/link';
 import CityAutocomplete from '@/components/roadtrip/CityAutocomplete';
 import type { City } from '@/lib/cityMatcher';
 import type { Episode } from '@/lib/supabase';
-import { Car, MapPin, Flag, ArrowUpDown, Sparkles, ChevronRight, Search } from 'lucide-react';
+import { Car, MapPin, Flag, ArrowUpDown, Sparkles, ChevronRight, Search, AlertCircle } from 'lucide-react';
 
 const EPISODE_ROTATE_INTERVAL = 5000; // 5 seconds
 
@@ -32,6 +32,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
   const [destination, setDestination] = useState('');
   const [radiusMiles, setRadiusMiles] = useState(25);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -60,6 +61,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
     if (!origin || !destination) return;
 
     setIsLoading(true);
+    setError(null);
 
     try {
       const response = await fetch('/api/roadtrip', {
@@ -86,7 +88,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
       }
     } catch (err) {
       console.error('Road trip error:', err);
-      // Fall back to roadtrip page on error
+      setError(err instanceof Error ? err.message : 'Failed to plan route. Please try again.');
       setIsLoading(false);
     }
   }, [origin, destination, radiusMiles, router]);
@@ -255,6 +257,14 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
                 </>
               )}
             </button>
+
+            {/* Error Message */}
+            {error && (
+              <div className="hero-error">
+                <AlertCircle className="hero-error-icon" />
+                <p className="hero-error-text">{error}</p>
+              </div>
+            )}
           </form>
         </div>
       </div>

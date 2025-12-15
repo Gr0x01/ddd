@@ -2945,6 +2945,32 @@ body::before {
   animation: spin 0.6s linear infinite;
 }
 
+.hero-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 16px;
+  background: white;
+  border: 2px solid var(--accent-primary);
+}
+
+.hero-error-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--accent-primary);
+  margin-top: 2px;
+}
+
+.hero-error-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+}
+
 /* Mobile responsive */
 @media (max-width: 1024px) {
   .hero-roadtrip-container {
