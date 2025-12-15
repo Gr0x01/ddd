@@ -3094,6 +3094,12 @@ body::before {
   opacity: 0.6;
 }
 
+.route-preview-map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .route-preview-svg {
   width: 100%;
   height: auto;

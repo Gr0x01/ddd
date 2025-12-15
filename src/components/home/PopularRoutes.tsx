@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import type { RouteCache } from '@/lib/supabase';
+import RoutePreview from './RoutePreview';
 
 // Map colors based on route index (cycling through theme)
 const COLORS = ['red', 'yellow', 'cream'] as const;
@@ -46,21 +46,18 @@ export default function PopularRoutes({ routes }: PopularRoutesProps) {
                 </div>
 
                 <div className="route-card-map">
-                  {route.map_image_url ? (
-                    <Image
-                      src={route.map_image_url}
-                      alt={`Map of ${route.title || `${route.origin_text} to ${route.destination_text}`}`}
-                      width={600}
-                      height={300}
-                      className="route-card-map-image"
+                  {route.polyline_points && Array.isArray(route.polyline_points) ? (
+                    <RoutePreview
+                      polylinePoints={route.polyline_points as Array<{ lat: number; lng: number }>}
+                      originText={route.origin_text}
+                      destinationText={route.destination_text}
                     />
                   ) : (
                     <div className="route-card-map-placeholder">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                        <circle cx="12" cy="10" r="3"/>
+                        <path d="M3 12h18M12 3v18M9 9l-3 3 3 3M15 9l3 3-3 3"/>
                       </svg>
-                      <span>{distanceMiles} mi</span>
+                      <span>{distanceMiles} mi • {durationHours} hrs</span>
                     </div>
                   )}
                 </div>
