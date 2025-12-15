@@ -1,10 +1,10 @@
 /**
  * Centralized pricing configuration for LLM models
- * gpt-4o-mini uses Flex tier pricing (50% savings)
+ * Using Flex tier pricing for 75% discount on cached inputs
  */
 export const MODEL_PRICING = {
   'gpt-4o-mini': { input: 0.075, output: 0.30 }, // Flex tier (50% savings)
-  'gpt-4.1-mini': { input: 0.20, output: 0.80 },
+  'gpt-4.1-mini': { input: 0.10, output: 0.40 }, // Flex tier (75% off cached, base $0.40/$1.60)
   'qwen3-8b': { input: 0, output: 0 },
 } as const;
 

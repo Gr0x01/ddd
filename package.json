@@ -16,7 +16,8 @@
     "test:e2e:report": "npx playwright show-report",
     "db:migrate": "npx tsx scripts/db/apply-migration.ts",
     "populate-routes": "npx tsx scripts/populate-curated-routes.ts",
-    "generate-maps": "npx tsx scripts/generate-route-maps.ts"
+    "generate-maps": "npx tsx scripts/generate-route-maps.ts",
+    "geocode": "npx tsx scripts/geocode-restaurants.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.3.24",

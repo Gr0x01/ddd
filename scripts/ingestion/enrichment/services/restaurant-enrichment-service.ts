@@ -133,7 +133,7 @@ export class RestaurantEnrichmentService {
       if (this.placesService) {
         try {
           const placeMatch = await this.placesService.findPlaceId(name, city, state);
-          if (placeMatch.placeId && placeMatch.confidence >= 0.7) {
+          if (placeMatch.placeId && placeMatch.confidence >= 0.5) {
             console.log(`      📍 Google Places match: ${placeMatch.matchedName} (${(placeMatch.confidence * 100).toFixed(0)}% confidence)`);
             placeDetails = await this.placesService.getPlaceDetails(placeMatch.placeId);
           } else if (placeMatch.placeId) {
