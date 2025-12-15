@@ -237,6 +237,7 @@ export interface RestaurantNearRoute {
   google_review_count: number | null;
   cuisine_tags: string[] | null;
   distance_miles: number;
+  route_position: number; // 0-1, position along the route (0 = start, 1 = end)
 }
 
 // Database helper functions

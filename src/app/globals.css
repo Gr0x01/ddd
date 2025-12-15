@@ -4777,6 +4777,193 @@ body::before {
   font-size: 16px;
 }
 
+/* ============================================
+   ROUTE RESTAURANTS SECTION - Along the Route
+   ============================================ */
+
+.route-restaurants-section-v2 {
+  background: white;
+  padding: 64px 0 72px;
+  border-top: 5px solid var(--ddd-red);
+  position: relative;
+}
+
+.route-restaurants-section-v2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.02;
+  background-image: radial-gradient(circle, var(--ddd-red) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+.route-restaurants-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Journey wrapper */
+.route-journey {
+  position: relative;
+}
+
+/* Journey groups */
+.route-journey-group {
+  margin-bottom: 48px;
+}
+
+.route-journey-group:last-child {
+  margin-bottom: 0;
+}
+
+.route-journey-group-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px dashed var(--border-medium);
+}
+
+.route-journey-group-marker {
+  width: 16px;
+  height: 16px;
+  background: var(--ddd-yellow);
+  border: 3px solid var(--asphalt-dark);
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.route-journey-group:nth-child(2) .route-journey-group-marker {
+  background: var(--ddd-red);
+}
+
+.route-journey-group:nth-child(3) .route-journey-group-marker {
+  background: var(--accent-success);
+}
+
+.route-journey-group:nth-child(4) .route-journey-group-marker {
+  background: var(--asphalt-dark);
+}
+
+.route-journey-group:nth-child(5) .route-journey-group-marker {
+  background: var(--asphalt-dark);
+  width: 20px;
+  height: 20px;
+  border-width: 4px;
+  box-shadow: 0 0 0 3px var(--ddd-yellow), 3px 3px 0 3px rgba(0, 0, 0, 0.2);
+}
+
+h3.route-journey-group-label {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 700;
+  color: var(--asphalt-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.route-journey-group-count {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Restaurant list grid */
+.route-restaurants-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* Tablet: force 2 columns for consistent card sizes */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .route-restaurants-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Shared Header Styles */
+.route-restaurants-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.route-restaurants-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--asphalt-dark);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.route-restaurants-badge--open {
+  background: var(--accent-success);
+  color: white;
+}
+
+.route-restaurants-badge--closed {
+  background: var(--text-muted);
+  color: white;
+}
+
+.route-restaurants-badge--route {
+  background: var(--ddd-red);
+  color: white;
+}
+
+.route-restaurants-header-text {
+  flex: 1;
+}
+
+.route-restaurants-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  color: var(--asphalt-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0 0 4px;
+  line-height: 1;
+}
+
+.route-restaurants-title--closed {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.route-restaurants-subtitle {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Closed grid - slightly muted */
+.route-restaurants-grid--closed {
+  opacity: 0.85;
+}
+
 /* CTA Section */
 .route-cta-section {
   text-align: center;
@@ -4785,6 +4972,21 @@ body::before {
   border-radius: 8px;
   border: 4px solid var(--asphalt-dark);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  margin-top: 64px;
+  margin-bottom: 48px;
+}
+
+.route-cta-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: white;
+  border: 3px solid var(--asphalt-dark);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+  margin-bottom: 24px;
+  color: var(--ddd-red);
 }
 
 .route-cta-section h2 {
@@ -4846,6 +5048,62 @@ body::before {
 
   .route-cta-section {
     padding: 40px 20px;
+    margin-top: 0;
+  }
+
+  /* Route restaurants section mobile */
+  .route-restaurants-section-v2 {
+    padding: 48px 0 56px;
+  }
+
+  .route-restaurants-container {
+    padding: 0 16px;
+  }
+
+  .route-restaurants-list {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .route-journey-group {
+    margin-bottom: 40px;
+  }
+
+  .route-journey-group-header {
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+  }
+
+  .route-journey-group-marker {
+    width: 14px;
+    height: 14px;
+  }
+
+  .route-journey-group-count {
+    font-size: 12px;
+  }
+
+  .route-restaurants-header {
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .route-restaurants-badge {
+    width: 40px;
+    height: 40px;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .route-restaurants-badge svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .route-cta-badge {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
   }
 }
 
@@ -6069,9 +6327,19 @@ body::before {
   transition: all 0.3s ease;
 }
 
-.restaurant-more-card:hover .restaurant-more-card-image {
+.restaurant-more-card:hover .restaurant-more-card-image,
+.restaurant-more-card:focus-visible .restaurant-more-card-image {
   transform: translate(-4px, -4px);
   box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.15);
+}
+
+.restaurant-more-card:focus-visible {
+  outline: none;
+}
+
+.restaurant-more-card:focus-visible .restaurant-more-card-image {
+  outline: 3px solid var(--ddd-red);
+  outline-offset: 2px;
 }
 
 .restaurant-more-card-img {
@@ -6079,7 +6347,8 @@ body::before {
   transition: transform 0.4s ease;
 }
 
-.restaurant-more-card:hover .restaurant-more-card-img {
+.restaurant-more-card:hover .restaurant-more-card-img,
+.restaurant-more-card:focus-visible .restaurant-more-card-img {
   transform: scale(1.08);
 }
 

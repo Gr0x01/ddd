@@ -14,6 +14,7 @@ interface RestaurantCardOverlayProps {
     distance_miles?: number | null;
   };
   index?: number;
+  hideStatus?: boolean;
 }
 
 // Filter photos to only include valid URL strings
@@ -32,7 +33,7 @@ function formatDistance(miles: number): string {
   return `${Math.round(miles)} mi`;
 }
 
-export function RestaurantCardOverlay({ restaurant, index = 0 }: RestaurantCardOverlayProps) {
+export function RestaurantCardOverlay({ restaurant, index = 0, hideStatus = false }: RestaurantCardOverlayProps) {
   const photoUrl = getFirstPhoto(restaurant.photos);
   const isOpen = restaurant.status === 'open';
   const isClosed = restaurant.status === 'closed';
@@ -60,11 +61,11 @@ export function RestaurantCardOverlay({ restaurant, index = 0 }: RestaurantCardO
           </div>
         )}
 
-        {/* Status badge */}
-        {isOpen && (
+        {/* Status badge - hidden when grouped by status */}
+        {!hideStatus && isOpen && (
           <span className="restaurant-more-card-status">OPEN</span>
         )}
-        {isClosed && (
+        {!hideStatus && isClosed && (
           <span className="restaurant-more-card-status restaurant-more-card-status-closed">CLOSED</span>
         )}
 

@@ -7,6 +7,7 @@ import { RestaurantCardOverlay } from '@/components/restaurant/RestaurantCardOve
 import Link from 'next/link';
 import RouteMapSection from '@/components/route/RouteMapSection';
 import { generateRouteSchema, generateRouteFAQSchema, generateBreadcrumbSchema, safeStringifySchema } from '@/lib/schema';
+import { Utensils, MapPin } from 'lucide-react';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -210,12 +211,22 @@ export default async function RoutePage({ params, searchParams }: RoutePageProps
           <div className="route-detail-hero-accent" />
         </section>
 
-        <div className="route-page-container">
-          {/* Restaurants Section */}
-          <section className="route-restaurants-section">
-            <h2 className="route-section-title">
-              Restaurants Along This Route
-            </h2>
+        {/* Restaurants Section - Ordered along route */}
+        <section className="route-restaurants-section-v2">
+          <div className="route-restaurants-container">
+            <div className="route-restaurants-header">
+              <div className="route-restaurants-badge route-restaurants-badge--route">
+                <MapPin size={20} />
+              </div>
+              <div className="route-restaurants-header-text">
+                <h2 className="route-restaurants-title">
+                  {restaurants.length} {restaurants.length === 1 ? 'Stop' : 'Stops'} Along the Way
+                </h2>
+                <p className="route-restaurants-subtitle">
+                  {openCount} open &bull; {restaurants.length - openCount} closed &bull; Ordered by route position
+                </p>
+              </div>
+            </div>
 
             {restaurants.length === 0 ? (
               <div className="route-no-results">
@@ -223,20 +234,51 @@ export default async function RoutePage({ params, searchParams }: RoutePageProps
                 <p>Try searching with a different route or larger radius.</p>
               </div>
             ) : (
-              <div className="restaurant-more-grid">
-                {restaurants.map((restaurant, index) => (
-                  <RestaurantCardOverlay
-                    key={restaurant.id}
-                    restaurant={restaurant}
-                    index={index}
-                  />
-                ))}
+              <div className="route-journey">
+                {(() => {
+                  const sorted = [...restaurants].sort((a, b) => a.route_position - b.route_position);
+
+                  // Group by journey segments
+                  const groups = [
+                    { label: 'Starting Out', restaurants: sorted.filter(r => r.route_position < 0.2) },
+                    { label: 'First Half', restaurants: sorted.filter(r => r.route_position >= 0.2 && r.route_position < 0.45) },
+                    { label: 'Second Half', restaurants: sorted.filter(r => r.route_position >= 0.45 && r.route_position < 0.7) },
+                    { label: 'Almost There', restaurants: sorted.filter(r => r.route_position >= 0.7 && r.route_position < 0.9) },
+                    { label: 'The Finish Line', restaurants: sorted.filter(r => r.route_position >= 0.9) },
+                  ].filter(g => g.restaurants.length > 0);
+
+                  return groups.map((group, groupIndex) => (
+                    <div key={group.label} className="route-journey-group" role="region" aria-label={`${group.label} - ${group.restaurants.length} stops`}>
+                      <div className="route-journey-group-header">
+                        <div className="route-journey-group-marker" aria-hidden="true" />
+                        <h3 className="route-journey-group-label">{group.label}</h3>
+                        <span className="route-journey-group-count">
+                          {group.restaurants.length} {group.restaurants.length === 1 ? 'stop' : 'stops'}
+                        </span>
+                      </div>
+                      <div className="route-restaurants-list">
+                        {group.restaurants.map((restaurant, index) => (
+                          <RestaurantCardOverlay
+                            key={restaurant.id}
+                            restaurant={restaurant}
+                            index={groupIndex * 10 + index}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
               </div>
             )}
-          </section>
+          </div>
+        </section>
 
-          {/* CTA Section */}
+        {/* CTA Section */}
+        <div className="route-page-container">
           <section className="route-cta-section">
+            <div className="route-cta-badge">
+              <Utensils size={20} />
+            </div>
             <h2>Plan Your Own Route</h2>
             <p>Find Diners, Drive-ins & Dives restaurants on any route you choose</p>
             <Link href="/roadtrip" className="route-cta-button">
