@@ -75,7 +75,7 @@ export function RestaurantHero({ restaurant, breadcrumbItems }: RestaurantHeroPr
           <div className="restaurant-hero-breadcrumbs">
             <Breadcrumbs
               items={breadcrumbItems}
-              className="[&_a]:text-white/50 [&_a:hover]:text-white [&_span]:text-white [&_svg]:text-white/30"
+              className="[&_a]:text-[#1A1A1D]/60 [&_a:hover]:text-[#1A1A1D] [&_span]:text-[#1A1A1D] [&_svg]:text-[#1A1A1D]/30"
             />
           </div>
         )}

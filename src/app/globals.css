@@ -4287,46 +4287,10 @@ body::before {
   align-items: start;
 }
 
-/* When no photo, let content expand full width */
-.restaurant-hero-content:has(.restaurant-hero-main:only-child) {
-  grid-template-columns: 1fr;
-}
-
 .restaurant-hero-main {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-/* When no photo, center content and make it feel intentional */
-.restaurant-hero-content:has(.restaurant-hero-main:only-child) {
-  justify-content: center;
-}
-
-.restaurant-hero-content:has(.restaurant-hero-main:only-child) .restaurant-hero-main {
-  max-width: 700px;
-  text-align: center;
-  align-items: center;
-}
-
-.restaurant-hero-content:has(.restaurant-hero-main:only-child) .restaurant-hero-actions {
-  justify-content: center;
-}
-
-.restaurant-hero-content:has(.restaurant-hero-main:only-child) .restaurant-hero-cuisines {
-  justify-content: center;
-}
-
-.restaurant-hero-content:has(.restaurant-hero-main:only-child) .restaurant-hero-meta {
-  justify-content: center;
-}
-
-.restaurant-hero-content:has(.restaurant-hero-main:only-child) .restaurant-hero-episodes {
-  text-align: center;
-}
-
-.restaurant-hero-content:has(.restaurant-hero-main:only-child) .restaurant-hero-episodes-list {
-  justify-content: center;
 }
 
 /* Status Badge */
