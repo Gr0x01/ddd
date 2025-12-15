@@ -3942,6 +3942,8 @@ body::before {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  height: 600px;
+  position: relative;
 }
 
 .route-map-image {

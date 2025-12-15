@@ -4,7 +4,12 @@ import { db } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import Link from 'next/link';
-import Image from 'next/image';
+import dynamic from 'next/dynamic';
+
+const RouteMap = dynamic(() => import('@/components/roadtrip/RouteMap'), {
+  ssr: false,
+  loading: () => <div className="map-loading">Loading map...</div>
+});
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -112,18 +117,20 @@ export default async function RoutePage({ params }: RoutePageProps) {
           </section>
 
           {/* Map Section */}
-          {route.map_image_url && (
-            <section className="route-map-section">
-              <Image
-                src={route.map_image_url}
-                alt={`Map of ${route.title}`}
-                width={1200}
-                height={600}
-                className="route-map-image"
-                priority
-              />
-            </section>
-          )}
+          <section className="route-map-section">
+            <RouteMap
+              route={{
+                polylinePoints: route.polyline_points as Array<{ lat: number; lng: number }>,
+                bounds: {
+                  northeast: { lat: 0, lng: 0 },
+                  southwest: { lat: 0, lng: 0 }
+                }
+              }}
+              restaurants={restaurants}
+              selectedRestaurant={null}
+              onRestaurantSelect={() => {}}
+            />
+          </section>
 
           {/* Restaurants Section */}
           <section className="route-restaurants-section">
