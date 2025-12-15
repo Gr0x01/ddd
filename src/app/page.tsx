@@ -44,25 +44,17 @@ async function loadCities(): Promise<City[]> {
 export default async function Page() {
   const [stats, featuredRestaurants, recentEpisodes, cities, curatedRoutes] = await Promise.all([
     db.getStats(),
-    db.getFeaturedRestaurants(20), // Get more for different sections
+    db.getFeaturedRestaurants(20),
     db.getRecentEpisodes(10),
     loadCities(),
     db.getCuratedRoutes(),
   ]);
 
-  // Split restaurants for different sections
-  // Recently verified: restaurants with status='open' and recent last_verified
-  const recentlyVerified = featuredRestaurants
-    .filter(r => r.status === 'open' && r.last_verified)
-    .slice(0, 8);
-
-  // Iconic: hand-picked or highest-rated restaurants (for MVP, just use remaining)
-  const iconicRestaurants = featuredRestaurants.slice(8, 18);
+  // Iconic: hand-picked or highest-rated restaurants
+  const iconicRestaurants = featuredRestaurants.slice(0, 10);
 
   return (
     <HomePage
-      initialRestaurants={featuredRestaurants}
-      recentlyVerified={recentlyVerified}
       iconicRestaurants={iconicRestaurants}
       stats={stats}
       recentEpisodes={recentEpisodes}
