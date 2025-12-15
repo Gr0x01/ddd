@@ -42,11 +42,12 @@ async function loadCities(): Promise<City[]> {
 }
 
 export default async function Page() {
-  const [stats, featuredRestaurants, recentEpisodes, cities] = await Promise.all([
+  const [stats, featuredRestaurants, recentEpisodes, cities, curatedRoutes] = await Promise.all([
     db.getStats(),
     db.getFeaturedRestaurants(20), // Get more for different sections
     db.getRecentEpisodes(10),
     loadCities(),
+    db.getCuratedRoutes(),
   ]);
 
   // Split restaurants for different sections
@@ -66,6 +67,7 @@ export default async function Page() {
       stats={stats}
       recentEpisodes={recentEpisodes}
       cities={cities}
+      curatedRoutes={curatedRoutes}
     />
   );
 }

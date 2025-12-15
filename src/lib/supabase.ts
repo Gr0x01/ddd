@@ -850,7 +850,7 @@ export const db = {
     if (slug.length > 100) return null; // Reasonable max length
 
     const client = getSupabaseClient();
-    const { data, error } = await client
+    const { data, error} = await client
       .from('route_cache')
       .select('*')
       .eq('slug', slug)
@@ -861,6 +861,19 @@ export const db = {
       throw error;
     }
     return data as RouteCache;
+  },
+
+  // Get all curated routes for homepage
+  async getCuratedRoutes(): Promise<RouteCache[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('route_cache')
+      .select('*')
+      .eq('is_curated', true)
+      .order('created_at', { ascending: true }); // Keep in order they were added
+
+    if (error) throw error;
+    return (data || []) as RouteCache[];
   },
 
   // Increment view count for a route page (atomic to prevent race conditions)

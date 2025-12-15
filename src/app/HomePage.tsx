@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import type { RestaurantWithEpisodes, Episode } from '@/lib/supabase';
+import type { RestaurantWithEpisodes, Episode, RouteCache } from '@/lib/supabase';
 import type { City } from '@/lib/cityMatcher';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
@@ -29,6 +29,7 @@ interface HomePageProps {
   stats: { restaurants: number; episodes: number; cities: number };
   recentEpisodes: Episode[];
   cities: City[];
+  curatedRoutes: RouteCache[];
 }
 
 export default function HomePage({
@@ -37,7 +38,8 @@ export default function HomePage({
   iconicRestaurants,
   stats,
   recentEpisodes,
-  cities
+  cities,
+  curatedRoutes
 }: HomePageProps) {
   const newestEpisode = recentEpisodes[0];
   const verifiedOpen = stats.restaurants; // Will be updated to actual verified count
@@ -89,7 +91,7 @@ export default function HomePage({
       )}
 
       {/* Popular Routes */}
-      <PopularRoutes />
+      <PopularRoutes routes={curatedRoutes} />
 
       {/* Recently Verified Open */}
       {recentlyVerified.length > 0 && (

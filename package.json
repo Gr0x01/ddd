@@ -14,7 +14,9 @@
     "test:e2e:debug": "npx playwright test --debug",
     "test:e2e:headed": "npx playwright test --headed",
     "test:e2e:report": "npx playwright show-report",
-    "db:migrate": "npx tsx scripts/db/apply-migration.ts"
+    "db:migrate": "npx tsx scripts/db/apply-migration.ts",
+    "populate-routes": "npx tsx scripts/populate-curated-routes.ts",
+    "generate-maps": "npx tsx scripts/generate-route-maps.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.3.24",
