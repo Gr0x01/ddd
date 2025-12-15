@@ -10,11 +10,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Fetch all data in parallel
-    const [restaurants, states, cities, cuisines] = await Promise.all([
+    const [restaurants, states, cities, cuisines, routes] = await Promise.all([
       db.getRestaurants(),
       db.getStates(),
       db.getCities(),
       db.getCuisines(),
+      db.getCuratedRoutes(),
     ]);
 
     // Create a map of state_name -> state_slug for building city URLs
@@ -61,6 +62,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly',
         priority: 0.6,
       },
+      {
+        url: `${baseUrl}/roadtrip`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      },
     ];
 
     // Restaurant pages - highest priority for individual content
@@ -98,7 +105,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...staticPages, ...restaurantPages, ...statePages, ...cityPages, ...cuisinePages];
+    // Curated route pages - road trip content
+    const routePages: MetadataRoute.Sitemap = routes
+      .filter(route => route.slug) // Only include routes with slugs
+      .map((route) => ({
+        url: `${baseUrl}/route/${route.slug}`,
+        lastModified: route.created_at ? new Date(route.created_at) : new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }));
+
+    return [...staticPages, ...restaurantPages, ...statePages, ...cityPages, ...cuisinePages, ...routePages];
   } catch (error) {
     console.error('Error generating sitemap:', error);
     // Return minimal sitemap on error

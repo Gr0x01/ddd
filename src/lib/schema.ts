@@ -438,3 +438,101 @@ export function generateStateFAQSchema(
   };
 }
 
+/**
+ * TouristTrip schema for curated road trip routes
+ * Uses schema.org TouristTrip type for road trip content
+ */
+export function generateRouteSchema(
+  route: {
+    title: string;
+    slug: string;
+    origin_text: string;
+    destination_text: string;
+    description?: string | null;
+    distance_meters: number;
+    duration_seconds: number;
+    map_image_url?: string | null;
+  },
+  restaurantCount: number
+): any {
+  const distanceMiles = Math.round(route.distance_meters / 1609.34);
+  const durationHours = Math.round(route.duration_seconds / 3600 * 10) / 10;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'TouristTrip',
+    name: route.title || `${route.origin_text} to ${route.destination_text}`,
+    description: route.description || `A ${distanceMiles}-mile road trip from ${route.origin_text} to ${route.destination_text} featuring ${restaurantCount} Diners, Drive-ins and Dives restaurants along the way.`,
+    url: `${SITE_URL}/route/${route.slug}`,
+    ...(route.map_image_url && { image: route.map_image_url }),
+    touristType: 'Food Tourist',
+    itinerary: {
+      '@type': 'ItemList',
+      name: 'Route Stops',
+      numberOfItems: restaurantCount,
+      description: `${restaurantCount} Guy Fieri-approved restaurants along this route`,
+    },
+    // Trip metadata
+    subjectOf: {
+      '@type': 'Article',
+      name: `${route.origin_text} to ${route.destination_text} Road Trip Guide`,
+      description: `Plan your DDD road trip: ${distanceMiles} miles, approximately ${durationHours} hours of driving, ${restaurantCount} restaurant stops.`,
+    },
+    provider: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+  };
+}
+
+/**
+ * FAQ schema for route pages
+ */
+export function generateRouteFAQSchema(
+  route: {
+    title: string;
+    origin_text: string;
+    destination_text: string;
+    distance_meters: number;
+    duration_seconds: number;
+  },
+  restaurantCount: number,
+  openCount: number
+): any {
+  const distanceMiles = Math.round(route.distance_meters / 1609.34);
+  const durationHours = Math.round(route.duration_seconds / 3600 * 10) / 10;
+  const routeName = route.title || `${route.origin_text} to ${route.destination_text}`;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: `How many DDD restaurants are on the ${routeName} route?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `There are ${restaurantCount} Diners, Drive-ins and Dives restaurants along the ${routeName} route. ${openCount} are currently open.`,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: `How long is the ${routeName} road trip?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `The route is ${distanceMiles} miles and takes approximately ${durationHours} hours of driving time, not including stops at restaurants.`,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: `What restaurants are featured on the ${routeName} route?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `This route features ${restaurantCount} restaurants that have been featured on Guy Fieri's Diners, Drive-ins and Dives. Each restaurant is within 25 miles of the main route.`,
+        },
+      },
+    ],
+  };
+}
+

@@ -6,6 +6,7 @@ import { Footer } from '@/components/ui/Footer';
 import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
 import Link from 'next/link';
 import RouteMapSection from '@/components/route/RouteMapSection';
+import { generateRouteSchema, generateRouteFAQSchema, generateBreadcrumbSchema, safeStringifySchema } from '@/lib/schema';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -70,8 +71,58 @@ export default async function RoutePage({ params }: RoutePageProps) {
   const distanceMiles = Math.round(route.distance_meters / 1609.34);
   const durationHours = Math.round(route.duration_seconds / 3600 * 10) / 10;
 
+  // Count open restaurants for FAQ schema
+  const openCount = restaurants.filter(r => r.status === 'open').length;
+
+  // Generate structured data
+  const routeSchema = generateRouteSchema(
+    {
+      title: route.title || `${route.origin_text} to ${route.destination_text}`,
+      slug: route.slug!,
+      origin_text: route.origin_text,
+      destination_text: route.destination_text,
+      description: route.description,
+      distance_meters: route.distance_meters,
+      duration_seconds: route.duration_seconds,
+      map_image_url: route.map_image_url,
+    },
+    restaurants.length
+  );
+
+  const faqSchema = generateRouteFAQSchema(
+    {
+      title: route.title || `${route.origin_text} to ${route.destination_text}`,
+      origin_text: route.origin_text,
+      destination_text: route.destination_text,
+      distance_meters: route.distance_meters,
+      duration_seconds: route.duration_seconds,
+    },
+    restaurants.length,
+    openCount
+  );
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Road Trips', url: '/roadtrip' },
+    { name: route.title || `${route.origin_text} to ${route.destination_text}` },
+  ]);
+
   return (
     <div className="app-container">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(routeSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(breadcrumbSchema) }}
+      />
+
       <Header currentPage="restaurants" />
 
       <main className="route-page">
