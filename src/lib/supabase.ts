@@ -844,6 +844,11 @@ export const db = {
 
   // Get a route by its slug (for curated route pages)
   async getRouteBySlug(slug: string): Promise<RouteCache | null> {
+    // Validate slug format (lowercase alphanumeric, hyphens only)
+    if (!slug || typeof slug !== 'string') return null;
+    if (!/^[a-z0-9-]+$/.test(slug)) return null;
+    if (slug.length > 100) return null; // Reasonable max length
+
     const client = getSupabaseClient();
     const { data, error } = await client
       .from('route_cache')
@@ -858,24 +863,15 @@ export const db = {
     return data as RouteCache;
   },
 
-  // Increment view count for a route page
+  // Increment view count for a route page (atomic to prevent race conditions)
   async incrementRouteViews(routeId: string): Promise<void> {
     const client = getSupabaseClient();
 
-    // First get current count
-    const { data: route } = await client
-      .from('route_cache')
-      .select('view_count')
-      .eq('id', routeId)
-      .single();
-
-    if (!route) return;
-
-    // Increment
-    const { error } = await client
-      .from('route_cache')
-      .update({ view_count: (route.view_count || 0) + 1 })
-      .eq('id', routeId);
+    // Use RPC function for atomic increment
+    // @ts-expect-error - increment_route_views function not in generated types yet
+    const { error } = await client.rpc('increment_route_views', {
+      route_id: routeId
+    });
 
     if (error) {
       // Log but don't throw - view count is non-critical

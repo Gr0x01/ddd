@@ -9,53 +9,62 @@ import Image from 'next/image';
 export const revalidate = 3600; // Revalidate every hour
 
 interface RoutePageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: RoutePageProps): Promise<Metadata> {
-  const route = await db.getRouteBySlug(params.slug);
+  try {
+    const { slug } = await params;
+    const route = await db.getRouteBySlug(slug);
 
-  if (!route) {
-    return {
-      title: 'Route Not Found',
-    };
-  }
+    if (!route) {
+      return {
+        title: 'Route Not Found',
+      };
+    }
 
   const title = `${route.title} - Diners, Drive-ins and Dives Road Trip`;
   const description = route.description || `Find all Guy Fieri restaurants on the ${route.title} route. Plan your Triple D road trip adventure!`;
 
-  return {
-    title,
-    description,
-    openGraph: {
+    return {
       title,
       description,
-      type: 'website',
-      images: route.map_image_url ? [{ url: route.map_image_url }] : [],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: route.map_image_url ? [route.map_image_url] : [],
-    },
-  };
+      openGraph: {
+        title,
+        description,
+        type: 'website',
+        images: route.map_image_url ? [{ url: route.map_image_url }] : [],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: route.map_image_url ? [route.map_image_url] : [],
+      },
+    };
+  } catch (error) {
+    console.error('Error generating route metadata:', error);
+    return {
+      title: 'Route Not Found',
+    };
+  }
 }
 
 export default async function RoutePage({ params }: RoutePageProps) {
-  const route = await db.getRouteBySlug(params.slug);
+  const { slug } = await params;
+  const route = await db.getRouteBySlug(slug);
 
   if (!route) {
     notFound();
   }
 
-  // Get restaurants along this route (default 10 mile radius)
-  const restaurants = await db.getRestaurantsNearRoute(route.id, 10);
-
-  // Increment view count
-  await db.incrementRouteViews(route.id);
+  // Get restaurants along this route and increment view count in parallel
+  const [restaurants] = await Promise.all([
+    db.getRestaurantsNearRoute(route.id, 10),
+    db.incrementRouteViews(route.id), // Fire and forget
+  ]);
 
   const distanceMiles = Math.round(route.distance_meters / 1609.34);
   const durationHours = Math.round(route.duration_seconds / 3600 * 10) / 10;
