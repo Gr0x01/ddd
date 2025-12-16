@@ -1,7 +1,7 @@
 ---
 title: Enrichment System Quick Reference
 created: 2025-12-14
-last-updated: 2025-12-14
+last-updated: 2025-12-16
 maintainer: Claude
 status: Active
 ---
@@ -73,8 +73,14 @@ restaurant_cuisines {
 # Basic enrichment (description, cuisines, price, dishes, status)
 npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10
 
+# With long-form SEO content (~700 words per restaurant)
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10 --with-long-form
+
 # With Google Places photos (adds $0.084/restaurant)
 npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10 --with-photos
+
+# Full enrichment for new episode ingest (basic + long-form + photos)
+npx tsx scripts/ingestion/enrich-restaurants.ts --limit 50 --with-long-form --with-photos
 
 # Force re-enrich completed restaurants
 npx tsx scripts/ingestion/enrich-restaurants.ts --limit 5 --all
@@ -84,11 +90,13 @@ npx tsx scripts/ingestion/enrich-restaurants.ts --limit 3 --dry-run
 ```
 
 **Cost Per Restaurant:**
-- LLM (gpt-4o-mini): ~$0.0006
+- LLM basic (gpt-4o-mini): ~$0.006
 - Tavily search: ~$0.005 (cached for 90 days)
 - **Total without photos:** ~$0.006
+- Long-form (gpt-4.1-mini): +$0.015-0.03
+- **Total with long-form:** ~$0.02-0.04
 - Google Places (optional): +$0.084
-- **Total with photos:** ~$0.09
+- **Total with all options:** ~$0.10-0.12
 
 ### ❌ Not Yet Implemented
 
@@ -126,6 +134,12 @@ npx tsx scripts/ingestion/enrich-restaurants.ts --limit 10
 8. Closure date (if closed, in `YYYY-MM-DD` format)
 9. Contact info (address, phone, website)
 10. Photos (if `--with-photos` flag used)
+11. Long-form SEO content (if `--with-long-form` flag used):
+    - `about_story` (~200 words)
+    - `culinary_philosophy` (~150 words)
+    - `history_highlights` (~150 words)
+    - `why_visit` (~100 words)
+    - `city_context` (~100 words)
 
 ---
 

@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import PQueue from 'p-queue';
 import { createLLMEnricher } from './enrichment/llm-enricher';
 import { createGooglePlacesService } from './enrichment/services/google-places-service';
+import { LongFormService } from './enrichment/services/long-form-service';
+import { TokenTracker } from './enrichment/shared/token-tracker';
 
 dotenv.config({ path: '.env.local' });
 
@@ -13,6 +15,10 @@ const supabase = createClient(
 );
 
 const enricher = createLLMEnricher(supabase, { model: 'gpt-4o-mini' });
+
+// Long-form content service
+const tokenTracker = TokenTracker.getInstance();
+const longFormService = new LongFormService(tokenTracker);
 
 // Optional: Google Places service for photos
 const googlePlaces = process.env.GOOGLE_PLACES_API_KEY
@@ -40,6 +46,7 @@ async function main() {
   const concurrency = args.includes('--concurrency')
     ? parseInt(args[args.indexOf('--concurrency') + 1], 10)
     : 50;
+  const withLongForm = args.includes('--with-long-form');
 
   console.log('\n🍔 DDD Restaurant Enrichment');
   console.log('━'.repeat(50));
@@ -48,6 +55,7 @@ async function main() {
   console.log(`Limit: ${limit} restaurants`);
   console.log(`Concurrency: ${concurrency} parallel`);
   console.log(`Photos: ${withPhotos ? (googlePlaces ? 'YES (Google Places)' : 'SKIPPED (no API key)') : 'NO'}`);
+  console.log(`Long-form: ${withLongForm ? 'YES' : 'NO'}`);
   console.log('');
 
   // Fetch restaurants that need enrichment WITH episode data
@@ -364,6 +372,52 @@ async function main() {
             } catch (photoErr) {
               const photoMsg = photoErr instanceof Error ? photoErr.message : String(photoErr);
               console.log(`      ⚠️  Photo fetch error: ${photoMsg}`);
+            }
+          }
+
+          // Generate long-form content (optional)
+          if (withLongForm) {
+            try {
+              console.log(`      📝 Generating long-form content...`);
+
+              const longFormResult = await longFormService.generateLongFormContent(
+                restaurant.id,
+                restaurant.name,
+                restaurant.city,
+                restaurant.state,
+                {
+                  description: result.description,
+                  guy_quote: result.guy_quote,
+                  segment_notes: result.segment_notes,
+                  cuisines: result.cuisines || [],
+                  price_tier: result.price_tier,
+                  status: result.status,
+                }
+              );
+
+              if (longFormResult.success) {
+                const { error: longFormError } = await supabase
+                  .from('restaurants')
+                  .update({
+                    about_story: longFormResult.about_story,
+                    culinary_philosophy: longFormResult.culinary_philosophy,
+                    history_highlights: longFormResult.history_highlights,
+                    why_visit: longFormResult.why_visit,
+                    city_context: longFormResult.city_context,
+                    long_form_enriched_at: new Date().toISOString(),
+                  })
+                  .eq('id', restaurant.id);
+
+                if (longFormError) {
+                  console.log(`      ⚠️  Long-form save failed: ${longFormError.message}`);
+                } else {
+                  console.log(`      ✅ Long-form content generated`);
+                }
+              } else {
+                console.log(`      ⚠️  Long-form generation failed: ${longFormResult.error}`);
+              }
+            } catch (longFormErr) {
+              console.log(`      ⚠️  Long-form error: ${longFormErr instanceof Error ? longFormErr.message : String(longFormErr)}`);
             }
           }
 
