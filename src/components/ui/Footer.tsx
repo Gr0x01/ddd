@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import { cache } from 'react';
-import { db } from '@/lib/supabase';
 
 interface FooterLink {
   label: string;
@@ -12,24 +10,23 @@ interface FooterColumn {
   links: FooterLink[];
 }
 
-// Cache the footer data to deduplicate calls within the same request
-const getTopStates = cache(async () => {
-  try {
-    const states = await db.getStatesWithCounts();
-    return states
-      .filter(s => (s.restaurant_count ?? 0) > 0)
-      .sort((a, b) => (b.restaurant_count ?? 0) - (a.restaurant_count ?? 0))
-      .slice(0, 12)
-      .map(s => ({
-        name: s.name,
-        slug: s.slug,
-        count: s.restaurant_count ?? 0,
-      }));
-  } catch (error) {
-    console.error('Footer: Failed to fetch top states', error);
-    return [];
-  }
-});
+// Static top states data - avoids database call on every page view
+// Last updated: 2025-12-16 (total restaurants: 1,541)
+// To refresh: Query `SELECT state, COUNT(*) FROM restaurants WHERE is_public GROUP BY state ORDER BY count DESC LIMIT 12`
+const topStates = [
+  { name: 'California', slug: 'california', count: 247 },
+  { name: 'Nevada', slug: 'nevada', count: 81 },
+  { name: 'Texas', slug: 'texas', count: 79 },
+  { name: 'Florida', slug: 'florida', count: 65 },
+  { name: 'Arizona', slug: 'arizona', count: 59 },
+  { name: 'Oregon', slug: 'oregon', count: 52 },
+  { name: 'New York', slug: 'new-york', count: 50 },
+  { name: 'Colorado', slug: 'colorado', count: 44 },
+  { name: 'Washington', slug: 'washington', count: 43 },
+  { name: 'Ohio', slug: 'ohio', count: 39 },
+  { name: 'Hawaii', slug: 'hawaii', count: 37 },
+  { name: 'Pennsylvania', slug: 'pennsylvania', count: 36 },
+];
 
 const columns: FooterColumn[] = [
   {
@@ -67,9 +64,7 @@ const columns: FooterColumn[] = [
   },
 ];
 
-export async function Footer() {
-  const topStates = await getTopStates();
-
+export function Footer() {
   return (
     <footer
       className="border-t"

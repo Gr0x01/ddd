@@ -325,6 +325,18 @@ export const db = {
     }));
   },
 
+  // Get restaurant slugs for sitemap (extremely lightweight - no joins)
+  async getRestaurantSlugs(): Promise<{ slug: string; updated_at: string }[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('restaurants')
+      .select('slug, updated_at')
+      .eq('is_public', true);
+
+    if (error) throw error;
+    return data as { slug: string; updated_at: string }[];
+  },
+
   // Get restaurants by city (and optionally state)
   async getRestaurantsByCity(city: string, state?: string) {
     const client = getSupabaseClient();
@@ -1151,6 +1163,26 @@ export const db = {
   // ROAD TRIP PLANNER METHODS
   // ============================================
 
+  // Helper: Update route cache hit count (fire-and-forget, non-blocking)
+  // Uses atomic SQL function to prevent race conditions
+  _updateRouteCacheHitCount(routeId: string): void {
+    // Validate UUID format
+    if (!routeId || !/^[0-9a-f-]{36}$/i.test(routeId)) return;
+
+    void (async () => {
+      try {
+        const client = getSupabaseClient();
+        // @ts-expect-error - increment_route_cache_hits not in generated types yet
+        const { error } = await client.rpc('increment_route_cache_hits', {
+          p_route_id: routeId
+        });
+        if (error) throw error;
+      } catch (err) {
+        console.error('Failed to update cache hit count:', err);
+      }
+    })();
+  },
+
   // Normalize location text for consistent cache lookups
   _normalizeLocation(location: string): string {
     if (!location || typeof location !== 'string') {
@@ -1184,13 +1216,15 @@ export const db = {
     const normalizedOrigin = this._normalizeLocation(origin);
     const normalizedDest = this._normalizeLocation(destination);
 
-    // Query database with LOWER() for case-insensitive exact match
-    // This uses the database index instead of fetching all routes
+    // Query database with exact match on pre-lowercased text
+    // Since _normalizeLocation() already lowercases, we use .eq() for efficient index usage
     const { data, error } = await client
       .from('route_cache')
       .select('*')
+      .eq('origin_text', normalizedOrigin)
+      .eq('destination_text', normalizedDest)
       .gte('expires_at', new Date().toISOString())
-      .limit(100); // Safety limit to prevent huge result sets
+      .limit(1);
 
     if (error) {
       if (error.code === 'PGRST116') return null; // Not found
@@ -1199,36 +1233,12 @@ export const db = {
 
     if (!data || data.length === 0) return null;
 
-    // Find matching route by normalized text
-    // Note: Doing client-side filtering for now since Supabase doesn't support LOWER() in queries
-    // TODO: Add migration to create normalized text columns with index
-    const match = data.find((route: any) => {
-      const cachedOrigin = this._normalizeLocation(route.origin_text);
-      const cachedDest = this._normalizeLocation(route.destination_text);
-      return cachedOrigin === normalizedOrigin && cachedDest === normalizedDest;
-    });
-
-    if (!match) return null;
+    const match = data[0] as RouteCache;
 
     // Update access tracking (fire-and-forget, don't block response)
-    void (async () => {
-      try {
-        await client
-          .from('route_cache')
-          // @ts-expect-error - route_cache table not in generated types yet
-          .update({
-            last_accessed_at: new Date().toISOString(),
-            // @ts-expect-error
-            hit_count: match.hit_count + 1
-          })
-          // @ts-expect-error
-          .eq('id', match.id);
-      } catch (err) {
-        console.error('Failed to update cache hit count:', err);
-      }
-    })();
+    this._updateRouteCacheHitCount(match.id);
 
-    return match as RouteCache;
+    return match;
   },
 
   // Find cached route by place IDs (fallback for when we already have place IDs)

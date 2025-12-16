@@ -9,6 +9,9 @@ import { MiniMapWrapper } from '@/components/restaurant/MiniMapWrapper';
 import { RestaurantCardOverlay } from '@/components/restaurant/RestaurantCardOverlay';
 import { generateRestaurantSchema, generateBreadcrumbSchema, safeStringifySchema } from '@/lib/schema';
 
+// Restaurant data rarely changes - revalidate once per day
+export const revalidate = 86400;
+
 interface RestaurantPageProps {
   params: Promise<{ slug: string }>;
 }

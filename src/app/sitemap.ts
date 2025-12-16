@@ -12,9 +12,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.tripledmap.com';
 
   try {
-    // Fetch all data in parallel
-    const [restaurants, states, cities, cuisines, routes, seasons, priceTiers, dishes] = await Promise.all([
-      db.getRestaurants(),
+    // Fetch all data in parallel - using lightweight queries where possible
+    const [restaurantSlugs, states, cities, cuisines, routes, seasons, priceTiers, dishes] = await Promise.all([
+      db.getRestaurantSlugs(), // Lightweight: only slug + updated_at (no joins)
       db.getStates(),
       db.getCities(),
       db.getCuisines(),
@@ -96,7 +96,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
 
     // Restaurant pages - highest priority for individual content
-    const restaurantPages: MetadataRoute.Sitemap = restaurants.map((restaurant) => ({
+    const restaurantPages: MetadataRoute.Sitemap = restaurantSlugs.map((restaurant) => ({
       url: `${baseUrl}/restaurant/${restaurant.slug}`,
       lastModified: restaurant.updated_at ? new Date(restaurant.updated_at) : new Date(),
       changeFrequency: 'weekly' as const,
