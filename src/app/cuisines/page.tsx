@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { db } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
+import { CategoryCard } from '@/components/ui/CategoryCard';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -59,29 +59,13 @@ export default async function CuisinesPage() {
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {cuisineWithCounts.map((cuisine) => (
-              <Link
+              <CategoryCard
                 key={cuisine.id}
                 href={`/cuisines/${cuisine.slug}`}
-                className="p-6 rounded-lg block hover:shadow-lg transition-shadow group"
-                style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-display text-2xl font-bold group-hover:underline" style={{ color: 'var(--text-primary)' }}>
-                    {cuisine.name}
-                  </h3>
-                  <span
-                    className="font-mono text-sm px-2 py-1 flex-shrink-0 ml-2"
-                    style={{ background: 'var(--accent-primary)', color: 'white' }}
-                  >
-                    {cuisine.restaurantCount}
-                  </span>
-                </div>
-                {cuisine.description && (
-                  <p className="font-ui text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    {cuisine.description}
-                  </p>
-                )}
-              </Link>
+                title={cuisine.name}
+                count={cuisine.restaurantCount}
+                subtitle={cuisine.description || undefined}
+              />
             ))}
           </div>
         </main>

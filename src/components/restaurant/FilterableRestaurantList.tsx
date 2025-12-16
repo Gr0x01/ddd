@@ -139,7 +139,7 @@ export function FilterableRestaurantList({
                   <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
                     Open Now ({openRestaurants.length})
                   </h2>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {openRestaurants.map((restaurant, index) => (
                       <RestaurantCardCompact
                         key={restaurant.id}
@@ -156,7 +156,7 @@ export function FilterableRestaurantList({
                   <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
                     Closed ({closedRestaurants.length})
                   </h2>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {closedRestaurants.map((restaurant, index) => (
                       <RestaurantCardCompact
                         key={restaurant.id}

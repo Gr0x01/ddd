@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getRestaurantStatus, getChefAchievements } from '@/lib/utils/restaurant';
-import { Donut } from 'lucide-react';
+import { getRestaurantStatus } from '@/lib/utils/restaurant';
+import { UtensilsCrossed, Star, MapPin } from 'lucide-react';
 
 // Filter photos to only include valid URL strings
 function getFirstPhoto(photos: string[] | null | undefined): string | null {
@@ -41,98 +41,86 @@ interface RestaurantCardCompactProps {
 }
 
 export function RestaurantCardCompact({ restaurant, index = 0, asButton = false }: RestaurantCardCompactProps) {
+  const isPriority = index < 6;
   const status = getRestaurantStatus(restaurant.status);
-  const chefAchievements = restaurant.chef ? getChefAchievements(restaurant.chef) : { isShowWinner: false, isJBWinner: false, isJBNominee: false, isJBSemifinalist: false };
 
   // Use photos array, filtering to only valid URL strings
   const photoUrl = getFirstPhoto(restaurant.photos);
 
   const content = (
     <>
-      <div className="compact-image-wrapper" data-closed={status.isClosed ? "true" : undefined}>
+      {/* Square image area */}
+      <div className="mini-card-image-wrapper" data-closed={status.isClosed ? "true" : undefined}>
         {photoUrl ? (
           <Image
             src={photoUrl}
             alt={restaurant.name}
-            width={80}
-            height={80}
-            className="compact-image"
-            loading="lazy"
-            sizes="80px"
+            fill
+            className="mini-card-image"
+            loading={isPriority ? undefined : "lazy"}
+            priority={isPriority}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            quality={60}
           />
         ) : (
-          <div className="compact-image-placeholder">
-            <Donut className="compact-icon" strokeWidth={1.5} />
+          <div className="mini-card-placeholder">
+            <UtensilsCrossed className="mini-card-placeholder-icon" strokeWidth={1.5} />
+          </div>
+        )}
+
+        {/* Price badge */}
+        {restaurant.price_tier && (
+          <span className={`mini-card-price ${status.isClosed ? 'mini-card-price-closed' : ''}`}>
+            {restaurant.price_tier}
+          </span>
+        )}
+
+        {/* Closed overlay */}
+        {status.isClosed && (
+          <div className="mini-card-closed-overlay">
+            <span className="mini-card-closed-text">CLOSED</span>
           </div>
         )}
       </div>
 
-      <div className={`compact-content ${status.isClosed ? 'opacity-60' : ''}`}>
-        <div className="compact-header">
-          <h3 
-            className={`compact-name ${status.isClosed ? 'line-through' : ''}`}
-          >
-            {restaurant.name}
-          </h3>
-          {status.isClosed ? (
-            <span className="compact-price-closed">CLOSED</span>
-          ) : restaurant.price_tier ? (
-            <span className="compact-price">{restaurant.price_tier}</span>
-          ) : null}
+      {/* Content area */}
+      <div className="mini-card-content">
+        <h3 className={`mini-card-name ${status.isClosed ? 'line-through' : ''}`}>
+          {restaurant.name}
+        </h3>
+
+        <div className="mini-card-location">
+          <MapPin className="mini-card-location-icon" />
+          <span>{restaurant.city}{restaurant.state ? `, ${restaurant.state}` : ''}</span>
         </div>
 
-        {restaurant.chef && (
-          <div className="compact-chef-row">
-            <span className="compact-chef-name">by {restaurant.chef.name}</span>
-            {chefAchievements.isShowWinner && (
-              <span className="compact-badge compact-badge-winner">WIN</span>
-            )}
-            {chefAchievements.isJBWinner && (
-              <span className="compact-badge compact-badge-jb">JB</span>
-            )}
-          </div>
-        )}
-
-        <div className="compact-meta-row">
-          <span className="compact-location">
-            {restaurant.city}{restaurant.state ? `, ${restaurant.state}` : ''}
-          </span>
+        {/* Rating and tags row */}
+        <div className="mini-card-meta">
           {restaurant.google_rating && (
-            <>
-              <span className="compact-separator">•</span>
-              <div className="compact-rating">
-                <svg className="compact-star" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                </svg>
-                <span>{restaurant.google_rating}</span>
-              </div>
-            </>
+            <div className="mini-card-rating">
+              <Star className="mini-card-star" fill="currentColor" strokeWidth={0} />
+              <span>{restaurant.google_rating}</span>
+            </div>
+          )}
+          {restaurant.cuisine_tags && restaurant.cuisine_tags.length > 0 && (
+            <span className="mini-card-cuisine">
+              {restaurant.cuisine_tags[0].toUpperCase()}
+            </span>
           )}
         </div>
-
-        {restaurant.cuisine_tags && restaurant.cuisine_tags.length > 0 && (
-          <div className="compact-tags">
-            {restaurant.cuisine_tags.slice(0, 2).map((tag, i) => (
-              <span key={i} className="compact-tag">
-                {tag.toUpperCase()}
-              </span>
-            ))}
-            {restaurant.cuisine_tags.length > 2 && (
-              <span className="compact-tag-more">
-                +{restaurant.cuisine_tags.length - 2}
-              </span>
-            )}
-          </div>
-        )}
       </div>
     </>
   );
 
+  const cardClass = `mini-card group ${status.isClosed ? 'mini-card-closed' : ''}`;
+  const ariaLabel = `${restaurant.name} in ${restaurant.city}${restaurant.state ? `, ${restaurant.state}` : ''} - ${status.isClosed ? 'Closed' : 'Open'}`;
+
   if (asButton) {
     return (
-      <div 
-        className="compact-card group"
-        style={{ animationDelay: `${index * 50}ms` }}
+      <div
+        className={cardClass}
+        style={{ animationDelay: `${index * 30}ms` }}
+        aria-label={ariaLabel}
       >
         {content}
       </div>
@@ -142,8 +130,9 @@ export function RestaurantCardCompact({ restaurant, index = 0, asButton = false 
   return (
     <Link
       href={`/restaurant/${restaurant.slug}`}
-      className="compact-card group"
-      style={{ animationDelay: `${index * 50}ms` }}
+      className={cardClass}
+      style={{ animationDelay: `${index * 30}ms` }}
+      aria-label={ariaLabel}
     >
       {content}
     </Link>

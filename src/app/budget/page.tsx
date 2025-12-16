@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { db } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
+import { CategoryCard } from '@/components/ui/CategoryCard';
 import { DollarSign } from 'lucide-react';
 
 export const revalidate = 3600; // Revalidate every hour
@@ -79,34 +79,14 @@ export default async function BudgetPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             {priceTiers.map((tier) => (
-              <Link
+              <CategoryCard
                 key={tier.slug}
                 href={`/budget/${tier.slug}`}
-                className="p-6 rounded-lg block transition-all group hover:scale-[1.02] hover:shadow-lg"
-                style={{
-                  background: 'var(--bg-secondary)',
-                  boxShadow: 'var(--shadow-sm)',
-                }}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <PriceTierIcon tier={tier.tier} />
-                  <span
-                    className="font-mono text-sm px-2 py-1"
-                    style={{ background: 'var(--accent-primary)', color: 'white' }}
-                  >
-                    {tier.count}
-                  </span>
-                </div>
-                <h3
-                  className="font-display text-2xl font-bold mb-1 group-hover:underline"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {tier.label}
-                </h3>
-                <p className="font-ui text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  {tier.description}
-                </p>
-              </Link>
+                title={tier.label}
+                count={tier.count}
+                subtitle={tier.description}
+                icon={<PriceTierIcon tier={tier.tier} />}
+              />
             ))}
           </div>
         </main>

@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import SearchForm from '@/components/roadtrip/SearchForm';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import type { City } from '@/lib/cityMatcher';
-import { AlertTriangle, AlertCircle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface RoadTripState {
   origin: string;
@@ -217,24 +217,12 @@ export default function RoadTripPlanner() {
                   radiusMiles={state.radiusMiles}
                   isLoading={state.isLoading}
                   cities={cities}
+                  error={state.error}
                   onOriginChange={(origin) => setState(prev => ({ ...prev, origin }))}
                   onDestinationChange={(destination) => setState(prev => ({ ...prev, destination }))}
                   onRadiusChange={(radiusMiles) => setState(prev => ({ ...prev, radiusMiles }))}
                   onSubmit={planRoute}
                 />
-              )}
-
-              {state.error && (
-                <div
-                  className="mt-6 p-4 flex items-start gap-3"
-                  style={{
-                    background: 'white',
-                    border: '2px solid var(--accent-primary)'
-                  }}
-                >
-                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--accent-primary)' }} />
-                  <p className="font-body" style={{ color: 'var(--text-primary)' }}>{state.error}</p>
-                </div>
               )}
             </div>
           </div>
@@ -243,24 +231,8 @@ export default function RoadTripPlanner() {
         <div className="roadtrip-hero-accent" />
       </section>
 
-      <main id="main-content" style={{ background: 'var(--bg-primary)' }} className="roadtrip-main">
-        {/* Attribution */}
-        <section className="py-4 border-t" style={{ borderColor: 'var(--border-light)' }}>
-          <div className="max-w-6xl mx-auto px-4">
-            <p className="font-mono text-[13px] tracking-wider text-center" style={{ color: 'var(--text-muted)' }}>
-              CITY DATA BY{' '}
-              <a
-                href="https://simplemaps.com/data/us-cities"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline transition-colors hover:text-[var(--accent-primary)]"
-              >
-                SIMPLEMAPS
-              </a>
-            </p>
-          </div>
-        </section>
-      </main>
+      <main id="main-content" style={{ background: 'var(--bg-primary)' }} className="roadtrip-main" />
+
     </>
   );
 }

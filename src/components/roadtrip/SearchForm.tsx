@@ -2,7 +2,7 @@
 
 import CityAutocomplete from './CityAutocomplete';
 import type { City } from '@/lib/cityMatcher';
-import { MapPin, Flag, ArrowUpDown, Search } from 'lucide-react';
+import { MapPin, Flag, ArrowUpDown, Search, AlertCircle } from 'lucide-react';
 
 interface SearchFormProps {
   origin: string;
@@ -10,6 +10,7 @@ interface SearchFormProps {
   radiusMiles: number;
   isLoading: boolean;
   cities: City[];
+  error?: string | null;
   onOriginChange: (value: string) => void;
   onDestinationChange: (value: string) => void;
   onRadiusChange: (value: number) => void;
@@ -22,6 +23,7 @@ export default function SearchForm({
   radiusMiles,
   isLoading,
   cities,
+  error,
   onOriginChange,
   onDestinationChange,
   onRadiusChange,
@@ -132,6 +134,26 @@ export default function SearchForm({
           </>
         )}
       </button>
+
+      {/* Attribution */}
+      <p className="hero-form-attribution">
+        City data by{' '}
+        <a
+          href="https://simplemaps.com/data/us-cities"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          SimpleMaps
+        </a>
+      </p>
+
+      {/* Error Message */}
+      {error && (
+        <div className="hero-error">
+          <AlertCircle className="hero-error-icon" />
+          <p className="hero-error-text">{error}</p>
+        </div>
+      )}
     </form>
   );
 }

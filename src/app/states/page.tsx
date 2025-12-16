@@ -1,8 +1,8 @@
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
+import { CategoryCard } from '@/components/ui/CategoryCard';
 import { db } from '@/lib/supabase';
-import Link from 'next/link';
 
 export const metadata = {
   title: 'Diners, Drive-ins and Dives Restaurants by State | Guy Fieri Locations',
@@ -166,30 +166,12 @@ export default async function StatesPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {usaStates.map((state) => (
-                  <Link
+                  <CategoryCard
                     key={state.abbreviation}
                     href={`/state/${state.slug}`}
-                    className="block p-6 rounded-lg border transition-all hover:shadow-md"
-                    style={{
-                      background: 'var(--bg-secondary)',
-                      borderColor: 'var(--border-light)'
-                    }}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-display text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                        {state.name}
-                      </h3>
-                      <span
-                        className="font-mono text-sm font-semibold px-2 py-1 rounded"
-                        style={{ background: 'var(--accent-primary)', color: 'white' }}
-                      >
-                        {state.abbreviation}
-                      </span>
-                    </div>
-                    <p className="font-ui text-sm" style={{ color: 'var(--text-muted)' }}>
-                      {state.count} {state.count === 1 ? 'restaurant' : 'restaurants'}
-                    </p>
-                  </Link>
+                    title={state.name}
+                    count={state.count}
+                  />
                 ))}
               </div>
             </section>
@@ -208,30 +190,12 @@ export default async function StatesPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {canadaStates.map((state) => (
-                  <Link
+                  <CategoryCard
                     key={state.abbreviation}
                     href={`/state/${state.slug}`}
-                    className="block p-6 rounded-lg border transition-all hover:shadow-md"
-                    style={{
-                      background: 'var(--bg-secondary)',
-                      borderColor: 'var(--border-light)'
-                    }}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-display text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                        {state.name}
-                      </h3>
-                      <span
-                        className="font-mono text-sm font-semibold px-2 py-1 rounded"
-                        style={{ background: 'var(--accent-primary)', color: 'white' }}
-                      >
-                        {state.abbreviation}
-                      </span>
-                    </div>
-                    <p className="font-ui text-sm" style={{ color: 'var(--text-muted)' }}>
-                      {state.count} {state.count === 1 ? 'restaurant' : 'restaurants'}
-                    </p>
-                  </Link>
+                    title={state.name}
+                    count={state.count}
+                  />
                 ))}
               </div>
             </section>
@@ -250,22 +214,12 @@ export default async function StatesPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {internationalStates.map((state) => (
-                  <Link
+                  <CategoryCard
                     key={state.abbreviation}
                     href={`/state/${state.slug}`}
-                    className="block p-6 rounded-lg border transition-all hover:shadow-md"
-                    style={{
-                      background: 'var(--bg-secondary)',
-                      borderColor: 'var(--border-light)'
-                    }}
-                  >
-                    <h3 className="font-display text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                      {state.name}
-                    </h3>
-                    <p className="font-ui text-sm" style={{ color: 'var(--text-muted)' }}>
-                      {state.count} {state.count === 1 ? 'restaurant' : 'restaurants'}
-                    </p>
-                  </Link>
+                    title={state.name}
+                    count={state.count}
+                  />
                 ))}
               </div>
             </section>

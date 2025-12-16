@@ -3,10 +3,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import CityAutocomplete from '@/components/roadtrip/CityAutocomplete';
+import SearchForm from '@/components/roadtrip/SearchForm';
 import type { City } from '@/lib/cityMatcher';
 import type { Episode } from '@/lib/supabase';
-import { Car, MapPin, Flag, ArrowUpDown, Sparkles, ChevronRight, Search, AlertCircle } from 'lucide-react';
+import { Car, Sparkles, ChevronRight } from 'lucide-react';
 
 const EPISODE_ROTATE_INTERVAL = 5000; // 5 seconds
 
@@ -56,8 +56,7 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
 
   const currentEpisode = episodesToShow[currentEpisodeIndex];
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(async () => {
     if (!origin || !destination) return;
 
     setIsLoading(true);
@@ -92,12 +91,6 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
       setIsLoading(false);
     }
   }, [origin, destination, radiusMiles, router]);
-
-  const swapLocations = () => {
-    const temp = origin;
-    setOrigin(destination);
-    setDestination(temp);
-  };
 
   return (
     <section className="hero-roadtrip">
@@ -165,107 +158,18 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
         </div>
 
         <div className="hero-roadtrip-right">
-          <form onSubmit={handleSubmit} className="hero-search-form">
-            <div className="hero-form-accent" />
-
-            <div className="hero-form-row hero-form-row-locations">
-              {/* Origin */}
-              <div className="hero-form-field">
-                <label className="hero-form-label">
-                  <MapPin className="hero-form-label-icon" />
-                  START
-                </label>
-                <CityAutocomplete
-                  value={origin}
-                  onChange={setOrigin}
-                  placeholder="San Francisco, CA"
-                  disabled={isLoading}
-                  cities={cities}
-                />
-              </div>
-
-              {/* Swap Button */}
-              <button
-                type="button"
-                onClick={swapLocations}
-                disabled={!origin || !destination}
-                className="hero-swap-button"
-                title="Swap locations"
-                aria-label="Swap origin and destination"
-              >
-                <ArrowUpDown strokeWidth={2.5} />
-              </button>
-
-              {/* Destination */}
-              <div className="hero-form-field">
-                <label className="hero-form-label">
-                  <Flag className="hero-form-label-icon" />
-                  END
-                </label>
-                <CityAutocomplete
-                  value={destination}
-                  onChange={setDestination}
-                  placeholder="Los Angeles, CA"
-                  disabled={isLoading}
-                  cities={cities}
-                />
-              </div>
-            </div>
-
-            {/* Radius Slider */}
-            <div className="hero-form-radius">
-              <div className="hero-radius-header">
-                <label htmlFor="radius" className="hero-form-label-small">
-                  SEARCH RADIUS
-                </label>
-                <span className="hero-radius-value">{radiusMiles} MILES</span>
-              </div>
-              <input
-                type="range"
-                id="radius"
-                min="0"
-                max="3"
-                step="1"
-                value={[10, 25, 50, 100].indexOf(radiusMiles)}
-                onChange={(e) => setRadiusMiles([10, 25, 50, 100][Number(e.target.value)])}
-                className="hero-radius-slider"
-                disabled={isLoading}
-              />
-              <div className="hero-radius-labels">
-                <span>10 mi</span>
-                <span>25</span>
-                <span>50</span>
-                <span>100 mi</span>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading || !origin || !destination}
-              className="hero-submit-button"
-            >
-              {isLoading ? (
-                <>
-                  <span className="hero-submit-spinner" />
-                  PLANNING ROUTE...
-                </>
-              ) : (
-                <>
-                  <Search className="hero-submit-icon" />
-                  FIND RESTAURANTS
-                </>
-              )}
-            </button>
-
-            {/* Error Message */}
-            {error && (
-              <div className="hero-error">
-                <AlertCircle className="hero-error-icon" />
-                <p className="hero-error-text">{error}</p>
-              </div>
-            )}
-          </form>
+          <SearchForm
+            origin={origin}
+            destination={destination}
+            radiusMiles={radiusMiles}
+            isLoading={isLoading}
+            cities={cities}
+            error={error}
+            onOriginChange={setOrigin}
+            onDestinationChange={setDestination}
+            onRadiusChange={setRadiusMiles}
+            onSubmit={handleSubmit}
+          />
         </div>
       </div>
     </section>
