@@ -11,8 +11,12 @@ export default function PrivacyPage() {
   return (
     <>
       <Header currentPage="about" />
-      <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-        <PageHero title="Privacy Policy" />
+      <div className="min-h-screen overflow-auto" style={{ background: 'var(--bg-primary)', paddingTop: '64px' }}>
+        <PageHero
+          title="Privacy Policy"
+          subtitle="How we handle your data"
+          breadcrumbItems={[{ label: 'Privacy Policy' }]}
+        />
 
         <main id="main-content" className="max-w-4xl mx-auto px-4 py-12">
           <div className="space-y-8">
