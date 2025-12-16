@@ -47,9 +47,12 @@ interface RestaurantRow {
 
 async function main() {
   const args = process.argv.slice(2);
-  const limit = args.includes('--limit')
-    ? parseInt(args[args.indexOf('--limit') + 1], 10)
-    : 10;
+  const noLimit = args.includes('--no-limit');
+  const limit = noLimit
+    ? 10000
+    : args.includes('--limit')
+      ? parseInt(args[args.indexOf('--limit') + 1], 10)
+      : 10;
   const dryRun = args.includes('--dry-run');
   const forceAll = args.includes('--all');
   const concurrency = args.includes('--concurrency')
@@ -59,7 +62,7 @@ async function main() {
   console.log('\n📝 DDD Long-Form Content Enrichment');
   console.log('━'.repeat(50));
   console.log(`Mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
-  console.log(`Limit: ${limit} restaurants`);
+  console.log(`Limit: ${noLimit ? 'ALL' : limit} restaurants`);
   console.log(`Concurrency: ${concurrency} parallel`);
   console.log(`Force All: ${forceAll ? 'YES (re-enrich all)' : 'NO (only unenriched)'}`);
   console.log('');
