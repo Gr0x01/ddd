@@ -13,12 +13,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Fetch all data in parallel
-    const [restaurants, states, cities, cuisines, routes] = await Promise.all([
+    const [restaurants, states, cities, cuisines, routes, seasons, priceTiers, dishes] = await Promise.all([
       db.getRestaurants(),
       db.getStates(),
       db.getCities(),
       db.getCuisines(),
       db.getAllRoutesWithSlugs(), // Get ALL routes with slugs for SEO
+      db.getSeasonsWithCounts(),
+      db.getPriceTiersWithCounts(),
+      db.getDishesWithCounts(false), // All dishes
     ]);
 
     // Create a map of state_name -> state_slug for building city URLs
@@ -71,6 +74,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly',
         priority: 0.8,
       },
+      // New SEO hub pages
+      {
+        url: `${baseUrl}/seasons`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/budget`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/dishes`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      },
     ];
 
     // Restaurant pages - highest priority for individual content
@@ -118,7 +140,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: route.is_curated ? 0.7 : 0.5, // Curated routes get higher priority
       }));
 
-    return [...staticPages, ...restaurantPages, ...statePages, ...cityPages, ...cuisinePages, ...routePages];
+    // Season pages
+    const seasonPages: MetadataRoute.Sitemap = seasons.map((season) => ({
+      url: `${baseUrl}/season/${season.season}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
+
+    // Budget/price tier pages
+    const budgetPages: MetadataRoute.Sitemap = priceTiers.map((tier) => ({
+      url: `${baseUrl}/budget/${tier.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    }));
+
+    // Dish pages - limit to dishes served at multiple restaurants or signature dishes
+    const dishPages: MetadataRoute.Sitemap = dishes
+      .filter(dish => dish.restaurantCount > 0) // Only dishes with restaurants
+      .slice(0, 500) // Limit to top 500 dishes by popularity
+      .map((dish) => ({
+        url: `${baseUrl}/dish/${dish.slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: dish.is_signature_dish ? 0.6 : 0.5,
+      }));
+
+    return [
+      ...staticPages,
+      ...restaurantPages,
+      ...statePages,
+      ...cityPages,
+      ...cuisinePages,
+      ...routePages,
+      ...seasonPages,
+      ...budgetPages,
+      ...dishPages,
+    ];
   } catch (error) {
     console.error('Error generating sitemap:', error);
     // Return minimal sitemap on error

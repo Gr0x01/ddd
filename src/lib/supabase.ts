@@ -781,6 +781,373 @@ export const db = {
   },
 
   // ============================================
+  // SEO HUB PAGE METHODS
+  // ============================================
+
+  // Price tier mapping for URL slugs
+  _priceTierMap: {
+    '$': { slug: 'budget', label: 'Budget-Friendly', description: 'Affordable eats under $15' },
+    '$$': { slug: 'moderate', label: 'Moderate', description: 'Mid-range dining $15-30' },
+    '$$$': { slug: 'upscale', label: 'Upscale', description: 'Higher-end options $30-60' },
+    '$$$$': { slug: 'fine-dining', label: 'Fine Dining', description: 'Premium dining $60+' },
+  } as const,
+
+  // Get price tiers with restaurant counts
+  async getPriceTiersWithCounts(): Promise<{
+    tier: string;
+    slug: string;
+    label: string;
+    description: string;
+    count: number;
+  }[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('restaurants')
+      .select('price_tier')
+      .eq('is_public', true)
+      .not('price_tier', 'is', null);
+
+    if (error) throw error;
+
+    // Aggregate counts
+    const counts: Record<string, number> = {};
+    const rows = (data || []) as Array<{ price_tier: string | null }>;
+    for (const row of rows) {
+      const tier = row.price_tier;
+      if (tier) {
+        counts[tier] = (counts[tier] || 0) + 1;
+      }
+    }
+
+    // Map to full objects with metadata
+    return Object.entries(this._priceTierMap).map(([tier, meta]) => ({
+      tier,
+      slug: meta.slug,
+      label: meta.label,
+      description: meta.description,
+      count: counts[tier] || 0,
+    }));
+  },
+
+  // Get restaurants by price tier (accepts either DB value or slug)
+  async getRestaurantsByPriceTier(tierOrSlug: string): Promise<RestaurantWithEpisodes[]> {
+    const client = getSupabaseClient();
+
+    // Convert slug to DB tier value if needed
+    let dbTier = tierOrSlug;
+    for (const [tier, meta] of Object.entries(this._priceTierMap)) {
+      if (meta.slug === tierOrSlug) {
+        dbTier = tier;
+        break;
+      }
+    }
+
+    const { data, error } = await client
+      .from('restaurants')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_episodes(
+          episode:episodes(*)
+        ),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        )
+      `)
+      .eq('is_public', true)
+      .eq('price_tier', dbTier)
+      .order('name');
+
+    if (error) throw error;
+    return transformRestaurants(data);
+  },
+
+  // Get price tier metadata by slug
+  getPriceTierBySlug(slug: string): { tier: string; label: string; description: string } | null {
+    for (const [tier, meta] of Object.entries(this._priceTierMap)) {
+      if (meta.slug === slug) {
+        return { tier, label: meta.label, description: meta.description };
+      }
+    }
+    return null;
+  },
+
+  // Get seasons with episode and restaurant counts
+  async getSeasonsWithCounts(): Promise<{
+    season: number;
+    episodeCount: number;
+    restaurantCount: number;
+    firstAirDate: string | null;
+    lastAirDate: string | null;
+  }[]> {
+    const client = getSupabaseClient();
+
+    // Get all episodes
+    const { data: episodes, error: epError } = await client
+      .from('episodes')
+      .select('season, air_date')
+      .order('season');
+
+    if (epError) throw epError;
+
+    // Get restaurant counts per season via restaurant_episodes junction
+    const { data: restaurantEpisodes, error: reError } = await client
+      .from('restaurant_episodes')
+      .select(`
+        episode:episodes!inner(season),
+        restaurant:restaurants!inner(id, is_public)
+      `);
+
+    if (reError) throw reError;
+
+    // Type assertions for partial selects
+    type EpisodeRow = { season: number; air_date: string | null };
+    type RestEpRow = { episode: { season: number } | null; restaurant: { id: string; is_public: boolean } | null };
+
+    // Aggregate episode counts and dates by season
+    const seasonData: Record<number, {
+      episodeCount: number;
+      airDates: string[];
+      restaurantIds: Set<string>;
+    }> = {};
+
+    const episodeRows = (episodes || []) as EpisodeRow[];
+    for (const ep of episodeRows) {
+      if (!seasonData[ep.season]) {
+        seasonData[ep.season] = { episodeCount: 0, airDates: [], restaurantIds: new Set() };
+      }
+      seasonData[ep.season].episodeCount++;
+      if (ep.air_date) {
+        seasonData[ep.season].airDates.push(ep.air_date);
+      }
+    }
+
+    // Count unique restaurants per season
+    const restEpRows = (restaurantEpisodes || []) as RestEpRow[];
+    for (const re of restEpRows) {
+      const ep = re.episode;
+      const rest = re.restaurant;
+      if (ep && rest && rest.is_public) {
+        if (seasonData[ep.season]) {
+          seasonData[ep.season].restaurantIds.add(rest.id);
+        }
+      }
+    }
+
+    return Object.entries(seasonData)
+      .map(([season, data]) => ({
+        season: parseInt(season),
+        episodeCount: data.episodeCount,
+        restaurantCount: data.restaurantIds.size,
+        firstAirDate: data.airDates.length > 0 ? data.airDates.sort()[0] : null,
+        lastAirDate: data.airDates.length > 0 ? data.airDates.sort().reverse()[0] : null,
+      }))
+      .sort((a, b) => b.season - a.season); // Newest first
+  },
+
+  // Get episodes by season
+  async getEpisodesBySeason(season: number): Promise<Episode[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('episodes')
+      .select('*')
+      .eq('season', season)
+      .order('episode_number');
+
+    if (error) throw error;
+    return data as Episode[];
+  },
+
+  // Get restaurants by season
+  async getRestaurantsBySeason(season: number): Promise<RestaurantWithEpisodes[]> {
+    const client = getSupabaseClient();
+
+    // First get episode IDs for this season
+    const { data: episodes, error: epError } = await client
+      .from('episodes')
+      .select('id')
+      .eq('season', season);
+
+    if (epError) throw epError;
+
+    const episodeRows = (episodes || []) as Array<{ id: string }>;
+    const episodeIds = episodeRows.map(e => e.id);
+    if (episodeIds.length === 0) return [];
+
+    // Get restaurants linked to these episodes
+    const { data, error } = await client
+      .from('restaurant_episodes')
+      .select(`
+        restaurant:restaurants!inner(
+          *,
+          first_episode:episodes!first_episode_id(*),
+          restaurant_episodes(
+            episode:episodes(*)
+          ),
+          restaurant_cuisines(
+            cuisine:cuisines(*)
+          )
+        )
+      `)
+      .in('episode_id', episodeIds);
+
+    if (error) throw error;
+
+    // Extract unique restaurants
+    type RestaurantRow = { restaurant: any };
+    const restaurantMap = new Map<string, any>();
+    const rows = (data || []) as RestaurantRow[];
+    for (const item of rows) {
+      const r = item.restaurant;
+      if (r && r.is_public && !restaurantMap.has(r.id)) {
+        restaurantMap.set(r.id, r);
+      }
+    }
+
+    return transformRestaurants(Array.from(restaurantMap.values()));
+  },
+
+  // Get dishes with restaurant counts
+  async getDishesWithCounts(signatureOnly: boolean = false): Promise<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    guy_reaction: string | null;
+    is_signature_dish: boolean;
+    restaurantCount: number;
+  }[]> {
+    const client = getSupabaseClient();
+
+    let query = client
+      .from('dishes')
+      .select(`
+        id,
+        name,
+        slug,
+        description,
+        guy_reaction,
+        is_signature_dish,
+        restaurant:restaurants!inner(id, is_public)
+      `);
+
+    if (signatureOnly) {
+      query = query.eq('is_signature_dish', true);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    // Type for partial select
+    type DishRow = {
+      id: string;
+      name: string;
+      slug: string;
+      description: string | null;
+      guy_reaction: string | null;
+      is_signature_dish: boolean;
+      restaurant: { id: string; is_public: boolean } | null;
+    };
+
+    // Group by dish name (dishes with same name across restaurants)
+    const dishMap = new Map<string, {
+      id: string;
+      name: string;
+      slug: string;
+      description: string | null;
+      guy_reaction: string | null;
+      is_signature_dish: boolean;
+      restaurantIds: Set<string>;
+    }>();
+
+    const dishRows = (data || []) as DishRow[];
+    for (const dish of dishRows) {
+      const rest = dish.restaurant;
+      if (!rest || !rest.is_public) continue;
+
+      const key = dish.slug;
+      if (!dishMap.has(key)) {
+        dishMap.set(key, {
+          id: dish.id,
+          name: dish.name,
+          slug: dish.slug,
+          description: dish.description,
+          guy_reaction: dish.guy_reaction,
+          is_signature_dish: dish.is_signature_dish,
+          restaurantIds: new Set(),
+        });
+      }
+      dishMap.get(key)!.restaurantIds.add(rest.id);
+    }
+
+    return Array.from(dishMap.values())
+      .map(d => ({
+        id: d.id,
+        name: d.name,
+        slug: d.slug,
+        description: d.description,
+        guy_reaction: d.guy_reaction,
+        is_signature_dish: d.is_signature_dish,
+        restaurantCount: d.restaurantIds.size,
+      }))
+      .sort((a, b) => b.restaurantCount - a.restaurantCount);
+  },
+
+  // Get dish by slug
+  async getDishBySlug(slug: string): Promise<Dish | null> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('dishes')
+      .select('*')
+      .eq('slug', slug)
+      .limit(1)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // Not found
+      throw error;
+    }
+    return data as Dish;
+  },
+
+  // Get restaurants that serve a specific dish (by slug)
+  async getRestaurantsByDish(dishSlug: string): Promise<RestaurantWithEpisodes[]> {
+    const client = getSupabaseClient();
+
+    const { data, error } = await client
+      .from('dishes')
+      .select(`
+        restaurant:restaurants!inner(
+          *,
+          first_episode:episodes!first_episode_id(*),
+          restaurant_episodes(
+            episode:episodes(*)
+          ),
+          restaurant_cuisines(
+            cuisine:cuisines(*)
+          )
+        )
+      `)
+      .eq('slug', dishSlug);
+
+    if (error) throw error;
+
+    // Extract unique restaurants
+    type DishRestRow = { restaurant: any };
+    const restaurantMap = new Map<string, any>();
+    const rows = (data || []) as DishRestRow[];
+    for (const item of rows) {
+      const r = item.restaurant;
+      if (r && r.is_public && !restaurantMap.has(r.id)) {
+        restaurantMap.set(r.id, r);
+      }
+    }
+
+    return transformRestaurants(Array.from(restaurantMap.values()));
+  },
+
+  // ============================================
   // ROAD TRIP PLANNER METHODS
   // ============================================
 
