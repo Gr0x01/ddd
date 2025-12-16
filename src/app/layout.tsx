@@ -45,6 +45,13 @@ export const metadata: Metadata = {
     title: "Diners, Drive-ins and Dives Locations | Guy Fieri",
     description: "Discover every restaurant featured on Guy Fieri's Diners, Drive-ins and Dives. Interactive map, photos, and detailed info.",
   },
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({

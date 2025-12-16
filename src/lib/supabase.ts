@@ -105,6 +105,14 @@ export interface Restaurant {
   dishes_featured: string[] | null;
   guy_quote: string | null;
 
+  // Long-form SEO content
+  about_story: string | null;
+  culinary_philosophy: string | null;
+  history_highlights: string | null;
+  why_visit: string | null;
+  city_context: string | null;
+  long_form_enriched_at: string | null;
+
   // Media
   photo_url: string | null;
   photos: string[] | null;

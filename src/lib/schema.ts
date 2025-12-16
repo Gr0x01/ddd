@@ -190,11 +190,16 @@ export function generateWebSiteSchema(): SchemaOrgWebSite {
  * Restaurant/LocalBusiness schema for individual restaurant pages
  */
 export function generateRestaurantSchema(restaurant: Restaurant): SchemaOrgRestaurant {
+  // Prefer long-form about_story for richer SEO, fallback to description
+  const description = restaurant.about_story
+    ? restaurant.about_story.substring(0, 500) // Schema.org description should be concise
+    : restaurant.description || `${restaurant.name} - Featured on Diners, Drive-ins and Dives`;
+
   const schema: SchemaOrgRestaurant = {
     '@context': 'https://schema.org',
     '@type': ['Restaurant', 'LocalBusiness'],
     name: restaurant.name,
-    description: restaurant.description || `${restaurant.name} - Featured on Diners, Drive-ins and Dives`,
+    description,
     url: `${SITE_URL}/restaurant/${restaurant.slug}`,
     address: {
       '@type': 'PostalAddress',
