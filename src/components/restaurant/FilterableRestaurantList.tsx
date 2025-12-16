@@ -4,18 +4,14 @@ import { useState, useCallback, useMemo, Suspense, ReactNode } from 'react';
 import { RestaurantFilters } from './RestaurantFilters';
 import { RestaurantCardCompact } from './RestaurantCardCompact';
 import type { RestaurantData } from '@/lib/hooks/useRestaurantFilters';
-
-interface City {
-  name: string;
-  state: string | null;
-  count: number;
-}
-
-interface StateOption {
-  name: string;
-  abbreviation: string;
-  count: number;
-}
+import {
+  type FilterCity,
+  type FilterState,
+  type FilterCountry,
+  EMPTY_FILTER_CITIES,
+  EMPTY_FILTER_STATES,
+  EMPTY_FILTER_COUNTRIES,
+} from '@/lib/utils';
 
 // Restaurant type compatible with what pages pass in
 interface RestaurantInput {
@@ -24,6 +20,7 @@ interface RestaurantInput {
   slug: string;
   city: string;
   state: string | null;
+  country?: string | null;
   status: 'open' | 'closed' | 'unknown';
   price_tier?: '$' | '$$' | '$$$' | '$$$$' | string | null;
   google_rating?: number | null;
@@ -35,8 +32,9 @@ interface RestaurantInput {
 
 interface FilterableRestaurantListProps {
   restaurants: RestaurantInput[];
-  cities?: City[];
-  states?: StateOption[];
+  cities?: FilterCity[];
+  states?: FilterState[];
+  countries?: FilterCountry[];
   hideLocationDropdown?: boolean;
   emptyMessage?: string;
   /** Custom render function for filtered results - receives filtered restaurants and original map */
@@ -55,6 +53,7 @@ function toRestaurantData(restaurant: RestaurantInput): RestaurantData {
     slug: restaurant.slug,
     city: restaurant.city,
     state: restaurant.state,
+    country: restaurant.country ?? null,
     status: restaurant.status,
     price_tier: (restaurant.price_tier as RestaurantData['price_tier']) || null,
     google_rating: restaurant.google_rating ?? null,
@@ -68,12 +67,18 @@ function toRestaurantData(restaurant: RestaurantInput): RestaurantData {
 
 export function FilterableRestaurantList({
   restaurants,
-  cities = [],
-  states = [],
+  cities: citiesProp,
+  states: statesProp,
+  countries: countriesProp,
   hideLocationDropdown = false,
   emptyMessage = 'No restaurants found matching your filters.',
   children,
 }: FilterableRestaurantListProps) {
+  // Use stable empty arrays when props are undefined
+  const cities = citiesProp ?? EMPTY_FILTER_CITIES;
+  const states = statesProp ?? EMPTY_FILTER_STATES;
+  const countries = countriesProp ?? EMPTY_FILTER_COUNTRIES;
+
   // Convert to RestaurantData for filtering
   const restaurantData = useMemo(() =>
     restaurants.map(toRestaurantData),
@@ -116,6 +121,7 @@ export function FilterableRestaurantList({
           totalRestaurants={restaurantData.length}
           cities={cities}
           states={states}
+          countries={countries}
           hideLocationDropdown={hideLocationDropdown}
           onFilteredRestaurantsChange={handleFilteredRestaurantsChange}
         />

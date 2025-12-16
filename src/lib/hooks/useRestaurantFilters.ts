@@ -2,12 +2,14 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
+import { normalizeCountry } from '@/lib/utils';
 
 export type PriceTier = '$' | '$$' | '$$$' | '$$$$';
 export type SortOption = 'name' | 'rating' | 'reviews';
 
 export interface RestaurantFilters {
   q: string;
+  country: string | null;
   city: string | null;
   state: string | null;
   price: PriceTier | null;
@@ -21,6 +23,7 @@ export interface RestaurantData {
   slug: string;
   city: string;
   state: string | null;
+  country: string | null;
   price_tier: PriceTier | null;
   cuisine_tags: string[] | null;
   status: 'open' | 'closed' | 'unknown';
@@ -49,6 +52,7 @@ export function useRestaurantFilters() {
     const priceParam = searchParams.get('price');
     return {
       q: searchParams.get('q') || '',
+      country: searchParams.get('country'),
       city: searchParams.get('city'),
       state: searchParams.get('state'),
       price: priceParam as PriceTier | null,
@@ -63,6 +67,9 @@ export function useRestaurantFilters() {
 
     if (merged.q) params.set('q', merged.q);
     else params.delete('q');
+
+    if (merged.country) params.set('country', merged.country);
+    else params.delete('country');
 
     if (merged.city) params.set('city', merged.city);
     else params.delete('city');
@@ -88,6 +95,7 @@ export function useRestaurantFilters() {
 
   const hasActiveFilters = useMemo(() => {
     return filters.q !== '' ||
+           filters.country !== null ||
            filters.city !== null ||
            filters.state !== null ||
            filters.price !== null ||
@@ -108,7 +116,7 @@ export interface StateOption {
 }
 
 export function filterRestaurants(
-  restaurants: RestaurantData[], 
+  restaurants: RestaurantData[],
   filters: RestaurantFilters,
   states?: StateOption[]
 ): RestaurantData[] {
@@ -116,11 +124,15 @@ export function filterRestaurants(
 
   if (filters.q) {
     const query = filters.q.toLowerCase();
-    result = result.filter(r => 
+    result = result.filter(r =>
       r.name.toLowerCase().includes(query) ||
       r.city.toLowerCase().includes(query) ||
       r.chef?.name.toLowerCase().includes(query)
     );
+  }
+
+  if (filters.country) {
+    result = result.filter(r => normalizeCountry(r.country) === filters.country);
   }
 
   if (filters.city) {
@@ -129,8 +141,8 @@ export function filterRestaurants(
 
   if (filters.state) {
     const stateMatch = states?.find(s => s.name === filters.state);
-    result = result.filter(r => 
-      r.state === filters.state || 
+    result = result.filter(r =>
+      r.state === filters.state ||
       (stateMatch && r.state === stateMatch.abbreviation)
     );
   }

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { cache } from 'react';
+import { normalizeCountry } from '@/lib/utils';
 
 // Supabase client configuration for frontend
 // IMPORTANT: Only uses anonymous key - never expose service role key to client
@@ -397,6 +398,30 @@ export const db = {
     return transformRestaurants(data);
   },
 
+  // Get restaurants by country (for countries without state/province data)
+  async getRestaurantsByCountry(country: string) {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('restaurants')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_episodes(
+          episode:episodes(*)
+        ),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        )
+      `)
+      .eq('is_public', true)
+      .eq('country', country)
+      .order('city')
+      .order('name');
+
+    if (error) throw error;
+    return transformRestaurants(data);
+  },
+
   // Search restaurants by name or city
   async searchRestaurants(query: string) {
     const client = getSupabaseClient();
@@ -548,6 +573,33 @@ export const db = {
 
     if (error) throw error;
     return data as State[];
+  },
+
+  // Get countries with restaurant counts (aggregated from restaurants table)
+  async getCountriesWithCounts(): Promise<{ country: string; count: number }[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('restaurants')
+      .select('country')
+      .eq('is_public', true)
+      .not('country', 'is', null);
+
+    if (error) throw error;
+
+    // Aggregate counts client-side
+    const counts: Record<string, number> = {};
+    const rows = (data || []) as Array<{ country: string | null }>;
+    for (const row of rows) {
+      const normalized = normalizeCountry(row.country);
+      if (normalized) {
+        counts[normalized] = (counts[normalized] || 0) + 1;
+      }
+    }
+
+    // Sort by count descending
+    return Object.entries(counts)
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count);
   },
 
   // Get recent episodes

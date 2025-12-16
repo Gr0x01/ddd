@@ -83,8 +83,14 @@ const STATE_INFO: Record<string, { name: string; country: 'USA' | 'Canada' | 'In
   'AB': { name: 'Alberta', country: 'Canada' },
   'BC': { name: 'British Columbia', country: 'Canada' },
   'ON': { name: 'Ontario', country: 'Canada' },
-  // International
-  'Sicily': { name: 'Sicily, Italy', country: 'International' },
+};
+
+// Countries without state/province data - we'll show these as country-level entries
+const COUNTRY_ONLY_LOCATIONS: Record<string, { name: string; country: 'International' }> = {
+  'Spain': { name: 'Spain', country: 'International' },
+  'United Kingdom': { name: 'United Kingdom', country: 'International' },
+  'India': { name: 'India', country: 'International' },
+  'Italy': { name: 'Italy', country: 'International' },
 };
 
 interface StateWithCount {
@@ -93,12 +99,15 @@ interface StateWithCount {
   slug: string;
   count: number;
   country: 'USA' | 'Canada' | 'International';
+  isCountryLevel?: boolean; // true for Spain, UK, India - uses /country/ URL
 }
 
 export default async function StatesPage() {
   // Use efficient aggregation query instead of fetching ALL restaurants
-  const stateCounts = await db.getRestaurantCountsByState();
-  const totalRestaurants = stateCounts.reduce((sum, s) => sum + s.count, 0);
+  const [stateCounts, countryCounts] = await Promise.all([
+    db.getRestaurantCountsByState(),
+    db.getCountriesWithCounts(),
+  ]);
 
   // Convert to lookup object
   const restaurantCountByState: Record<string, number> = {};
@@ -128,10 +137,26 @@ export default async function StatesPage() {
       country: STATE_INFO[abbr].country,
     }));
 
+  // Add countries that don't have state-level data (Spain, UK, India)
+  const countryOnlyEntries: StateWithCount[] = countryCounts
+    .filter(({ country }) => COUNTRY_ONLY_LOCATIONS[country])
+    .map(({ country, count }) => ({
+      abbreviation: country,
+      name: COUNTRY_ONLY_LOCATIONS[country].name,
+      slug: generateStateSlug(country),
+      count,
+      country: 'International' as const,
+      isCountryLevel: true, // Uses /country/ URL instead of /state/
+    }));
+
+  // Combine all entries
+  const allLocations = [...allStates, ...countryOnlyEntries];
+  const totalRestaurants = allLocations.reduce((sum, s) => sum + s.count, 0);
+
   // Group by country
-  const usaStates = allStates.filter(s => s.country === 'USA').sort((a, b) => a.name.localeCompare(b.name));
-  const canadaStates = allStates.filter(s => s.country === 'Canada').sort((a, b) => a.name.localeCompare(b.name));
-  const internationalStates = allStates.filter(s => s.country === 'International').sort((a, b) => a.name.localeCompare(b.name));
+  const usaStates = allLocations.filter(s => s.country === 'USA').sort((a, b) => a.name.localeCompare(b.name));
+  const canadaStates = allLocations.filter(s => s.country === 'Canada').sort((a, b) => a.name.localeCompare(b.name));
+  const internationalStates = allLocations.filter(s => s.country === 'International').sort((a, b) => a.name.localeCompare(b.name));
 
   const usaCount = usaStates.reduce((sum, s) => sum + s.count, 0);
   const canadaCount = canadaStates.reduce((sum, s) => sum + s.count, 0);
@@ -145,7 +170,7 @@ export default async function StatesPage() {
           title="Browse by State"
           subtitle="Diners, Drive-ins and Dives restaurants across the US, Canada, and beyond"
           stats={[
-            { value: allStates.length, label: 'LOCATIONS' },
+            { value: allLocations.length, label: 'LOCATIONS' },
             { value: totalRestaurants || 0, label: 'RESTAURANTS' }
           ]}
           breadcrumbItems={[{ label: 'States' }]}
@@ -216,7 +241,7 @@ export default async function StatesPage() {
                 {internationalStates.map((state) => (
                   <CategoryCard
                     key={state.abbreviation}
-                    href={`/state/${state.slug}`}
+                    href={state.isCountryLevel ? `/country/${state.slug}` : `/state/${state.slug}`}
                     title={state.name}
                     count={state.count}
                   />
@@ -225,7 +250,7 @@ export default async function StatesPage() {
             </section>
           )}
 
-          {allStates.length === 0 && (
+          {allLocations.length === 0 && (
             <div className="text-center py-12">
               <p className="font-ui text-lg" style={{ color: 'var(--text-muted)' }}>
                 No locations with restaurants found.

@@ -45,12 +45,14 @@ export default async function RestaurantsPage() {
   let restaurants: Restaurant[] = [];
   let states: Array<{ name: string; abbreviation: string; count: number }> = [];
   let cities: Array<{ name: string; state: string | null; count: number }> = [];
+  let countries: Array<{ country: string; count: number }> = [];
 
   try {
-    const [restaurantsData, statesData, citiesData] = await Promise.all([
+    const [restaurantsData, statesData, citiesData, countriesData] = await Promise.all([
       db.getRestaurants(),
       db.getStatesWithCounts(),
       db.getCitiesWithCounts(),
+      db.getCountriesWithCounts(),
     ]);
     restaurants = restaurantsData;
     states = statesData.map((s: { name: string; abbreviation: string; restaurant_count?: number }) => ({
@@ -63,6 +65,7 @@ export default async function RestaurantsPage() {
       state: c.state_name,
       count: c.restaurant_count ?? 0,
     }));
+    countries = countriesData;
   } catch (error) {
     console.error('Error fetching restaurants:', error);
   }
@@ -117,6 +120,7 @@ export default async function RestaurantsPage() {
           restaurants={restaurants}
           states={states}
           cities={cities}
+          countries={countries}
           emptyMessage="No restaurants found yet. Check back soon!"
         />
       </div>
