@@ -31,23 +31,10 @@ export default async function Image() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#1a1a1a',
-          fontFamily: 'system-ui, sans-serif',
+          backgroundColor: '#FFCB47',
+          position: 'relative',
         }}
       >
-        {/* Accent bar */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '8px',
-            backgroundColor: '#FFC72C',
-            display: 'flex',
-          }}
-        />
-
         {/* Content */}
         <div
           style={{
@@ -55,23 +42,20 @@ export default async function Image() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '60px',
+            padding: 60,
           }}
         >
           {/* Badge */}
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: '#FFC72C',
-              color: '#1a1a1a',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              letterSpacing: '2px',
-              marginBottom: '32px',
+              backgroundColor: '#1A1A1D',
+              color: '#FFCB47',
+              padding: '12px 28px',
+              fontSize: 18,
+              fontWeight: 800,
+              letterSpacing: 3,
+              marginBottom: 32,
             }}
           >
             COMPLETE DATABASE
@@ -81,11 +65,12 @@ export default async function Image() {
           <div
             style={{
               display: 'flex',
-              fontSize: '56px',
-              fontWeight: 'bold',
-              color: '#ffffff',
-              textAlign: 'center',
-              marginBottom: '16px',
+              fontSize: 72,
+              fontWeight: 900,
+              color: '#1A1A1D',
+              lineHeight: 1.05,
+              letterSpacing: -1,
+              marginBottom: 20,
             }}
           >
             All {stats.total.toLocaleString()} Restaurants
@@ -95,54 +80,85 @@ export default async function Image() {
           <div
             style={{
               display: 'flex',
-              fontSize: '32px',
-              color: '#FFC72C',
-              marginBottom: '48px',
+              fontSize: 28,
+              color: '#1A1A1D',
+              marginBottom: 48,
+              opacity: 0.75,
             }}
           >
             Diners, Drive-ins and Dives
           </div>
 
-          {/* Stats */}
+          {/* Stats in black box */}
           <div
             style={{
               display: 'flex',
-              gap: '48px',
+              backgroundColor: '#1A1A1D',
+              padding: '28px 56px',
+              gap: 64,
+              borderRadius: 8,
             }}
           >
+            {/* Stat 1 - Open */}
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                backgroundColor: 'rgba(255,199,44,0.1)',
-                padding: '24px 48px',
-                borderRadius: '12px',
-                border: '2px solid rgba(255,199,44,0.3)',
               }}
             >
-              <div style={{ display: 'flex', fontSize: '56px', fontWeight: 'bold', color: '#FFC72C' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 56,
+                  fontWeight: 900,
+                  color: '#10b981',
+                  lineHeight: 1,
+                }}
+              >
                 {stats.open.toLocaleString()}
               </div>
-              <div style={{ display: 'flex', fontSize: '18px', color: '#ffffff', opacity: 0.7, letterSpacing: '2px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 13,
+                  color: '#10b981',
+                  letterSpacing: 2,
+                  marginTop: 6,
+                }}
+              >
                 VERIFIED OPEN
               </div>
             </div>
+
+            {/* Stat 2 - Closed */}
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                backgroundColor: 'rgba(255,199,44,0.1)',
-                padding: '24px 48px',
-                borderRadius: '12px',
-                border: '2px solid rgba(255,199,44,0.3)',
               }}
             >
-              <div style={{ display: 'flex', fontSize: '56px', fontWeight: 'bold', color: '#FFC72C' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 56,
+                  fontWeight: 900,
+                  color: '#ffffff',
+                  lineHeight: 1,
+                }}
+              >
                 {(stats.total - stats.open).toLocaleString()}
               </div>
-              <div style={{ display: 'flex', fontSize: '18px', color: '#ffffff', opacity: 0.7, letterSpacing: '2px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 13,
+                  color: '#FFCB47',
+                  letterSpacing: 2,
+                  marginTop: 6,
+                }}
+              >
                 CLOSED
               </div>
             </div>

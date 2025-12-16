@@ -32,23 +32,10 @@ export default async function Image() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#FFC72C',
-          fontFamily: 'system-ui, sans-serif',
+          backgroundColor: '#FFCB47',
+          position: 'relative',
         }}
       >
-        {/* Background pattern */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(135deg, #FFC72C 0%, #FFB800 100%)',
-            display: 'flex',
-          }}
-        />
-
         {/* Content */}
         <div
           style={{
@@ -56,24 +43,20 @@ export default async function Image() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '60px',
-            position: 'relative',
+            padding: 60,
           }}
         >
           {/* Badge */}
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: '#1a1a1a',
-              color: '#FFC72C',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              letterSpacing: '2px',
-              marginBottom: '24px',
+              backgroundColor: '#1A1A1D',
+              color: '#FFCB47',
+              padding: '12px 28px',
+              fontSize: 18,
+              fontWeight: 800,
+              letterSpacing: 3,
+              marginBottom: 32,
             }}
           >
             TRIPLE D MAP
@@ -85,17 +68,17 @@ export default async function Image() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              marginBottom: '40px',
+              marginBottom: 20,
             }}
           >
             <div
               style={{
                 display: 'flex',
-                fontSize: '64px',
-                fontWeight: 'bold',
-                color: '#1a1a1a',
-                textAlign: 'center',
-                lineHeight: 1.1,
+                fontSize: 72,
+                fontWeight: 900,
+                color: '#1A1A1D',
+                lineHeight: 1.05,
+                letterSpacing: -1,
               }}
             >
               Diners, Drive-ins
@@ -103,11 +86,11 @@ export default async function Image() {
             <div
               style={{
                 display: 'flex',
-                fontSize: '64px',
-                fontWeight: 'bold',
-                color: '#1a1a1a',
-                textAlign: 'center',
-                lineHeight: 1.1,
+                fontSize: 72,
+                fontWeight: 900,
+                color: '#1A1A1D',
+                lineHeight: 1.05,
+                letterSpacing: -1,
               }}
             >
               and Dives
@@ -118,70 +101,117 @@ export default async function Image() {
           <div
             style={{
               display: 'flex',
-              fontSize: '28px',
-              color: '#1a1a1a',
-              marginBottom: '48px',
-              opacity: 0.8,
+              fontSize: 28,
+              color: '#1A1A1D',
+              marginBottom: 40,
+              opacity: 0.75,
             }}
           >
             Plan Your Guy Fieri Road Trip
           </div>
 
-          {/* Stats */}
+          {/* Stats in black box */}
           <div
             style={{
               display: 'flex',
-              gap: '48px',
+              backgroundColor: '#1A1A1D',
+              padding: '28px 48px',
+              gap: 56,
+              borderRadius: 8,
             }}
           >
+            {/* Stat 1 */}
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                backgroundColor: 'rgba(0,0,0,0.1)',
-                padding: '20px 40px',
-                borderRadius: '12px',
               }}
             >
-              <div style={{ display: 'flex', fontSize: '48px', fontWeight: 'bold', color: '#1a1a1a' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 52,
+                  fontWeight: 900,
+                  color: '#ffffff',
+                  lineHeight: 1,
+                }}
+              >
                 {stats.restaurants.toLocaleString()}
               </div>
-              <div style={{ display: 'flex', fontSize: '16px', color: '#1a1a1a', opacity: 0.7, letterSpacing: '2px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 13,
+                  color: '#FFCB47',
+                  letterSpacing: 2,
+                  marginTop: 6,
+                }}
+              >
                 RESTAURANTS
               </div>
             </div>
+
+            {/* Stat 2 */}
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                backgroundColor: 'rgba(0,0,0,0.1)',
-                padding: '20px 40px',
-                borderRadius: '12px',
               }}
             >
-              <div style={{ display: 'flex', fontSize: '48px', fontWeight: 'bold', color: '#1a1a1a' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 52,
+                  fontWeight: 900,
+                  color: '#10b981',
+                  lineHeight: 1,
+                }}
+              >
                 {stats.openRestaurants.toLocaleString()}
               </div>
-              <div style={{ display: 'flex', fontSize: '16px', color: '#1a1a1a', opacity: 0.7, letterSpacing: '2px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 13,
+                  color: '#10b981',
+                  letterSpacing: 2,
+                  marginTop: 6,
+                }}
+              >
                 STILL OPEN
               </div>
             </div>
+
+            {/* Stat 3 */}
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                backgroundColor: 'rgba(0,0,0,0.1)',
-                padding: '20px 40px',
-                borderRadius: '12px',
               }}
             >
-              <div style={{ display: 'flex', fontSize: '48px', fontWeight: 'bold', color: '#1a1a1a' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 52,
+                  fontWeight: 900,
+                  color: '#ffffff',
+                  lineHeight: 1,
+                }}
+              >
                 {stats.cities}+
               </div>
-              <div style={{ display: 'flex', fontSize: '16px', color: '#1a1a1a', opacity: 0.7, letterSpacing: '2px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  fontSize: 13,
+                  color: '#FFCB47',
+                  letterSpacing: 2,
+                  marginTop: 6,
+                }}
+              >
                 CITIES
               </div>
             </div>

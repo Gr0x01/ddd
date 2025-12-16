@@ -20,45 +20,10 @@ export default async function Image() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#FFC72C',
-          fontFamily: 'system-ui, sans-serif',
+          backgroundColor: '#FFCB47',
+          position: 'relative',
         }}
       >
-        {/* Road graphic */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '120px',
-            backgroundColor: '#333',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {/* Road markings */}
-          <div
-            style={{
-              display: 'flex',
-              gap: '40px',
-            }}
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div
-                key={i}
-                style={{
-                  width: '60px',
-                  height: '8px',
-                  backgroundColor: '#FFC72C',
-                  borderRadius: '4px',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
         {/* Content */}
         <div
           style={{
@@ -66,24 +31,20 @@ export default async function Image() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '60px',
-            marginBottom: '60px',
+            padding: 60,
           }}
         >
           {/* Badge */}
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: '#1a1a1a',
-              color: '#FFC72C',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              letterSpacing: '2px',
-              marginBottom: '32px',
+              backgroundColor: '#1A1A1D',
+              color: '#FFCB47',
+              padding: '12px 28px',
+              fontSize: 18,
+              fontWeight: 800,
+              letterSpacing: 3,
+              marginBottom: 32,
             }}
           >
             PLAN YOUR TRIP
@@ -93,11 +54,12 @@ export default async function Image() {
           <div
             style={{
               display: 'flex',
-              fontSize: '72px',
-              fontWeight: 'bold',
-              color: '#1a1a1a',
-              textAlign: 'center',
-              marginBottom: '16px',
+              fontSize: 80,
+              fontWeight: 900,
+              color: '#1A1A1D',
+              lineHeight: 1.05,
+              letterSpacing: -1,
+              marginBottom: 20,
             }}
           >
             Road Trip Planner
@@ -107,31 +69,53 @@ export default async function Image() {
           <div
             style={{
               display: 'flex',
-              fontSize: '32px',
-              color: '#1a1a1a',
-              opacity: 0.8,
-              marginBottom: '48px',
+              fontSize: 28,
+              color: '#1A1A1D',
+              marginBottom: 48,
+              opacity: 0.75,
             }}
           >
             Find Guy Fieri restaurants along your route
           </div>
 
-          {/* Route example */}
+          {/* Route example in black box */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '24px',
-              backgroundColor: 'rgba(0,0,0,0.1)',
-              padding: '20px 40px',
-              borderRadius: '12px',
+              backgroundColor: '#1A1A1D',
+              padding: '24px 48px',
+              gap: 32,
+              borderRadius: 8,
             }}
           >
-            <div style={{ display: 'flex', fontSize: '24px', fontWeight: 'bold', color: '#1a1a1a' }}>
+            <div
+              style={{
+                display: 'flex',
+                fontSize: 28,
+                fontWeight: 700,
+                color: '#ffffff',
+              }}
+            >
               Los Angeles
             </div>
-            <div style={{ display: 'flex', fontSize: '32px', color: '#1a1a1a' }}>→</div>
-            <div style={{ display: 'flex', fontSize: '24px', fontWeight: 'bold', color: '#1a1a1a' }}>
+            <div
+              style={{
+                display: 'flex',
+                fontSize: 32,
+                color: '#FFCB47',
+              }}
+            >
+              →
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                fontSize: 28,
+                fontWeight: 700,
+                color: '#ffffff',
+              }}
+            >
               Las Vegas
             </div>
           </div>

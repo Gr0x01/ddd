@@ -30,23 +30,10 @@ export default async function Image() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#1a1a1a',
-          fontFamily: 'system-ui, sans-serif',
+          backgroundColor: '#FFCB47',
+          position: 'relative',
         }}
       >
-        {/* Green accent bar */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '8px',
-            backgroundColor: '#22c55e',
-            display: 'flex',
-          }}
-        />
-
         {/* Content */}
         <div
           style={{
@@ -54,50 +41,48 @@ export default async function Image() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '60px',
+            padding: 60,
           }}
         >
           {/* Badge */}
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: '#22c55e',
+              backgroundColor: '#10b981',
               color: '#ffffff',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              letterSpacing: '2px',
-              marginBottom: '32px',
+              padding: '12px 28px',
+              fontSize: 18,
+              fontWeight: 800,
+              letterSpacing: 3,
+              marginBottom: 32,
             }}
           >
             VERIFIED OPEN
+          </div>
+
+          {/* Big number */}
+          <div
+            style={{
+              display: 'flex',
+              fontSize: 120,
+              fontWeight: 900,
+              color: '#1A1A1D',
+              lineHeight: 1,
+              marginBottom: 8,
+            }}
+          >
+            {openCount.toLocaleString()}
           </div>
 
           {/* Title */}
           <div
             style={{
               display: 'flex',
-              fontSize: '72px',
-              fontWeight: 'bold',
-              color: '#22c55e',
-              textAlign: 'center',
-              marginBottom: '16px',
-            }}
-          >
-            {openCount.toLocaleString()}
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              fontSize: '48px',
-              fontWeight: 'bold',
-              color: '#ffffff',
-              textAlign: 'center',
-              marginBottom: '16px',
+              fontSize: 48,
+              fontWeight: 900,
+              color: '#1A1A1D',
+              lineHeight: 1.1,
+              marginBottom: 20,
             }}
           >
             Restaurants Still Open
@@ -107,43 +92,49 @@ export default async function Image() {
           <div
             style={{
               display: 'flex',
-              fontSize: '28px',
-              color: '#FFC72C',
-              marginBottom: '48px',
+              fontSize: 28,
+              color: '#1A1A1D',
+              marginBottom: 48,
+              opacity: 0.75,
             }}
           >
             Diners, Drive-ins and Dives
           </div>
 
-          {/* Trust signal */}
+          {/* Trust signal in black box */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              backgroundColor: 'rgba(34,197,94,0.1)',
-              padding: '16px 32px',
-              borderRadius: '12px',
-              border: '2px solid rgba(34,197,94,0.3)',
+              backgroundColor: '#1A1A1D',
+              padding: '20px 36px',
+              gap: 16,
+              borderRadius: 8,
             }}
           >
             <div
               style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                backgroundColor: '#22c55e',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                width: 28,
+                height: 28,
+                backgroundColor: '#10b981',
+                borderRadius: 14,
                 color: '#ffffff',
-                fontSize: '16px',
-                fontWeight: 'bold',
+                fontSize: 18,
+                fontWeight: 700,
               }}
             >
               ✓
             </div>
-            <div style={{ display: 'flex', fontSize: '20px', color: '#ffffff' }}>
+            <div
+              style={{
+                display: 'flex',
+                fontSize: 20,
+                color: '#ffffff',
+              }}
+            >
               Status verified regularly
             </div>
           </div>
