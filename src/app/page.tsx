@@ -1,9 +1,6 @@
 import { Metadata } from 'next';
 import { db } from '@/lib/supabase';
 import HomePage from './HomePage';
-import fs from 'fs/promises';
-import path from 'path';
-import type { City } from '@/lib/cityMatcher';
 
 export const revalidate = 3600;
 
@@ -32,24 +29,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-// Load cities data from JSON file
-async function loadCities(): Promise<City[]> {
-  try {
-    const citiesPath = path.join(process.cwd(), 'public', 'data', 'us-cities.min.json');
-    const citiesData = await fs.readFile(citiesPath, 'utf-8');
-    return JSON.parse(citiesData);
-  } catch (error) {
-    console.error('Failed to load cities data:', error);
-    return [];
-  }
-}
-
 export default async function Page() {
-  const [stats, featuredRestaurants, recentEpisodes, cities, curatedRoutes] = await Promise.all([
+  const [stats, featuredRestaurants, recentEpisodes, curatedRoutes] = await Promise.all([
     db.getStats(),
     db.getFeaturedRestaurants(20),
     db.getRecentEpisodes(10),
-    loadCities(),
     db.getCuratedRoutesWithCounts(),
   ]);
 
@@ -61,7 +45,6 @@ export default async function Page() {
       iconicRestaurants={iconicRestaurants}
       stats={stats}
       recentEpisodes={recentEpisodes}
-      cities={cities}
       curatedRoutes={curatedRoutes}
     />
   );

@@ -1,7 +1,6 @@
 'use client';
 
 import type { RestaurantWithEpisodes, Episode, RouteWithRestaurantCount } from '@/lib/supabase';
-import type { City } from '@/lib/cityMatcher';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import HeroRoadTrip from '@/components/home/HeroRoadTrip';
@@ -14,7 +13,6 @@ interface HomePageProps {
   iconicRestaurants: RestaurantWithEpisodes[];
   stats: { restaurants: number; openRestaurants: number; episodes: number; cities: number };
   recentEpisodes: Episode[];
-  cities: City[];
   curatedRoutes: RouteWithRestaurantCount[];
 }
 
@@ -22,7 +20,6 @@ export default function HomePage({
   iconicRestaurants,
   stats,
   recentEpisodes,
-  cities,
   curatedRoutes
 }: HomePageProps) {
   const verifiedOpen = stats.openRestaurants;
@@ -33,7 +30,6 @@ export default function HomePage({
 
       {/* NEW HERO - Road Trip Planner */}
       <HeroRoadTrip
-        cities={cities}
         totalRestaurants={stats.restaurants}
         verifiedOpen={verifiedOpen}
         recentEpisodes={recentEpisodes}

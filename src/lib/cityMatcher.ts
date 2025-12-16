@@ -139,7 +139,7 @@ export function formatCity(city: City): string {
  * Helps with inputs like "NYC" → "New York City"
  */
 const cityAbbreviations: Record<string, string> = {
-  // Major metros
+  // Major US metros
   'NYC': 'New York, NY',
   'LA': 'Los Angeles, CA',
   'SF': 'San Francisco, CA',
@@ -163,6 +163,17 @@ const cityAbbreviations: Record<string, string> = {
   'HOU': 'Houston, TX',
   'SA': 'San Antonio, TX',
   'ATX': 'Austin, TX',
+
+  // Canadian cities (airport codes)
+  'YYZ': 'Toronto, ON',
+  'YVR': 'Vancouver, BC',
+  'YUL': 'Montreal, QC',
+  'YYC': 'Calgary, AB',
+  'YEG': 'Edmonton, AB',
+  'YOW': 'Ottawa, ON',
+  'YWG': 'Winnipeg, MB',
+  'YHZ': 'Halifax, NS',
+  'YQB': 'Quebec City, QC',
 };
 
 /**

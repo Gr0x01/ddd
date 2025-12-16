@@ -38,22 +38,27 @@ export default function RoadTripPlanner() {
     error: null,
   });
 
-  // Load cities data on mount with abort controller
+  // Load cities data on mount with abort controller (US + Canada)
   useEffect(() => {
     const controller = new AbortController();
 
     async function loadCities() {
       try {
-        const response = await fetch('/data/us-cities.min.json', {
-          signal: controller.signal
-        });
+        const [usResponse, caResponse] = await Promise.all([
+          fetch('/data/us-cities.min.json', { signal: controller.signal }),
+          fetch('/data/ca-cities.min.json', { signal: controller.signal }).catch(() => null),
+        ]);
 
-        if (!response.ok) {
-          throw new Error(`Failed to load cities: ${response.statusText}`);
+        if (!usResponse.ok) {
+          throw new Error(`Failed to load cities: ${usResponse.statusText}`);
         }
 
-        const data = await response.json();
-        setCities(data);
+        const usCities: City[] = await usResponse.json();
+        const caCities: City[] = caResponse?.ok ? await caResponse.json() : [];
+
+        // Merge and sort by population
+        const allCities = [...usCities, ...caCities].sort((a, b) => b.population - a.population);
+        setCities(allCities);
         setCitiesError(null);
       } catch (error) {
         // Ignore abort errors

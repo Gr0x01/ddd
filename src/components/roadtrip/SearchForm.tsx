@@ -145,6 +145,7 @@ export default function SearchForm({
         >
           SimpleMaps
         </a>
+        {' '}(US & Canada)
       </p>
 
       {/* Error Message */}

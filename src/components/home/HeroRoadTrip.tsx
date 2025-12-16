@@ -20,13 +20,12 @@ interface RoadTripAPIResponse {
 }
 
 interface HeroRoadTripProps {
-  cities: City[];
   totalRestaurants: number;
   verifiedOpen: number;
   recentEpisodes?: Episode[];
 }
 
-export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, recentEpisodes = [] }: HeroRoadTripProps) {
+export default function HeroRoadTrip({ totalRestaurants, verifiedOpen, recentEpisodes = [] }: HeroRoadTripProps) {
   const router = useRouter();
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
@@ -36,8 +35,46 @@ export default function HeroRoadTrip({ cities, totalRestaurants, verifiedOpen, r
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  // Lazy load cities (US + Canada)
+  const [cities, setCities] = useState<City[]>([]);
+  const [citiesLoaded, setCitiesLoaded] = useState(false);
+
   // Get the 3 most recent episodes
   const episodesToShow = recentEpisodes.slice(0, 3);
+
+  // Lazy load cities on mount
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadCities() {
+      try {
+        const [usResponse, caResponse] = await Promise.all([
+          fetch('/data/us-cities.min.json', { signal: controller.signal }),
+          fetch('/data/ca-cities.min.json', { signal: controller.signal }).catch(() => null),
+        ]);
+
+        if (!usResponse.ok) return;
+
+        const usCities: City[] = await usResponse.json();
+        const caCities: City[] = caResponse?.ok ? await caResponse.json() : [];
+
+        // Merge and sort by population
+        const allCities = [...usCities, ...caCities].sort((a, b) => b.population - a.population);
+        setCities(allCities);
+      } catch (err) {
+        // Silently fail - cities will just be empty
+        if (err instanceof Error && err.name !== 'AbortError') {
+          console.error('Failed to load cities:', err);
+        }
+      } finally {
+        setCitiesLoaded(true);
+      }
+    }
+
+    loadCities();
+
+    return () => controller.abort();
+  }, []);
 
   // Auto-rotate episodes
   useEffect(() => {
