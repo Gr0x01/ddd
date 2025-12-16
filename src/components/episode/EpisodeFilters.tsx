@@ -224,7 +224,7 @@ export function EpisodeFilters({ episodes, seasons }: EpisodeFiltersProps) {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {episodesBySeason[season].map(episode => {
-                    const isNew = isRecentEpisode(episode.air_date, 6);
+                    const isNew = isRecentEpisode(episode.air_date, 1);
 
                     return (
                       <Link
