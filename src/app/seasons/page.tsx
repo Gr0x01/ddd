@@ -4,7 +4,7 @@ import { db } from '@/lib/supabase';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
-import { Tv, UtensilsCrossed, Calendar } from 'lucide-react';
+import { Tv, UtensilsCrossed } from 'lucide-react';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -60,7 +60,7 @@ export default async function SeasonsPage() {
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {seasons.map((season) => {
               const yearRange = season.firstAirDate
                 ? season.firstAirDate === season.lastAirDate || !season.lastAirDate
@@ -72,46 +72,33 @@ export default async function SeasonsPage() {
                 <Link
                   key={season.season}
                   href={`/season/${season.season}`}
-                  className="p-6 rounded-lg block hover:shadow-lg transition-all group"
-                  style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
+                  className="p-6 rounded-lg border block hover:shadow-lg transition-shadow"
+                  aria-label={`View Season ${season.season}`}
+                  style={{
+                    background: 'var(--bg-secondary)',
+                    borderColor: 'var(--border-light)'
+                  }}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div
-                      className="w-16 h-16 rounded-lg flex items-center justify-center font-display text-2xl font-black"
-                      style={{ background: 'var(--ddd-red)', color: 'white' }}
+                  <div className="flex items-start justify-between mb-3">
+                    <span
+                      className="font-mono text-sm font-semibold px-2 py-1 rounded"
+                      style={{ background: 'var(--accent-primary)', color: 'white' }}
                     >
-                      {season.season}
-                    </div>
+                      Season {season.season}
+                    </span>
                     {yearRange && (
-                      <span
-                        className="font-mono text-xs flex items-center gap-1"
-                        style={{ color: 'var(--text-muted)' }}
-                      >
-                        <Calendar className="w-3 h-3" />
+                      <span className="font-mono text-sm" style={{ color: 'var(--text-muted)' }}>
                         {yearRange}
                       </span>
                     )}
                   </div>
 
-                  <h3
-                    className="font-display text-xl font-bold mb-3 group-hover:underline"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    Season {season.season}
-                  </h3>
-
-                  <div className="flex items-center gap-4">
-                    <span
-                      className="font-mono text-sm flex items-center gap-1.5"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
+                  <div className="flex items-center gap-4 font-mono text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="flex items-center gap-1.5">
                       <Tv className="w-4 h-4" style={{ color: 'var(--ddd-yellow)' }} />
                       {season.episodeCount} episodes
                     </span>
-                    <span
-                      className="font-mono text-sm flex items-center gap-1.5"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
+                    <span className="flex items-center gap-1.5">
                       <UtensilsCrossed className="w-4 h-4" style={{ color: 'var(--ddd-yellow)' }} />
                       {season.restaurantCount} restaurants
                     </span>
