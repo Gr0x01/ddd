@@ -7451,29 +7451,18 @@ h3.route-journey-group-label {
   }
 }
 
-@media (max-width: 880px) {
+@media (max-width: 768px) {
   .restaurant-content-container {
     grid-template-columns: 1fr;
   }
 
+  /* Hide entire sidebar - info duplicates hero */
   .restaurant-sidebar {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    order: -1;
-    margin-bottom: 32px;
-  }
-
-  .restaurant-sidebar-map {
     display: none;
   }
 
   .restaurant-back-to-top {
     display: flex;
-  }
-
-  .restaurant-dishes-grid-inline {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -7526,6 +7515,12 @@ h3.route-journey-group-label {
 
   .restaurant-dish-name-inline {
     font-size: 18px;
+  }
+}
+
+@media (max-width: 425px) {
+  .restaurant-dishes-grid-inline {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -292,8 +292,8 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
 
                 {/* Sidebar - Desktop Only */}
                 <aside className="restaurant-sidebar">
-                  {/* Quick Info Card */}
-                  <div className="restaurant-sidebar-card">
+                  {/* Quick Info Card - Hidden on mobile (duplicates hero info) */}
+                  <div className="restaurant-sidebar-card restaurant-sidebar-quick-info">
                     <h3 className="restaurant-sidebar-card-title">Quick Info</h3>
 
                     {restaurant.address && (
