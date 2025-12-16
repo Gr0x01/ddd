@@ -141,10 +141,10 @@ export default async function Image() {
                 borderRadius: '12px',
               }}
             >
-              <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#1a1a1a' }}>
+              <div style={{ display: 'flex', fontSize: '48px', fontWeight: 'bold', color: '#1a1a1a' }}>
                 {stats.restaurants.toLocaleString()}
               </div>
-              <div style={{ fontSize: '16px', color: '#1a1a1a', opacity: 0.7, letterSpacing: '2px' }}>
+              <div style={{ display: 'flex', fontSize: '16px', color: '#1a1a1a', opacity: 0.7, letterSpacing: '2px' }}>
                 RESTAURANTS
               </div>
             </div>
@@ -158,10 +158,10 @@ export default async function Image() {
                 borderRadius: '12px',
               }}
             >
-              <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#1a1a1a' }}>
+              <div style={{ display: 'flex', fontSize: '48px', fontWeight: 'bold', color: '#1a1a1a' }}>
                 {stats.openRestaurants.toLocaleString()}
               </div>
-              <div style={{ fontSize: '16px', color: '#1a1a1a', opacity: 0.7, letterSpacing: '2px' }}>
+              <div style={{ display: 'flex', fontSize: '16px', color: '#1a1a1a', opacity: 0.7, letterSpacing: '2px' }}>
                 STILL OPEN
               </div>
             </div>
@@ -175,10 +175,10 @@ export default async function Image() {
                 borderRadius: '12px',
               }}
             >
-              <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#1a1a1a' }}>
+              <div style={{ display: 'flex', fontSize: '48px', fontWeight: 'bold', color: '#1a1a1a' }}>
                 {stats.cities}+
               </div>
-              <div style={{ fontSize: '16px', color: '#1a1a1a', opacity: 0.7, letterSpacing: '2px' }}>
+              <div style={{ display: 'flex', fontSize: '16px', color: '#1a1a1a', opacity: 0.7, letterSpacing: '2px' }}>
                 CITIES
               </div>
             </div>

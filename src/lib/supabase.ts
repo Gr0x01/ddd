@@ -468,9 +468,10 @@ export const db = {
       `)
       .eq('slug', slug)
       .eq('is_public', true)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
+    if (!data) return null;
     const transformed = transformRestaurants([data]);
     return transformed[0];
   },
@@ -570,10 +571,10 @@ export const db = {
       .select('*')
       .eq('state_name', state)
       .eq('slug', city)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
-    return data as City;
+    return data as City | null;
   },
 
   // Get state by slug
@@ -583,10 +584,11 @@ export const db = {
       .from('states')
       .select('*')
       .eq('slug', slug)
-      .single();
+      .maybeSingle();
 
+    // maybeSingle returns null for 0 rows (no error), but throws for other errors
     if (error) throw error;
-    return data as State;
+    return data as State | null;
   },
 
   // Get cities by state
@@ -665,10 +667,10 @@ export const db = {
       .from('cuisines')
       .select('*')
       .eq('slug', slug)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
-    return data as Cuisine;
+    return data as Cuisine | null;
   },
 
   // Get restaurants by cuisine

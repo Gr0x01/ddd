@@ -20,6 +20,12 @@ export async function generateMetadata({ params }: CuisinePageProps): Promise<Me
   try {
     // Use cached functions - deduplicated with page component
     const cuisine = await getCachedCuisine(slug);
+    if (!cuisine) {
+      return {
+        title: 'Cuisine Not Found | Diners, Drive-ins and Dives',
+      };
+    }
+
     const restaurants = await getCachedRestaurantsByCuisine(slug);
     const openCount = restaurants.filter(r => r.status === 'open').length;
 
@@ -70,6 +76,11 @@ export default async function CuisinePage({ params }: CuisinePageProps) {
       db.getCitiesWithCounts(),
       db.getCuisinesWithCounts(),
     ]);
+
+    if (!cuisineData) {
+      notFound();
+    }
+
     cuisine = cuisineData;
     restaurants = restaurantsData;
     states = statesData.map((s: { name: string; abbreviation: string; restaurant_count?: number }) => ({
