@@ -90,6 +90,7 @@ export default async function Image() {
           >
             <div
               style={{
+                display: 'flex',
                 fontSize: '64px',
                 fontWeight: 'bold',
                 color: '#1a1a1a',
@@ -101,6 +102,7 @@ export default async function Image() {
             </div>
             <div
               style={{
+                display: 'flex',
                 fontSize: '64px',
                 fontWeight: 'bold',
                 color: '#1a1a1a',
@@ -115,6 +117,7 @@ export default async function Image() {
           {/* Subtitle */}
           <div
             style={{
+              display: 'flex',
               fontSize: '28px',
               color: '#1a1a1a',
               marginBottom: '48px',

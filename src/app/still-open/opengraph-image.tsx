@@ -79,6 +79,7 @@ export default async function Image() {
           {/* Title */}
           <div
             style={{
+              display: 'flex',
               fontSize: '72px',
               fontWeight: 'bold',
               color: '#22c55e',
@@ -91,6 +92,7 @@ export default async function Image() {
 
           <div
             style={{
+              display: 'flex',
               fontSize: '48px',
               fontWeight: 'bold',
               color: '#ffffff',
@@ -104,6 +106,7 @@ export default async function Image() {
           {/* Subtitle */}
           <div
             style={{
+              display: 'flex',
               fontSize: '28px',
               color: '#FFC72C',
               marginBottom: '48px',
@@ -140,7 +143,7 @@ export default async function Image() {
             >
               ✓
             </div>
-            <div style={{ fontSize: '20px', color: '#ffffff' }}>
+            <div style={{ display: 'flex', fontSize: '20px', color: '#ffffff' }}>
               Status verified regularly
             </div>
           </div>

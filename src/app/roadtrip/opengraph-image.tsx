@@ -92,6 +92,7 @@ export default async function Image() {
           {/* Title */}
           <div
             style={{
+              display: 'flex',
               fontSize: '72px',
               fontWeight: 'bold',
               color: '#1a1a1a',
@@ -105,6 +106,7 @@ export default async function Image() {
           {/* Subtitle */}
           <div
             style={{
+              display: 'flex',
               fontSize: '32px',
               color: '#1a1a1a',
               opacity: 0.8,
@@ -125,11 +127,11 @@ export default async function Image() {
               borderRadius: '12px',
             }}
           >
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a1a1a' }}>
+            <div style={{ display: 'flex', fontSize: '24px', fontWeight: 'bold', color: '#1a1a1a' }}>
               Los Angeles
             </div>
-            <div style={{ fontSize: '32px', color: '#1a1a1a' }}>→</div>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a1a1a' }}>
+            <div style={{ display: 'flex', fontSize: '32px', color: '#1a1a1a' }}>→</div>
+            <div style={{ display: 'flex', fontSize: '24px', fontWeight: 'bold', color: '#1a1a1a' }}>
               Las Vegas
             </div>
           </div>

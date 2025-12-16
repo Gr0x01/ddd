@@ -80,6 +80,7 @@ export default async function Image() {
           {/* Title */}
           <div
             style={{
+              display: 'flex',
               fontSize: '56px',
               fontWeight: 'bold',
               color: '#ffffff',
@@ -93,6 +94,7 @@ export default async function Image() {
           {/* Subtitle */}
           <div
             style={{
+              display: 'flex',
               fontSize: '32px',
               color: '#FFC72C',
               marginBottom: '48px',
@@ -119,10 +121,10 @@ export default async function Image() {
                 border: '2px solid rgba(255,199,44,0.3)',
               }}
             >
-              <div style={{ fontSize: '56px', fontWeight: 'bold', color: '#FFC72C' }}>
+              <div style={{ display: 'flex', fontSize: '56px', fontWeight: 'bold', color: '#FFC72C' }}>
                 {stats.open.toLocaleString()}
               </div>
-              <div style={{ fontSize: '18px', color: '#ffffff', opacity: 0.7, letterSpacing: '2px' }}>
+              <div style={{ display: 'flex', fontSize: '18px', color: '#ffffff', opacity: 0.7, letterSpacing: '2px' }}>
                 VERIFIED OPEN
               </div>
             </div>
@@ -137,10 +139,10 @@ export default async function Image() {
                 border: '2px solid rgba(255,199,44,0.3)',
               }}
             >
-              <div style={{ fontSize: '56px', fontWeight: 'bold', color: '#FFC72C' }}>
+              <div style={{ display: 'flex', fontSize: '56px', fontWeight: 'bold', color: '#FFC72C' }}>
                 {(stats.total - stats.open).toLocaleString()}
               </div>
-              <div style={{ fontSize: '18px', color: '#ffffff', opacity: 0.7, letterSpacing: '2px' }}>
+              <div style={{ display: 'flex', fontSize: '18px', color: '#ffffff', opacity: 0.7, letterSpacing: '2px' }}>
                 CLOSED
               </div>
             </div>
