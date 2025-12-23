@@ -1,5 +1,5 @@
 ---
-Last-Updated: 2025-12-16
+Last-Updated: 2025-12-23
 Maintainer: RB
 Status: Phase 4 - Live & Indexing
 ---
@@ -19,16 +19,18 @@ Status: Phase 4 - Live & Indexing
 | 2 | Enrichment System | ✅ Complete | Dec 14 |
 | 3 | Polish & SEO | ✅ Complete | Dec 14-15 |
 | 4 | Launch & Features | ✅ Deployed | Dec 15-16 |
+| 5 | SEO Optimization | ✅ Complete | Dec 23 |
 
-## Current Status (as of Dec 16, 2025)
+## Current Status (as of Dec 23, 2025)
 
-**Production Deployed**: Live and being indexed by Google
+**Production Deployed**: Live with IndexNow instant indexing
 
 **Data Complete**:
 - 1,541 restaurants (100% enriched)
 - 1,151 verified open / 390 closed / 0 unknown
 - 572 episodes imported
 - 8 curated routes
+- 2,550 dishes categorized (15 categories)
 
 **Features Complete**:
 - Homepage with road trip hero
@@ -37,10 +39,39 @@ Status: Phase 4 - Live & Indexing
 - City autocomplete (free, 1,444 cities)
 - Route caching (80-90% cost savings)
 - Full SEO infrastructure
+- Dish category pages with internal linking
+- IndexNow for Bing/Yandex/Naver
 
 ---
 
 ## Detailed Work Log
+
+### December 23, 2025 - Dish SEO Improvements
+
+**Dish Categorization System:**
+- ✅ Added `category` column to dishes table (migration 020)
+- ✅ Categorized 2,550 dishes via gpt-4o-mini ($0.085 total)
+- ✅ 15 categories: BBQ, Seafood, Burgers, Mexican, Italian, Asian, Breakfast, Comfort Food, Sandwiches, Pizza, Steaks, Southern, Cajun, Desserts, Other
+- ✅ Created centralized `src/lib/constants/dish-categories.ts`
+
+**Category Landing Pages:**
+- ✅ `/dishes/[category]` - Category pages with dish grids
+- ✅ "Browse by Category" section on `/dishes` index
+- ✅ Category pages added to sitemap
+
+**Internal Linking Fixes:**
+- ✅ Made dishes clickable on restaurant pages
+- ✅ Added "Featured Dishes" section to episode pages
+- ✅ Added "By Dish" card to homepage explore section
+- ✅ Fixed browse grid layout for 5 cards (3+2 rows with flexbox)
+
+**IndexNow Setup:**
+- ✅ Generated API key and verification file
+- ✅ Created `/api/indexnow` route (GET for sitemap, POST for specific URLs)
+- ✅ Submitted 2,943 URLs to Bing/Yandex/Naver/Seznam/Yep
+
+**Commits:**
+- `30e5146` - feat: Add dish categories, IndexNow, and SEO improvements
 
 ### December 16, 2025 - Homepage Redesign Complete
 
@@ -140,9 +171,10 @@ Status: Phase 4 - Live & Indexing
 - `/api/roadtrip` - Route planning with caching
 - `/api/restaurants` - Restaurant search
 - `/api/restaurants/map-pins` - Lightweight map data
+- `/api/indexnow` - IndexNow submission (GET: sitemap, POST: specific URLs)
 
 ### Scripts
-- Enrichment: enrich-restaurants.ts, verify-status.ts, enrich-episodes.ts
+- Enrichment: enrich-restaurants.ts, verify-status.ts, enrich-episodes.ts, categorize-dishes.ts
 - Data: populate-curated-routes.ts, geocode-restaurants.ts
 - Utilities: check-enrichment.ts, verify-import.ts
 
@@ -152,6 +184,7 @@ Status: Phase 4 - Live & Indexing
 
 **Enrichment (one-time):**
 - LLM enrichment: ~$6.78 for 1,541 restaurants
+- Dish categorization: $0.085 for 2,550 dishes
 - Tavily search: Included in above
 - Google Places: Minimal (status verification)
 
@@ -160,6 +193,7 @@ Status: Phase 4 - Live & Indexing
 - MapLibre GL: $0 (open source)
 - Supabase: Free tier
 - Vercel: Free tier
+- IndexNow: $0 (free protocol)
 
 ---
 
