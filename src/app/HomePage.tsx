@@ -7,11 +7,11 @@ import HeroRoadTrip from '@/components/home/HeroRoadTrip';
 import PopularRoutes from '@/components/home/PopularRoutes';
 import IconicSpots from '@/components/home/IconicSpots';
 import Link from 'next/link';
-import { MapPin, Tv, CheckCircle, Car, ArrowRight } from 'lucide-react';
+import { MapPin, Tv, CheckCircle, Car, UtensilsCrossed, ArrowRight } from 'lucide-react';
 
 interface HomePageProps {
   iconicRestaurants: RestaurantWithEpisodes[];
-  stats: { restaurants: number; openRestaurants: number; episodes: number; cities: number };
+  stats: { restaurants: number; openRestaurants: number; episodes: number; cities: number; dishes: number };
   recentEpisodes: Episode[];
   curatedRoutes: RouteWithRestaurantCount[];
 }
@@ -98,6 +98,19 @@ export default function HomePage({
               <div className="browse-card-content">
                 <h3 className="browse-card-title">Road Trip</h3>
                 <p className="browse-card-stat">{stats.cities} cities</p>
+              </div>
+              <div className="browse-card-arrow">
+                <ArrowRight strokeWidth={3} />
+              </div>
+            </Link>
+
+            <Link href="/dishes" className="browse-card browse-card-dishes">
+              <div className="browse-card-icon">
+                <UtensilsCrossed />
+              </div>
+              <div className="browse-card-content">
+                <h3 className="browse-card-title">By Dish</h3>
+                <p className="browse-card-stat">{stats.dishes} dishes</p>
               </div>
               <div className="browse-card-arrow">
                 <ArrowRight strokeWidth={3} />

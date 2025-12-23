@@ -7,6 +7,7 @@ import { Footer } from '@/components/ui/Footer';
 import { PageHero } from '@/components/ui/PageHero';
 import { RestaurantCardCompact } from '@/components/restaurant/RestaurantCardCompact';
 import { generateBreadcrumbSchema, generateEpisodeSchema, safeStringifySchema } from '@/lib/schema';
+import { Star, UtensilsCrossed } from 'lucide-react';
 
 interface EpisodePageProps {
   params: Promise<{ slug: string }>;
@@ -69,11 +70,15 @@ export default async function EpisodePage({ params }: EpisodePageProps) {
     notFound();
   }
 
-  // Fetch restaurants for this episode
+  // Fetch restaurants and dishes for this episode in parallel
   let restaurants: Restaurant[] = [];
+  let dishes: Awaited<ReturnType<typeof db.getDishesByEpisode>> = [];
 
   try {
-    restaurants = await db.getRestaurantsByEpisode(episode.id);
+    [restaurants, dishes] = await Promise.all([
+      db.getRestaurantsByEpisode(episode.id),
+      db.getDishesByEpisode(episode.id),
+    ]);
   } catch (error) {
     console.error('Failed to load episode data:', error);
   }
@@ -139,6 +144,47 @@ export default async function EpisodePage({ params }: EpisodePageProps) {
             >
               {episode.description}
             </p>
+          </section>
+        )}
+
+        {/* Featured Dishes */}
+        {dishes.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 py-12">
+            <div className="flex items-center gap-3 mb-6">
+              <UtensilsCrossed size={28} style={{ color: 'var(--accent-primary)' }} />
+              <h2 className="font-display text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                Featured Dishes ({dishes.length})
+              </h2>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {dishes.map((dish) => (
+                <Link
+                  key={dish.id}
+                  href={`/dish/${dish.slug}`}
+                  className="group p-5 rounded-lg transition-all hover:shadow-lg"
+                  style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)' }}
+                >
+                  {dish.is_signature_dish && (
+                    <div className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-bold mb-2"
+                      style={{ background: 'var(--accent-primary)', color: 'var(--bg-primary)' }}>
+                      <Star size={12} fill="currentColor" />
+                      SIGNATURE
+                    </div>
+                  )}
+                  <h3 className="font-display text-lg font-bold mb-1 group-hover:underline" style={{ color: 'var(--text-primary)' }}>
+                    {dish.name}
+                  </h3>
+                  <p className="font-ui text-sm mb-2" style={{ color: 'var(--text-muted)' }}>
+                    at {dish.restaurant_name}
+                  </p>
+                  {dish.guy_reaction && (
+                    <p className="font-ui text-sm italic line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+                      &ldquo;{dish.guy_reaction}&rdquo;
+                    </p>
+                  )}
+                </Link>
+              ))}
+            </div>
           </section>
         )}
 

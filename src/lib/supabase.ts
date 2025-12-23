@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { cache } from 'react';
 import { normalizeCountry } from '@/lib/utils';
+import { slugToCategory } from '@/lib/constants/dish-categories';
 
 // Supabase client configuration for frontend
 // IMPORTANT: Only uses anonymous key - never expose service role key to client
@@ -149,6 +150,7 @@ export interface Dish {
   description: string | null;
   guy_reaction: string | null;
   is_signature_dish: boolean;
+  category: string | null;
   created_at: string;
 }
 
@@ -475,6 +477,43 @@ export const db = {
     return transformRestaurants(restaurants);
   },
 
+  // Get dishes featured in an episode
+  async getDishesByEpisode(episodeId: string): Promise<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    guy_reaction: string | null;
+    is_signature_dish: boolean;
+    restaurant_name: string;
+    restaurant_slug: string;
+  }[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('dishes')
+      .select(`
+        id, name, slug, description, guy_reaction, is_signature_dish,
+        restaurant:restaurants!inner(name, slug, is_public)
+      `)
+      .eq('episode_id', episodeId);
+
+    if (error) throw error;
+
+    // Filter to only public restaurants and transform
+    return (data || [])
+      .filter((d: any) => d.restaurant?.is_public)
+      .map((d: any) => ({
+        id: d.id,
+        name: d.name,
+        slug: d.slug,
+        description: d.description,
+        guy_reaction: d.guy_reaction,
+        is_signature_dish: d.is_signature_dish,
+        restaurant_name: d.restaurant?.name || '',
+        restaurant_slug: d.restaurant?.slug || '',
+      }));
+  },
+
   // Get restaurant by slug
   async getRestaurant(slug: string) {
     const client = getSupabaseClient();
@@ -504,18 +543,20 @@ export const db = {
   // Get stats for homepage
   async getStats() {
     const client = getSupabaseClient();
-    const [restaurantsResult, openResult, episodesResult, citiesResult] = await Promise.all([
+    const [restaurantsResult, openResult, episodesResult, citiesResult, dishesResult] = await Promise.all([
       client.from('restaurants').select('id', { count: 'exact', head: true }).eq('is_public', true),
       client.from('restaurants').select('id', { count: 'exact', head: true }).eq('is_public', true).eq('status', 'open'),
       client.from('episodes').select('id', { count: 'exact', head: true }),
-      client.from('cities').select('id', { count: 'exact', head: true })
+      client.from('cities').select('id', { count: 'exact', head: true }),
+      client.from('dishes').select('slug', { count: 'exact', head: true })
     ]);
 
     return {
       restaurants: restaurantsResult.count || 0,
       openRestaurants: openResult.count || 0,
       episodes: episodesResult.count || 0,
-      cities: citiesResult.count || 0
+      cities: citiesResult.count || 0,
+      dishes: dishesResult.count || 0
     };
   },
 
@@ -1219,6 +1260,126 @@ export const db = {
     }
 
     return transformRestaurants(Array.from(restaurantMap.values()));
+  },
+
+  // ============================================
+  // DISH CATEGORY METHODS
+  // ============================================
+
+  // Get all dish categories with counts
+  async getDishCategoriesWithCounts(): Promise<{
+    category: string;
+    slug: string;
+    count: number;
+  }[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('dishes')
+      .select('category, restaurant:restaurants!inner(id, is_public)')
+      .not('category', 'is', null);
+
+    if (error) throw error;
+
+    // Aggregate counts per category
+    const counts: Record<string, number> = {};
+
+    type CategoryRow = { category: string | null; restaurant: { id: string; is_public: boolean } | null };
+    for (const d of (data || []) as CategoryRow[]) {
+      if (!d.category || !d.restaurant?.is_public) continue;
+      // Use combination of category to count unique category occurrences
+      const key = `${d.category}`;
+      if (!counts[key]) counts[key] = 0;
+      counts[key]++;
+    }
+
+    return Object.entries(counts)
+      .map(([category, count]) => ({
+        category,
+        slug: category.toLowerCase().replace(/\s+/g, '-'),
+        count,
+      }))
+      .sort((a, b) => b.count - a.count);
+  },
+
+  // Get dishes by category
+  async getDishesByCategory(categorySlug: string): Promise<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    guy_reaction: string | null;
+    is_signature_dish: boolean;
+    restaurantCount: number;
+  }[]> {
+    // Convert slug to category name using centralized mapping
+    const categoryName = slugToCategory(categorySlug) || categorySlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('dishes')
+      .select(`
+        id, name, slug, description, guy_reaction, is_signature_dish,
+        restaurant:restaurants!inner(id, is_public)
+      `)
+      .eq('category', categoryName);
+
+    if (error) throw error;
+
+    // Group by dish slug and count restaurants
+    type DishCatRow = {
+      id: string;
+      name: string;
+      slug: string;
+      description: string | null;
+      guy_reaction: string | null;
+      is_signature_dish: boolean;
+      restaurant: { id: string; is_public: boolean } | null;
+    };
+
+    const dishMap = new Map<string, {
+      id: string;
+      name: string;
+      slug: string;
+      description: string | null;
+      guy_reaction: string | null;
+      is_signature_dish: boolean;
+      restaurantIds: Set<string>;
+    }>();
+
+    for (const d of (data || []) as DishCatRow[]) {
+      if (!d.restaurant?.is_public) continue;
+      const key = d.slug;
+      if (!dishMap.has(key)) {
+        dishMap.set(key, {
+          id: d.id,
+          name: d.name,
+          slug: d.slug,
+          description: d.description,
+          guy_reaction: d.guy_reaction,
+          is_signature_dish: d.is_signature_dish,
+          restaurantIds: new Set(),
+        });
+      }
+      dishMap.get(key)!.restaurantIds.add(d.restaurant.id);
+    }
+
+    return Array.from(dishMap.values())
+      .map(d => ({
+        id: d.id,
+        name: d.name,
+        slug: d.slug,
+        description: d.description,
+        guy_reaction: d.guy_reaction,
+        is_signature_dish: d.is_signature_dish,
+        restaurantCount: d.restaurantIds.size,
+      }))
+      .sort((a, b) => b.restaurantCount - a.restaurantCount);
+  },
+
+  // Get category info by slug (for metadata)
+  async getDishCategoryBySlug(slug: string): Promise<{ category: string; slug: string; count: number } | null> {
+    const categories = await this.getDishCategoriesWithCounts();
+    return categories.find(c => c.slug === slug) || null;
   },
 
   // ============================================

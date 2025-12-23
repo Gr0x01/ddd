@@ -27,7 +27,10 @@ export const metadata: Metadata = {
 };
 
 export default async function DishesPage() {
-  const dishes = await db.getDishesWithCounts(false);
+  const [dishes, categories] = await Promise.all([
+    db.getDishesWithCounts(false),
+    db.getDishCategoriesWithCounts(),
+  ]);
 
   // Get signature dishes
   const signatureDishes = dishes.filter(d => d.is_signature_dish);
@@ -49,10 +52,39 @@ export default async function DishesPage() {
         <main id="main-content" className="max-w-6xl mx-auto px-4 py-12">
           <div className="mb-8">
             <p className="font-ui text-lg" style={{ color: 'var(--text-secondary)' }}>
-              From Guy's Fieri's legendary reactions to signature plates that put restaurants on the map.
+              From Guy Fieri&apos;s legendary reactions to signature plates that put restaurants on the map.
               Discover what to order at your next Triple D destination.
             </p>
           </div>
+
+          {/* Browse by Category */}
+          {categories.length > 0 && (
+            <section className="mb-12">
+              <h2
+                className="font-display text-2xl font-bold mb-6"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Browse by Category
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {categories.map((cat) => (
+                  <Link
+                    key={cat.slug}
+                    href={`/dishes/${cat.slug}`}
+                    className="p-4 rounded-lg text-center transition-all hover:scale-105 hover:shadow-md"
+                    style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
+                  >
+                    <span className="font-ui font-semibold block mb-1" style={{ color: 'var(--text-primary)' }}>
+                      {cat.category}
+                    </span>
+                    <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+                      {cat.count} dishes
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Signature Dishes Section */}
           {signatureDishes.length > 0 && (

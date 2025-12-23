@@ -200,8 +200,9 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                       </p>
                       <div className="restaurant-dishes-grid-inline">
                         {restaurant.dishes!.map((dish, index) => (
-                          <div
+                          <Link
                             key={dish.id}
+                            href={`/dish/${dish.slug}`}
                             className={`restaurant-dish-card-inline ${dish.is_signature_dish ? 'signature' : ''}`}
                             style={{ animationDelay: `${index * 50}ms` }}
                           >
@@ -220,7 +221,7 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                                 &ldquo;{dish.guy_reaction}&rdquo;
                               </p>
                             )}
-                          </div>
+                          </Link>
                         ))}
                       </div>
                     </section>
@@ -457,8 +458,9 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
 
                     <div className="restaurant-dishes-grid">
                       {restaurant.dishes!.map((dish, index) => (
-                        <div
+                        <Link
                           key={dish.id}
+                          href={`/dish/${dish.slug}`}
                           className={`restaurant-dish-card ${dish.is_signature_dish ? 'signature' : ''}`}
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
@@ -479,7 +481,7 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                               &ldquo;{dish.guy_reaction}&rdquo;
                             </p>
                           )}
-                        </div>
+                        </Link>
                       ))}
                     </div>
                   </div>

@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Fetch all data in parallel - using lightweight queries where possible
-    const [restaurantSlugs, states, cities, cuisines, routes, seasons, priceTiers, dishes] = await Promise.all([
+    const [restaurantSlugs, states, cities, cuisines, routes, seasons, priceTiers, dishes, dishCategories] = await Promise.all([
       db.getRestaurantSlugs(), // Lightweight: only slug + updated_at (no joins)
       db.getStates(),
       db.getCities(),
@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       db.getSeasonsWithCounts(),
       db.getPriceTiersWithCounts(),
       db.getDishesWithCounts(false), // All dishes
+      db.getDishCategoriesWithCounts(), // Dish categories for category pages
     ]);
 
     // Create a map of state_name -> state_slug for building city URLs
@@ -167,6 +168,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: dish.is_signature_dish ? 0.6 : 0.5,
       }));
 
+    // Dish category pages (BBQ, Seafood, Burgers, etc.)
+    const dishCategoryPages: MetadataRoute.Sitemap = dishCategories
+      .filter(cat => cat.count > 0) // Only categories with dishes
+      .map((cat) => ({
+        url: `${baseUrl}/dishes/${cat.slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      }));
+
     return [
       ...staticPages,
       ...restaurantPages,
@@ -177,6 +188,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...seasonPages,
       ...budgetPages,
       ...dishPages,
+      ...dishCategoryPages,
     ];
   } catch (error) {
     console.error('Error generating sitemap:', error);

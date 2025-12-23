@@ -7954,9 +7954,16 @@ h3.route-journey-group-label {
 }
 
 .browse-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
+  justify-content: center;
+}
+
+.browse-grid .browse-card {
+  flex: 1 1 calc(33.333% - 14px);
+  min-width: 280px;
+  max-width: 400px;
 }
 
 /* Browse Card - Highway Sign Style */
@@ -8075,8 +8082,9 @@ h3.route-journey-group-label {
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .browse-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .browse-grid .browse-card {
+    flex: 1 1 calc(50% - 10px);
+    max-width: none;
   }
 }
 
@@ -8090,8 +8098,12 @@ h3.route-journey-group-label {
   }
 
   .browse-grid {
-    grid-template-columns: 1fr;
     gap: 16px;
+  }
+
+  .browse-grid .browse-card {
+    flex: 1 1 100%;
+    max-width: none;
   }
 
   .browse-card {
