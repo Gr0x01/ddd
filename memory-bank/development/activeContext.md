@@ -6,7 +6,7 @@ maintainer: Claude
 status: Active
 ---
 
-> **Latest**: SEO Phase 3 complete - Content optimization for city, state, and homepage.
+> **Latest**: SEO Phase 4 complete - Internal linking for restaurant, city, and cuisine pages.
 
 # Active Development Context
 
@@ -50,6 +50,12 @@ status: Active
 ---
 
 ## Recently Completed
+
+### SEO Phase 4: Internal Linking (Dec 25)
+- **Restaurant page "Also in {City}"**: New section showing up to 4 other open restaurants in the same city
+- **Restaurant page status link**: Footer text linking to `/still-open` or `/closed` based on restaurant status
+- **Cuisine page "Top Cities"**: New section showing top 8 cities for each cuisine type with restaurant counts
+- **DB function added**: `getTopRestaurantsByCity()` for efficient same-city restaurant queries
 
 ### SEO Phase 3: Content Optimization (Dec 25)
 - **City page intro paragraphs**: Dynamic SEO text targeting "[City] diners" queries with restaurant counts and top cuisines
@@ -172,10 +178,11 @@ npm run geocode                # Geocode restaurants
 1. ~~**SEO Phase 1** - Implement meta tag optimizations (homepage, city, state pages)~~ ✅ Done
 2. ~~**SEO Phase 2** - Add Restaurant schema, FAQ schema to homepage, breadcrumb schema~~ ✅ Done
 3. ~~**SEO Phase 3** - Content optimization (city/state intro text, homepage sections)~~ ✅ Done
-4. **Monitor indexing** - Track Google Search Console + DataForSEO results
-5. **Run Playwright tests** - Verify all pages work correctly
-6. **Performance optimization** - Lighthouse audits
-7. **SEO Phase 4** - Internal linking improvements (optional)
+4. ~~**SEO Phase 4** - Internal linking improvements~~ ✅ Done
+5. **Monitor indexing** - Track Google Search Console + DataForSEO results
+6. **Run Playwright tests** - Verify all pages work correctly
+7. **Performance optimization** - Lighthouse audits
+8. **SEO Phase 5** - New landing pages (optional: /guy-fieri-restaurants, /near-me)
 
 ---
 

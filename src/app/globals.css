@@ -6374,6 +6374,23 @@ h3.route-journey-group-label {
   letter-spacing: 0.05em;
 }
 
+/* Also in City Section */
+.restaurant-city-section {
+  background: var(--bg-secondary);
+  padding: 60px 24px;
+  position: relative;
+}
+
+.restaurant-city-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--border-light);
+}
+
 /* More in State Section */
 .restaurant-more-section {
   background: var(--warm-cream);
@@ -6967,6 +6984,11 @@ h3.route-journey-group-label {
     aspect-ratio: 4/3;
     border-width: 3px;
     box-shadow: 6px 6px 0 var(--asphalt-dark);
+  }
+
+  /* Also in City Section */
+  .restaurant-city-section {
+    padding: 40px 16px;
   }
 
   /* More in State Section */

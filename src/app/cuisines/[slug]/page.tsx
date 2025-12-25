@@ -66,15 +66,17 @@ export default async function CuisinePage({ params }: CuisinePageProps) {
   let states: Array<{ name: string; abbreviation: string; count: number }> = [];
   let cities: Array<{ name: string; state: string | null; count: number }> = [];
   let relatedCuisines: Array<{ id: string; name: string; slug: string; restaurantCount: number }> = [];
+  let topCitiesForCuisine: Array<{ city: string; state: string; citySlug: string; stateSlug: string; count: number }> = [];
 
   try {
     // Use cached functions - same calls as metadata, deduplicated by React cache
-    const [cuisineData, restaurantsData, statesData, citiesData, allCuisines] = await Promise.all([
+    const [cuisineData, restaurantsData, statesData, citiesData, allCuisines, topCities] = await Promise.all([
       getCachedCuisine(slug),
       getCachedRestaurantsByCuisine(slug),
       db.getStatesWithCounts(),
       db.getCitiesWithCounts(),
       db.getCuisinesWithCounts(),
+      db.getTopCitiesForCuisine(slug, 8),
     ]);
 
     if (!cuisineData) {
@@ -83,6 +85,7 @@ export default async function CuisinePage({ params }: CuisinePageProps) {
 
     cuisine = cuisineData;
     restaurants = restaurantsData;
+    topCitiesForCuisine = topCities;
     states = statesData.map((s: { name: string; abbreviation: string; restaurant_count?: number }) => ({
       name: s.name,
       abbreviation: s.abbreviation,
@@ -153,6 +156,27 @@ export default async function CuisinePage({ params }: CuisinePageProps) {
               <p className="font-ui text-lg" style={{ color: 'var(--text-secondary)' }}>
                 {cuisine.description}
               </p>
+            </div>
+          </section>
+        )}
+
+        {/* Top Cities for this Cuisine - Internal Linking */}
+        {topCitiesForCuisine.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 py-8">
+            <h2 className="font-display text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              Top Cities for {cuisine.name}
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {topCitiesForCuisine.map((c) => (
+                <Link
+                  key={`${c.city}-${c.state}`}
+                  href={`/city/${c.stateSlug}/${c.citySlug}`}
+                  className="px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105"
+                  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', boxShadow: 'var(--shadow-sm)' }}
+                >
+                  {c.city}, {c.state} <span style={{ color: 'var(--text-muted)' }}>({c.count})</span>
+                </Link>
+              ))}
             </div>
           </section>
         )}

@@ -670,6 +670,113 @@ export const db = {
     return data as City | null;
   },
 
+  // Get top cities for a cuisine (aggregates in DB, much more efficient than client-side)
+  async getTopCitiesForCuisine(
+    cuisineSlug: string,
+    limit: number = 8
+  ): Promise<Array<{ city: string; state: string; citySlug: string; stateSlug: string; count: number }>> {
+    const client = getSupabaseClient();
+
+    // Get restaurants with this cuisine that are open and public
+    const { data, error } = await client
+      .from('restaurant_cuisines')
+      .select(`
+        restaurant:restaurants!inner(city, state, status, is_public),
+        cuisine:cuisines!inner(slug)
+      `)
+      .eq('cuisine.slug', cuisineSlug)
+      .eq('restaurant.status', 'open')
+      .eq('restaurant.is_public', true);
+
+    if (error) throw error;
+    if (!data) return [];
+
+    // Type the response data
+    type RowData = { restaurant: { city: string; state: string } | null };
+
+    // Aggregate by city+state
+    const counts = new Map<string, { city: string; state: string; count: number }>();
+    for (const row of data as RowData[]) {
+      const r = row.restaurant;
+      if (r?.city && r?.state) {
+        const key = `${r.city}-${r.state}`;
+        const existing = counts.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          counts.set(key, { city: r.city, state: r.state, count: 1 });
+        }
+      }
+    }
+
+    // Sort by count and take top N
+    const sorted = Array.from(counts.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+
+    // Look up canonical slugs for cities and states
+    const stateAbbrevs = [...new Set(sorted.map(c => c.state))];
+    const { data: statesData } = await client
+      .from('states')
+      .select('abbreviation, name, slug')
+      .in('abbreviation', stateAbbrevs);
+
+    type StateRow = { abbreviation: string; name: string; slug: string };
+    const stateMap = new Map<string, { name: string; slug: string }>();
+    for (const s of (statesData || []) as StateRow[]) {
+      stateMap.set(s.abbreviation, { name: s.name, slug: s.slug });
+    }
+
+    // Get city slugs
+    const { data: citiesData } = await client
+      .from('cities')
+      .select('name, slug, state_name');
+
+    type CityRow = { name: string; slug: string; state_name: string };
+    const cityMap = new Map<string, string>();
+    for (const c of (citiesData || []) as CityRow[]) {
+      cityMap.set(`${c.name}-${c.state_name}`, c.slug);
+    }
+
+    // Build result with canonical slugs
+    return sorted.map(c => {
+      const stateInfo = stateMap.get(c.state);
+      const citySlug = stateInfo ? cityMap.get(`${c.city}-${stateInfo.name}`) : null;
+      return {
+        city: c.city,
+        state: c.state,
+        citySlug: citySlug || c.city.toLowerCase().replace(/\s+/g, '-'),
+        stateSlug: stateInfo?.slug || c.state.toLowerCase(),
+        count: c.count,
+      };
+    }).filter(c => c.citySlug); // Only include cities we found in DB
+  },
+
+  // Get city by name and state abbreviation (for restaurant pages)
+  async getCityByName(cityName: string, stateAbbreviation: string): Promise<(City & { stateSlug: string }) | null> {
+    const client = getSupabaseClient();
+
+    // First get state name from abbreviation
+    const { data: stateData } = await client
+      .from('states')
+      .select('name, slug')
+      .eq('abbreviation', stateAbbreviation)
+      .maybeSingle();
+
+    if (!stateData) return null;
+    const { name: stateName, slug: stateSlug } = stateData as { name: string; slug: string };
+
+    const { data, error } = await client
+      .from('cities')
+      .select('*')
+      .eq('state_name', stateName)
+      .eq('name', cityName)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data ? { ...(data as City), stateSlug } : null;
+  },
+
   // Get state by slug
   async getState(slug: string) {
     const client = getSupabaseClient();
@@ -804,6 +911,7 @@ export const db = {
   // ============================================
 
   // Get top restaurants by state (for "More in State" section)
+  // Includes both open and closed to show variety of featured restaurants
   // Much more efficient than fetching ALL restaurants and filtering
   async getTopRestaurantsByState(
     stateAbbreviation: string,
@@ -830,6 +938,43 @@ export const db = {
     }
 
     // Apply limit after exclusion filter (neq happens in DB)
+    query = query.limit(limit);
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return transformRestaurants(data);
+  },
+
+  // Get top restaurants in same city (for "Also in City" section on restaurant pages)
+  // Only returns open restaurants - recommends places users can actually visit
+  async getTopRestaurantsByCity(
+    city: string,
+    stateAbbreviation: string,
+    excludeId?: string,
+    limit: number = 4
+  ): Promise<RestaurantWithEpisodes[]> {
+    const client = getSupabaseClient();
+
+    let query = client
+      .from('restaurants')
+      .select(`
+        *,
+        first_episode:episodes!first_episode_id(*),
+        restaurant_cuisines(
+          cuisine:cuisines(*)
+        )
+      `)
+      .eq('is_public', true)
+      .eq('city', city)
+      .eq('state', stateAbbreviation)
+      .eq('status', 'open')
+      .order('google_rating', { ascending: false, nullsFirst: false });
+
+    if (excludeId) {
+      query = query.neq('id', excludeId);
+    }
+
     query = query.limit(limit);
 
     const { data, error } = await query;

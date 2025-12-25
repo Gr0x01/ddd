@@ -77,10 +77,21 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
     notFound();
   }
 
-  // Use efficient DB query instead of fetching ALL restaurants
-  const stateRestaurants = restaurant.state
-    ? await db.getTopRestaurantsByState(restaurant.state, restaurant.id, 6)
-    : [];
+  // Fetch related restaurants and city data in parallel
+  const [cityRestaurants, stateRestaurants, cityData] = await Promise.all([
+    // Get other restaurants in same city
+    restaurant.state
+      ? db.getTopRestaurantsByCity(restaurant.city, restaurant.state, restaurant.id, 4)
+      : Promise.resolve([]),
+    // Get top restaurants in same state
+    restaurant.state
+      ? db.getTopRestaurantsByState(restaurant.state, restaurant.id, 6)
+      : Promise.resolve([]),
+    // Get city record for canonical slug
+    restaurant.state
+      ? db.getCityByName(restaurant.city, restaurant.state)
+      : Promise.resolve(null),
+  ]);
 
   // Generate structured data for SEO
   const restaurantSchema = generateRestaurantSchema(restaurant);
@@ -95,6 +106,7 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
   const hasQuote = Boolean(restaurant.guy_quote);
   const hasDishes = restaurant.dishes && restaurant.dishes.length > 0;
   const hasLocation = restaurant.latitude && restaurant.longitude;
+  const hasCityRestaurants = cityRestaurants.length > 0 && cityData;
   const hasMoreRestaurants = stateRestaurants.length > 0 && restaurant.state;
 
   // Long-form content flags
@@ -279,9 +291,9 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
                           <p key={i}>{paragraph}</p>
                         ))}
                       </div>
-                      {restaurant.state && (
+                      {cityData && (
                         <Link
-                          href={`/city/${restaurant.state.toLowerCase()}/${restaurant.city.toLowerCase().replace(/\s+/g, '-')}`}
+                          href={`/city/${cityData.stateSlug}/${cityData.slug}`}
                           className="restaurant-content-city-link"
                         >
                           Explore more restaurants in {restaurant.city} →
@@ -535,7 +547,49 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
             </>
           )}
 
-          {/* More in State Section - Always at bottom */}
+          {/* Also in City Section - Internal linking for same-city restaurants */}
+          {hasCityRestaurants && (
+            <section className="restaurant-city-section">
+              <div className="restaurant-more-container">
+                <div className="restaurant-more-header">
+                  <div className="restaurant-more-badge">
+                    <MapPin size={16} />
+                    <span>{restaurant.city.toUpperCase()}</span>
+                  </div>
+                  <h2 className="restaurant-more-title">
+                    Also in {restaurant.city}
+                  </h2>
+                  <p className="restaurant-more-subtitle">
+                    Other Triple D spots in {restaurant.city}
+                  </p>
+                </div>
+
+                <div className="restaurant-more-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+                  {cityRestaurants.map((r, index) => (
+                    <RestaurantCardOverlay
+                      key={r.id}
+                      restaurant={r}
+                      index={index}
+                    />
+                  ))}
+                </div>
+
+                <div className="restaurant-more-cta">
+                  <Link
+                    href={`/city/${cityData!.stateSlug}/${cityData!.slug}`}
+                    className="restaurant-more-cta-button"
+                  >
+                    VIEW ALL IN {restaurant.city.toUpperCase()}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* More in State Section */}
           {hasMoreRestaurants && (
             <section className="restaurant-more-section">
               <div className="restaurant-more-container">
@@ -579,6 +633,27 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
               </div>
             </section>
           )}
+
+          {/* Status Page Link - SEO internal linking */}
+          <section className="max-w-6xl mx-auto px-4 py-8 text-center">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              {restaurant.status === 'open' ? (
+                <>
+                  This restaurant is verified open. Browse all{' '}
+                  <Link href="/still-open" className="underline hover:no-underline font-medium" style={{ color: 'var(--text-primary)' }}>
+                    verified open Triple D restaurants
+                  </Link>.
+                </>
+              ) : restaurant.status === 'closed' ? (
+                <>
+                  This restaurant is permanently closed. See all{' '}
+                  <Link href="/closed" className="underline hover:no-underline font-medium" style={{ color: 'var(--text-primary)' }}>
+                    closed Triple D restaurants
+                  </Link>.
+                </>
+              ) : null}
+            </p>
+          </section>
         </main>
 
         <Footer />
