@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/supabase';
+import { REGIONS } from '@/lib/constants/regions';
 
 // Cache sitemap for 1 hour to avoid expensive queries on every request
 export const revalidate = 3600;
@@ -94,6 +95,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly',
         priority: 0.8,
       },
+      // Phase 5 SEO pages
+      {
+        url: `${baseUrl}/guy-fieri-restaurants`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/near-me`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/region`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      },
     ];
 
     // Restaurant pages - highest priority for individual content
@@ -178,6 +198,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.6,
       }));
 
+    // Regional pages (West Coast, East Coast, Midwest, South, Southwest)
+    const regionPages: MetadataRoute.Sitemap = REGIONS.map((region) => ({
+      url: `${baseUrl}/region/${region.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
+
     return [
       ...staticPages,
       ...restaurantPages,
@@ -189,6 +217,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...budgetPages,
       ...dishPages,
       ...dishCategoryPages,
+      ...regionPages,
     ];
   } catch (error) {
     console.error('Error generating sitemap:', error);

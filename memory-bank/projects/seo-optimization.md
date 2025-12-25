@@ -1,14 +1,14 @@
 ---
 title: SEO Optimization - Keyword Gap Analysis
 created: 2025-12-25
-status: Phase 4 Complete
+status: Complete (All Phases)
 priority: High
 data-source: DataForSEO Labs API
 ---
 
 # SEO Optimization: Closing the Keyword Gap
 
-**Status**: Phase 4 Complete
+**Status**: All Phases Complete (Phase 5 Done Dec 25)
 **Data Date**: December 25, 2025
 **Analysis Tool**: DataForSEO Labs API
 
@@ -307,33 +307,43 @@ Added "Top Cities for {Cuisine}" section:
 - Pill/chip-style links with restaurant counts
 - Links directly to city pages for cross-linking
 
-### Phase 5: New Landing Pages (Optional)
+### Phase 5: New Landing Pages ✅ COMPLETE
 
 **Estimated Impact**: +2,000-10,000 monthly traffic
 **Effort**: High
-**Timeline**: 1-2 weeks
+**Completed**: December 25, 2025
 
-#### 5.1 "Guy Fieri Restaurants" Landing Page
+#### 5.1 "Guy Fieri Restaurants" Landing Page ✅
 
 Dedicated page at `/guy-fieri-restaurants`:
-- Title: "Guy Fieri's Restaurants | Complete List of Triple D Locations"
+- Title: "Guy Fieri Restaurants | All {count} Diners, Drive-ins and Dives Locations"
 - Target: "guy fieri restaurants", "guy fieri restaurants near me"
-- Content: Map, stats, search, featured restaurants
+- Content: Full restaurant list with filters, FAQ schema, quick links
+- FAQ schema with 4 questions about Guy Fieri restaurants
 
-#### 5.2 "Near Me" Functionality
+#### 5.2 "Near Me" Functionality ✅
 
-Add geolocation-based page at `/near-me`:
-- Title: "Diners, Drive-ins and Dives Near Me | Triple D Restaurants"
+Geolocation-based page at `/near-me`:
+- Title: "Diners, Drive-ins and Dives Near Me | Find Triple D Restaurants"
 - Target: "triple d restaurants near me", "ddd restaurants near me"
-- Content: Geolocation prompt, nearest restaurants, radius filter
+- Content: Geolocation prompt, nearest restaurants, radius filter (10-500 miles)
+- Client-side distance calculation with Haversine formula
+- Fallback to popular states if location denied
 
-#### 5.3 Regional Landing Pages
+#### 5.3 Regional Landing Pages ✅
 
-Create regional hub pages:
-- `/west-coast` - California, Oregon, Washington restaurants
-- `/east-coast` - NY, MA, FL restaurants
-- `/midwest` - Chicago, Minneapolis, etc.
-- `/south` - Texas, Tennessee, etc.
+Created regional hub at `/region` with 5 regional pages:
+- `/region/west-coast` - California, Oregon, Washington (3 states)
+- `/region/east-coast` - ME to FL (16 states)
+- `/region/midwest` - OH to KS (12 states)
+- `/region/south` - TX to WV (9 states)
+- `/region/southwest` - AZ, NM, NV, UT, CO (5 states)
+
+Each page includes:
+- State breakdown with restaurant counts
+- Filtered restaurant list
+- Cross-linking to other regions
+- FAQ schema for regional queries
 
 ---
 
@@ -448,6 +458,7 @@ Create `scripts/seo/track-rankings.ts` to:
 
 | Date | Change |
 |------|--------|
+| 2025-12-25 | Phase 5 complete: New landing pages (/guy-fieri-restaurants, /near-me, /region/[slug]) |
 | 2025-12-25 | Phase 4 complete: Internal linking (restaurant city links, cuisine city links, status page links) |
 | 2025-12-25 | Phase 3 complete: Content optimization for city, state, and homepage |
 | 2025-12-25 | Phase 2 complete: FAQ schema added to homepage, WebSite schema added |

@@ -6,13 +6,13 @@ maintainer: Claude
 status: Active
 ---
 
-> **Latest**: SEO Phase 4 complete - Internal linking for restaurant, city, and cuisine pages.
+> **Latest**: SEO Phase 5 complete - New landing pages for Guy Fieri restaurants, Near Me, and Regions.
 
 # Active Development Context
 
-**Current Phase:** Phase 4 - Live & Indexing
-**Status:** Production deployed, SEO indexing in progress
-**Focus:** SEO optimization, monitoring, and iteration
+**Current Phase:** Phase 4 - Live & Indexing (SEO Complete)
+**Status:** Production deployed, all SEO phases complete
+**Focus:** Monitoring, indexing, and performance optimization
 
 ---
 
@@ -39,6 +39,10 @@ status: Active
 - `/dishes` - Dish index with category browse
 - `/dishes/[category]` - Category landing pages (BBQ, Seafood, Burgers, etc.)
 - `/dish/[slug]` - Individual dish pages
+- `/guy-fieri-restaurants` - Main landing page targeting "guy fieri restaurants" (33k volume)
+- `/near-me` - Geolocation-based restaurant finder
+- `/region` - Regional hub page
+- `/region/[slug]` - 5 regional pages (West Coast, East Coast, Midwest, South, Southwest)
 
 ### Infrastructure
 - Deployed to Vercel
@@ -50,6 +54,22 @@ status: Active
 ---
 
 ## Recently Completed
+
+### SEO Phase 5: New Landing Pages (Dec 25)
+- **`/guy-fieri-restaurants`**: Main landing page targeting "guy fieri restaurants" queries (33k volume)
+  - FAQ schema with 4 questions about Guy Fieri restaurants
+  - Full restaurant list with filters
+  - Quick links to other browse methods
+- **`/near-me`**: Geolocation-based restaurant finder
+  - Client-side geolocation with permission handling
+  - Distance calculation and radius filter (10-500 miles)
+  - Fallback to popular states if location denied
+- **`/region`**: Regional hub page with 5 US regions
+- **`/region/[slug]`**: Individual region pages (West Coast, East Coast, Midwest, South, Southwest)
+  - Pre-rendered via generateStaticParams
+  - State breakdowns and cross-linking
+- **New constants file**: `src/lib/constants/regions.ts` for region definitions
+- **Sitemap updated**: All new pages added with appropriate priorities
 
 ### SEO Phase 4: Internal Linking (Dec 25)
 - **Restaurant page "Also in {City}"**: New section showing up to 4 other open restaurants in the same city
@@ -179,10 +199,11 @@ npm run geocode                # Geocode restaurants
 2. ~~**SEO Phase 2** - Add Restaurant schema, FAQ schema to homepage, breadcrumb schema~~ ✅ Done
 3. ~~**SEO Phase 3** - Content optimization (city/state intro text, homepage sections)~~ ✅ Done
 4. ~~**SEO Phase 4** - Internal linking improvements~~ ✅ Done
-5. **Monitor indexing** - Track Google Search Console + DataForSEO results
-6. **Run Playwright tests** - Verify all pages work correctly
-7. **Performance optimization** - Lighthouse audits
-8. **SEO Phase 5** - New landing pages (optional: /guy-fieri-restaurants, /near-me)
+5. ~~**SEO Phase 5** - New landing pages (/guy-fieri-restaurants, /near-me, /region)~~ ✅ Done
+6. **Monitor indexing** - Track Google Search Console + DataForSEO results
+7. **Run Playwright tests** - Verify all pages work correctly
+8. **Performance optimization** - Lighthouse audits
+9. **Submit to IndexNow** - Add new pages to instant indexing
 
 ---
 
