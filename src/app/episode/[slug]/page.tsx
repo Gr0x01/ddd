@@ -14,6 +14,7 @@ interface EpisodePageProps {
 }
 
 export const revalidate = 3600; // Revalidate every hour
+export const dynamicParams = true; // Allow on-demand generation
 
 // Pre-render all episode pages at build time
 export async function generateStaticParams() {

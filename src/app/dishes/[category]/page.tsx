@@ -14,6 +14,7 @@ interface DishCategoryPageProps {
 }
 
 export const revalidate = 3600; // Revalidate every hour
+export const dynamicParams = true; // Allow on-demand generation
 
 // Pre-render all dish category pages at build time
 export async function generateStaticParams() {

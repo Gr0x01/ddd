@@ -13,6 +13,7 @@ interface CuisinePageProps {
 }
 
 export const revalidate = 3600; // Revalidate every hour
+export const dynamicParams = true; // Allow on-demand generation
 
 // Pre-render all cuisine pages at build time
 export async function generateStaticParams() {

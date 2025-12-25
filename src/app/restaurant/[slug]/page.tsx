@@ -14,6 +14,9 @@ import { MapPin, Phone, Globe, Star, Tv, ChevronUp } from 'lucide-react';
 // Restaurant data rarely changes - revalidate once per day
 export const revalidate = 86400;
 
+// Allow on-demand generation of pages not pre-rendered at build time
+export const dynamicParams = true;
+
 // Pre-render all restaurant pages at build time
 export async function generateStaticParams() {
   try {
