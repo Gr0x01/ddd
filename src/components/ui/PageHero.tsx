@@ -10,12 +10,13 @@ interface Stat {
 interface PageHeroProps {
   title: string;
   subtitle?: string;
+  description?: ReactNode;
   stats?: Stat[];
   breadcrumbItems?: Array<{ label: string; href?: string }>;
   children?: ReactNode;
 }
 
-export function PageHero({ title, subtitle, stats, breadcrumbItems, children }: PageHeroProps) {
+export function PageHero({ title, subtitle, description, stats, breadcrumbItems, children }: PageHeroProps) {
   // Use two-column layout when children are present (e.g., road trip form)
   const hasTwoColumnLayout = !!children;
 
@@ -45,6 +46,11 @@ export function PageHero({ title, subtitle, stats, breadcrumbItems, children }: 
             {subtitle && (
               <p className="page-hero-subtitle">
                 {subtitle}
+              </p>
+            )}
+            {description && (
+              <p className="page-hero-description">
+                {description}
               </p>
             )}
           </div>

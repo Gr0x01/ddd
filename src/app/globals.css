@@ -5319,6 +5319,21 @@ h3.route-journey-group-label {
   margin-top: 8px;
 }
 
+.page-hero-description {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--asphalt-dark);
+  opacity: 0.8;
+  margin-top: 12px;
+  max-width: 600px;
+}
+
+.page-hero-description a {
+  text-decoration: underline;
+  font-weight: 600;
+}
+
 .page-hero-stats {
   display: flex;
   gap: 24px;

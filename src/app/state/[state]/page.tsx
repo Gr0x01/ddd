@@ -140,6 +140,20 @@ export default async function StatePage({ params }: StatePageProps) {
 
   const openRestaurants = restaurants.filter(r => r.status === 'open');
 
+  // Get top cuisines for intro text
+  const cuisineCount = new Map<string, number>();
+  restaurants.forEach(r => {
+    if ('cuisines' in r && Array.isArray(r.cuisines)) {
+      r.cuisines.forEach((c: { name: string }) => {
+        cuisineCount.set(c.name, (cuisineCount.get(c.name) || 0) + 1);
+      });
+    }
+  });
+  const topCuisines = Array.from(cuisineCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([name]) => name);
+
   // Prepare cities for filter dropdown (only cities in this state)
   const citiesForFilter = cities
     .filter(c => (c.restaurant_count ?? 0) > 0)
@@ -197,6 +211,14 @@ export default async function StatePage({ params }: StatePageProps) {
         <PageHero
           title={state.name}
           subtitle="Diners, Drive-ins and Dives Restaurants"
+          description={
+            <>
+              {state.name} is home to {restaurants.length} restaurants featured on Guy Fieri&apos;s Triple D
+              {topCuisines.length > 0 ? `, from ${topCuisines.slice(0, 2).join(' to ')}${topCuisines.length > 2 ? ` and more` : ''}` : ''}.
+              {' '}{openRestaurants.length} are still open. Use our{' '}
+              <Link href="/roadtrip">road trip planner</Link> to visit multiple spots.
+            </>
+          }
           stats={[
             { value: restaurants.length, label: 'RESTAURANTS' },
             { value: openRestaurants.length, label: 'OPEN' },
@@ -208,35 +230,6 @@ export default async function StatePage({ params }: StatePageProps) {
           ]}
         />
 
-        {/* Cities List */}
-        {cities.length > 0 && (
-          <section className="max-w-6xl mx-auto px-4 pt-12">
-            <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
-              Cities with Diners, Drive-ins and Dives Restaurants
-            </h2>
-            <div className="grid md:grid-cols-3 gap-4 mb-8">
-              {cities
-                .filter(city => (city.restaurant_count ?? 0) > 0)
-                .sort((a, b) => (b.restaurant_count ?? 0) - (a.restaurant_count ?? 0))
-                .map((city) => (
-                  <Link
-                    key={city.id}
-                    href={`/city/${validatedSlug}/${city.slug}`}
-                    className="p-6 rounded-lg block hover:shadow-lg transition-shadow"
-                    style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
-                  >
-                    <h3 className="font-ui text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-                      {city.name}
-                    </h3>
-                    <p className="font-ui text-sm" style={{ color: 'var(--text-muted)' }}>
-                      {city.restaurant_count} {city.restaurant_count === 1 ? 'restaurant' : 'restaurants'}
-                    </p>
-                  </Link>
-                ))}
-            </div>
-          </section>
-        )}
-
         {/* Filterable Restaurant List */}
         <FilterableRestaurantList
           restaurants={restaurants}
@@ -244,6 +237,35 @@ export default async function StatePage({ params }: StatePageProps) {
           hideLocationDropdown={true}
           emptyMessage={`No restaurants found in ${state.name} yet. Check back soon!`}
         />
+
+        {/* Cities List - After restaurants for better UX flow */}
+        {cities.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 py-12">
+            <h2 className="font-display text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+              Browse {state.name} by City
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {cities
+                .filter(city => (city.restaurant_count ?? 0) > 0)
+                .sort((a, b) => (b.restaurant_count ?? 0) - (a.restaurant_count ?? 0))
+                .map((city) => (
+                  <Link
+                    key={city.id}
+                    href={`/city/${validatedSlug}/${city.slug}`}
+                    className="p-4 rounded-lg block hover:scale-105 transition-transform"
+                    style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
+                  >
+                    <span className="font-ui font-semibold block mb-1" style={{ color: 'var(--text-primary)' }}>
+                      {city.name}
+                    </span>
+                    <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+                      {city.restaurant_count} {city.restaurant_count === 1 ? 'spot' : 'spots'}
+                    </span>
+                  </Link>
+                ))}
+            </div>
+          </section>
+        )}
       </div>
       <Footer />
     </>

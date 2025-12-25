@@ -173,6 +173,20 @@ export default async function CityPage({ params }: CityPageProps) {
 
   const openRestaurants = restaurants.filter(r => r.status === 'open');
 
+  // Get top cuisines for intro text
+  const cuisineCount = new Map<string, number>();
+  restaurants.forEach(r => {
+    if ('cuisines' in r && Array.isArray(r.cuisines)) {
+      r.cuisines.forEach((c: { name: string }) => {
+        cuisineCount.set(c.name, (cuisineCount.get(c.name) || 0) + 1);
+      });
+    }
+  });
+  const topCuisines = Array.from(cuisineCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([name]) => name);
+
   // Generate structured data for SEO
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: '/' },
@@ -216,6 +230,13 @@ export default async function CityPage({ params }: CityPageProps) {
         <PageHero
           title={`${city.name}, ${city.state_name}`}
           subtitle="Diners, Drive-ins and Dives Restaurants"
+          description={
+            <>
+              Looking for the best diners in {city.name}? We&apos;ve mapped {restaurants.length} restaurants
+              featured on Guy Fieri&apos;s Triple D. {openRestaurants.length} still open
+              {topCuisines.length > 0 ? ` — ${topCuisines.slice(0, 3).join(', ')}` : ''}.
+            </>
+          }
           stats={[
             { value: restaurants.length, label: 'RESTAURANTS' },
             { value: openRestaurants.length, label: 'OPEN' }

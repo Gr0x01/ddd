@@ -6,7 +6,7 @@ maintainer: Claude
 status: Active
 ---
 
-> **Latest**: SEO Phase 2 complete - FAQ schema and WebSite schema added to homepage.
+> **Latest**: SEO Phase 3 complete - Content optimization for city, state, and homepage.
 
 # Active Development Context
 
@@ -50,6 +50,11 @@ status: Active
 ---
 
 ## Recently Completed
+
+### SEO Phase 3: Content Optimization (Dec 25)
+- **City page intro paragraphs**: Dynamic SEO text targeting "[City] diners" queries with restaurant counts and top cuisines
+- **State page intro paragraphs**: Dynamic overview with cuisine types, city counts, and internal link to road trip planner
+- **Homepage content sections**: Added "Popular Cities for Triple D Diners" (top 12 cities), "About Diners, Drive-ins and Dives" section, and "How to Use Triple D Map" feature grid
 
 ### SEO Phase 2: Schema Enhancement (Dec 25)
 - **Homepage FAQ schema**: 5 FAQs targeting show name variations ("What is Diners, Drive-ins and Dives?", "How many restaurants?", etc.)
@@ -166,10 +171,11 @@ npm run geocode                # Geocode restaurants
 
 1. ~~**SEO Phase 1** - Implement meta tag optimizations (homepage, city, state pages)~~ ✅ Done
 2. ~~**SEO Phase 2** - Add Restaurant schema, FAQ schema to homepage, breadcrumb schema~~ ✅ Done
-3. **Monitor indexing** - Track Google Search Console + DataForSEO results
-4. **Run Playwright tests** - Verify all pages work correctly
-5. **Performance optimization** - Lighthouse audits
-6. **SEO Phase 3** - Content optimization (city/state intro text)
+3. ~~**SEO Phase 3** - Content optimization (city/state intro text, homepage sections)~~ ✅ Done
+4. **Monitor indexing** - Track Google Search Console + DataForSEO results
+5. **Run Playwright tests** - Verify all pages work correctly
+6. **Performance optimization** - Lighthouse audits
+7. **SEO Phase 4** - Internal linking improvements (optional)
 
 ---
 

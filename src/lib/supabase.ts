@@ -721,6 +721,20 @@ export const db = {
     return data as City[];
   },
 
+  // Get top cities by restaurant count (for SEO featured cities section)
+  async getTopCities(limit = 12) {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('cities')
+      .select('*, states!inner(slug, abbreviation)')
+      .gt('restaurant_count', 0)
+      .order('restaurant_count', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data as (City & { states: { slug: string; abbreviation: string } })[];
+  },
+
   // Get all cuisines
   async getCuisines() {
     const client = getSupabaseClient();
