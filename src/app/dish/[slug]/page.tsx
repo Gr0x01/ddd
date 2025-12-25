@@ -16,12 +16,18 @@ interface DishPageProps {
 export const revalidate = 3600; // Revalidate every hour
 export const dynamicParams = true; // Allow on-demand generation
 
-// Pre-render all dish pages at build time
+// Pre-render top 200 most popular dishes at build time
 export async function generateStaticParams() {
   try {
-    const dishes = await db.getDishes();
-    console.log(`✓ Generating ${dishes.length} dish pages`);
-    return dishes.map((dish) => ({
+    // Only pre-render top 200 dishes by restaurant count for SEO
+    // Other dishes will be generated on-demand via dynamicParams = true
+    const dishes = await db.getDishesWithCounts(false);
+    const topDishes = dishes
+      .sort((a, b) => b.restaurantCount - a.restaurantCount)
+      .slice(0, 200);
+
+    console.log(`✓ Generating ${topDishes.length} top dish pages (out of ${dishes.length} total)`);
+    return topDishes.map((dish) => ({
       slug: dish.slug,
     }));
   } catch (error) {
