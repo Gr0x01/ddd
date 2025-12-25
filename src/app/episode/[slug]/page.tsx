@@ -15,6 +15,20 @@ interface EpisodePageProps {
 
 export const revalidate = 3600; // Revalidate every hour
 
+// Pre-render all episode pages at build time
+export async function generateStaticParams() {
+  try {
+    const episodes = await db.getEpisodeSlugs();
+    console.log(`✓ Generating ${episodes.length} episode pages`);
+    return episodes.map((episode) => ({
+      slug: episode.slug,
+    }));
+  } catch (error) {
+    console.error('✗ Error generating episode static params:', error);
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: EpisodePageProps): Promise<Metadata> {
   const { slug } = await params;
 

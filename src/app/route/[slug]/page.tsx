@@ -11,6 +11,22 @@ import { Utensils, MapPin } from 'lucide-react';
 
 export const revalidate = 3600; // Revalidate every hour
 
+// Pre-render all curated route pages at build time
+export async function generateStaticParams() {
+  try {
+    const routes = await db.getRouteSlugs();
+    console.log(`✓ Generating ${routes.length} route pages`);
+    return routes
+      .filter(route => route.slug)
+      .map((route) => ({
+        slug: route.slug!,
+      }));
+  } catch (error) {
+    console.error('✗ Error generating route static params:', error);
+    return [];
+  }
+}
+
 interface RoutePageProps {
   params: Promise<{
     slug: string;

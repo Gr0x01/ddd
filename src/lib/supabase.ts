@@ -266,6 +266,18 @@ export const db = {
     return data as Episode[];
   },
 
+  // Get episode slugs (lightweight - for generateStaticParams)
+  async getEpisodeSlugs(): Promise<Pick<Episode, 'slug'>[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('episodes')
+      .select('slug')
+      .order('slug');
+
+    if (error) throw error;
+    return data as Pick<Episode, 'slug'>[];
+  },
+
   // Get episode by slug
   async getEpisode(slug: string): Promise<Episode | null> {
     const client = getSupabaseClient();
@@ -874,6 +886,18 @@ export const db = {
     })).filter(c => c.restaurantCount > 0);
   },
 
+  // Get cuisine slugs (lightweight - for generateStaticParams)
+  async getCuisineSlugs(): Promise<Pick<Cuisine, 'slug'>[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('cuisines')
+      .select('slug')
+      .order('slug');
+
+    if (error) throw error;
+    return (data || []) as Pick<Cuisine, 'slug'>[];
+  },
+
   // Get cuisine by slug
   async getCuisine(slug: string) {
     const client = getSupabaseClient();
@@ -1368,6 +1392,18 @@ export const db = {
       .sort((a, b) => b.restaurantCount - a.restaurantCount);
   },
 
+  // Get all dishes (lightweight - just id and slug for generateStaticParams)
+  async getDishes(): Promise<Pick<Dish, 'id' | 'slug'>[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('dishes')
+      .select('id, slug')
+      .order('slug');
+
+    if (error) throw error;
+    return data as Pick<Dish, 'id' | 'slug'>[];
+  },
+
   // Get dish by slug
   async getDishBySlug(slug: string): Promise<Dish | null> {
     const client = getSupabaseClient();
@@ -1762,6 +1798,20 @@ export const db = {
 
     if (error) throw error;
     return (data || []) as RouteCache[];
+  },
+
+  // Get route slugs (lightweight - for generateStaticParams)
+  async getRouteSlugs(): Promise<Pick<RouteCache, 'slug'>[]> {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('route_cache')
+      .select('slug')
+      .eq('is_curated', true)
+      .not('slug', 'is', null)
+      .order('slug');
+
+    if (error) throw error;
+    return (data || []) as Pick<RouteCache, 'slug'>[];
   },
 
   // Increment view count for a route page (atomic to prevent race conditions)

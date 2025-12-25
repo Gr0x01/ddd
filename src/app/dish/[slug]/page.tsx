@@ -15,6 +15,20 @@ interface DishPageProps {
 
 export const revalidate = 3600; // Revalidate every hour
 
+// Pre-render all dish pages at build time
+export async function generateStaticParams() {
+  try {
+    const dishes = await db.getDishes();
+    console.log(`✓ Generating ${dishes.length} dish pages`);
+    return dishes.map((dish) => ({
+      slug: dish.slug,
+    }));
+  } catch (error) {
+    console.error('✗ Error generating dish static params:', error);
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: DishPageProps): Promise<Metadata> {
   const { slug } = await params;
 

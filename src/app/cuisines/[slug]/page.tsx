@@ -14,6 +14,20 @@ interface CuisinePageProps {
 
 export const revalidate = 3600; // Revalidate every hour
 
+// Pre-render all cuisine pages at build time
+export async function generateStaticParams() {
+  try {
+    const cuisines = await db.getCuisineSlugs();
+    console.log(`✓ Generating ${cuisines.length} cuisine pages`);
+    return cuisines.map((cuisine) => ({
+      slug: cuisine.slug,
+    }));
+  } catch (error) {
+    console.error('✗ Error generating cuisine static params:', error);
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: CuisinePageProps): Promise<Metadata> {
   const { slug } = await params;
 

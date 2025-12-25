@@ -14,6 +14,20 @@ import { MapPin, Phone, Globe, Star, Tv, ChevronUp } from 'lucide-react';
 // Restaurant data rarely changes - revalidate once per day
 export const revalidate = 86400;
 
+// Pre-render all restaurant pages at build time
+export async function generateStaticParams() {
+  try {
+    const restaurants = await db.getRestaurantSlugs();
+    console.log(`✓ Generating ${restaurants.length} restaurant pages`);
+    return restaurants.map((restaurant) => ({
+      slug: restaurant.slug,
+    }));
+  } catch (error) {
+    console.error('✗ Error generating restaurant static params:', error);
+    return [];
+  }
+}
+
 interface RestaurantPageProps {
   params: Promise<{ slug: string }>;
 }

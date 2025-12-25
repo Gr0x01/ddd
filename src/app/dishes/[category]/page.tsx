@@ -15,6 +15,20 @@ interface DishCategoryPageProps {
 
 export const revalidate = 3600; // Revalidate every hour
 
+// Pre-render all dish category pages at build time
+export async function generateStaticParams() {
+  try {
+    const categories = await db.getDishCategoriesWithCounts();
+    console.log(`✓ Generating ${categories.length} dish category pages`);
+    return categories.map((category) => ({
+      category: category.slug,
+    }));
+  } catch (error) {
+    console.error('✗ Error generating dish category static params:', error);
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: DishCategoryPageProps): Promise<Metadata> {
   const { category } = await params;
 

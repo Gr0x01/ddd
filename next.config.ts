@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { withPlausibleProxy } from "next-plausible";
 
 const nextConfig: NextConfig = {
+  staticPageGenerationTimeout: 300, // 5 minutes (up from 60 seconds default)
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
@@ -50,6 +51,22 @@ const nextConfig: NextConfig = {
             value: 'noai, noimageai',
           },
         ],
+      },
+    ];
+  },
+  async redirects() {
+    return [
+      // Redirect www to non-www
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.tripledmap.com',
+          },
+        ],
+        destination: 'https://tripledmap.com/:path*',
+        permanent: true,
       },
     ];
   },
