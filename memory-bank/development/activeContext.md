@@ -1,10 +1,12 @@
 ---
 title: Active Development Context
 created: 2025-12-14
-last-updated: 2025-12-23
+last-updated: 2025-12-25
 maintainer: Claude
 status: Active
 ---
+
+> **Latest**: SEO Phase 1 complete - Meta tags optimized for homepage, city, and state pages.
 
 # Active Development Context
 
@@ -48,6 +50,12 @@ status: Active
 ---
 
 ## Recently Completed
+
+### SEO Phase 1: Meta Optimization (Dec 25)
+- **Homepage**: New title "Diners, Drive-ins and Dives Restaurants | Guy Fieri Triple D Map"
+- **City pages**: Title pattern now "{City} Diners from Triple D | Diners, Drive-ins and Dives in {City}, {State}"
+- **State pages**: Title pattern now "{State} Diners | Diners, Drive-ins and Dives Restaurants in {State}"
+- **Target keywords**: "[City] diners" (40k-90k volume), show name variations, "Triple D" branded queries
 
 ### Dish SEO Improvements (Dec 23)
 - **Dish Categories**: Added category field to dishes table, categorized 2,550 dishes via LLM ($0.085)
@@ -126,19 +134,43 @@ npm run geocode                # Geocode restaurants
 
 ---
 
-## Next Steps (Potential)
+## Active Project: SEO Optimization
 
-1. **Monitor indexing** - Track Google Search Console + IndexNow results
-2. **Run Playwright tests** - Verify all pages work correctly
-3. **Performance optimization** - Lighthouse audits
-4. **Content iteration** - Add more curated routes if popular
-5. **User feedback** - Monitor PostHog for UX issues
+**Status**: Planning complete, ready for implementation
+**Document**: `projects/seo-optimization.md`
+
+### DataForSEO Analysis (Dec 25)
+- Ran competitive analysis vs dinersdriveinsdiveslocations.com
+- **Gap**: Competitor has 39,377 keywords (445k traffic) vs our 57 keywords (32 traffic)
+- **Key opportunities identified**:
+  - "[City] diners" queries (40k-90k volume each)
+  - Show name variations (90k volume)
+  - Guy Fieri branded queries (33k volume)
+- Created `scripts/seo/dataforseo-analysis.ts` for ongoing tracking
+
+### Implementation Phases
+1. **Phase 1**: Meta optimization (quick wins)
+2. **Phase 2**: Schema markup enhancement
+3. **Phase 3**: Content optimization
+4. **Phase 4**: Internal linking
+5. **Phase 5**: New landing pages (optional)
+
+---
+
+## Next Steps
+
+1. ~~**SEO Phase 1** - Implement meta tag optimizations (homepage, city, state pages)~~ ✅ Done
+2. **SEO Phase 2** - Add Restaurant schema, FAQ schema to homepage, breadcrumb schema
+3. **Monitor indexing** - Track Google Search Console + DataForSEO results
+4. **Run Playwright tests** - Verify all pages work correctly
+5. **Performance optimization** - Lighthouse audits
 
 ---
 
 ## Related Documents
 
 - `core/quickstart.md` - Project overview and key commands
+- `projects/seo-optimization.md` - **SEO keyword gap analysis and implementation plan**
 - `projects/homepage-redesign.md` - Homepage implementation details
 - `archive/roadtrip-planner.md` - Road trip technical architecture
 - `architecture/enrichment-system.md` - LLM enrichment details

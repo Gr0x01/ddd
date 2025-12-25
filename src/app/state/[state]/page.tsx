@@ -78,12 +78,10 @@ export async function generateMetadata({ params }: StatePageProps): Promise<Meta
     });
     const topCuisines = Array.from(cuisines).slice(0, 3).join(', ');
 
-    const title = `${openCount} Diners, Drive-ins and Dives Restaurants in ${state.name} | Guy Fieri`;
+    const title = `${state.name} Diners | Triple D Restaurants Map`;
     const description = state.meta_description ||
-      `Discover ${restaurants.length} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives in ${state.name}. ` +
-      `${openCount} still open across ${cities.length} cities. ` +
-      (topCuisines ? `Popular cuisines: ${topCuisines}. ` : '') +
-      `View photos, ratings, and locations.`;
+      `All ${restaurants.length} Triple D restaurants in ${state.name}. Browse ${cities.length} cities, see which ${openCount} are still open, and plan your Guy Fieri food tour.` +
+      (topCuisines ? ` Popular: ${topCuisines}.` : '');
 
     return {
       title,
@@ -92,13 +90,13 @@ export async function generateMetadata({ params }: StatePageProps): Promise<Meta
         canonical: `/state/${validatedSlug}`,
       },
       openGraph: {
-        title: `Diners, Drive-ins and Dives Restaurants in ${state.name}`,
+        title: `${state.name} Diners | Triple D Restaurants`,
         description,
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
-        title: `Diners, Drive-ins and Dives Restaurants in ${state.name}`,
+        title: `${state.name} Diners | Triple D Restaurants`,
         description,
       },
     };

@@ -7,23 +7,24 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   const stats = await db.getStats();
 
-  const description = `Discover ${stats.restaurants} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives across ${stats.cities} cities. Plan road trips, find restaurants near you, and explore Diners, Drive-ins and Dives locations.`;
-  const shortDescription = `Find ${stats.restaurants} Guy Fieri restaurants. Plan road trips & discover Diners, Drive-ins and Dives locations.`;
+  const openCount = stats.openRestaurants?.toLocaleString() || '1,000+';
+  const description = `Find ${openCount} verified open Triple D restaurants. Browse Guy Fieri's picks by city, cuisine, or plan a road trip. Updated Dec 2025.`;
+  const shortDescription = `${openCount} verified open Triple D restaurants. Plan your Guy Fieri road trip.`;
 
   return {
-    title: 'Diners, Drive-ins and Dives Locations | Plan Your Guy Fieri Road Trip',
+    title: 'Guy Fieri Restaurants | Diners, Drive-ins and Dives Map',
     description,
     alternates: {
       canonical: '/',
     },
     openGraph: {
-      title: 'Plan Your Diners, Drive-ins and Dives Road Trip | Guy Fieri Restaurant Map',
+      title: 'Guy Fieri Restaurants | Diners, Drive-ins and Dives Map',
       description: shortDescription,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Diners, Drive-ins and Dives Road Trip Planner | Guy Fieri Restaurants',
+      title: 'Guy Fieri Restaurants | Diners, Drive-ins and Dives Map',
       description: shortDescription,
     },
   };

@@ -96,10 +96,12 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
       ? ` Top picks: ${topRated.map(r => r.name).join(', ')}.`
       : '';
 
-    const title = `${openCount} Diners, Drive-ins and Dives Restaurants in ${city.name}, ${state.abbreviation} | Guy Fieri`;
-    const description = city.meta_description ||
-      `Discover ${restaurants.length} restaurants featured on Guy Fieri's Diners, Drive-ins and Dives in ${city.name}, ${state.name}. ` +
-      `${openCount} still open.${topRatedText} View photos, ratings, and detailed info.`;
+    const title = `${city.name} Diners | Triple D Restaurants in ${state.abbreviation}`;
+
+    // Build description with length guard
+    const baseDesc = `Find the best diners in ${city.name} from Guy Fieri's Triple D. ${openCount} of ${restaurants.length} still open.`;
+    const fullDesc = baseDesc + topRatedText;
+    const description = city.meta_description || (fullDesc.length > 160 ? baseDesc : fullDesc);
 
     return {
       title,
@@ -108,13 +110,13 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
         canonical: `/city/${validatedStateSlug}/${validatedCitySlug}`,
       },
       openGraph: {
-        title: `Diners, Drive-ins and Dives Restaurants in ${city.name}, ${state.abbreviation}`,
+        title: `${city.name} Diners | Triple D Restaurants`,
         description,
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
-        title: `Diners, Drive-ins and Dives Restaurants in ${city.name}, ${state.abbreviation}`,
+        title: `${city.name} Diners | Triple D Restaurants`,
         description,
       },
     };
