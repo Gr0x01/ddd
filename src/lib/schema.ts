@@ -492,6 +492,63 @@ export function generateRouteSchema(
 }
 
 /**
+ * FAQ schema for homepage
+ * Targets show name variations and common questions
+ */
+export function generateHomepageFAQSchema(
+  totalRestaurants: number,
+  openRestaurants: number,
+  totalEpisodes: number
+): any {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'What is Diners, Drive-ins and Dives?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `Diners, Drive-ins and Dives (also known as Triple D or DDD) is a Food Network show hosted by Guy Fieri. Since 2006, Guy has visited over ${totalRestaurants.toLocaleString()} restaurants across America, showcasing their signature dishes and the stories behind them.`,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'How many restaurants have been featured on Triple D?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `Guy Fieri has featured ${totalRestaurants.toLocaleString()} restaurants across ${totalEpisodes} episodes of Diners, Drive-ins and Dives. Of these, ${openRestaurants.toLocaleString()} are still open and serving customers today.`,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'How can I find Guy Fieri restaurants near me?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Use our Road Trip Planner to find Diners, Drive-ins and Dives restaurants along any route. Enter your starting point and destination to discover Triple D restaurants within your chosen distance. You can also browse by state, city, or cuisine type.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Are all Diners, Drive-ins and Dives restaurants still open?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `No, some restaurants have closed since appearing on the show. We verify the status of every restaurant - currently ${openRestaurants.toLocaleString()} out of ${totalRestaurants.toLocaleString()} are confirmed open. Look for the "Verified Open" badge on our listings.`,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'What is Triple D Map?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Triple D Map is the ultimate guide to every restaurant featured on Guy Fieri\'s Diners, Drive-ins and Dives. We provide an interactive map, verified open/closed status, road trip planning, and detailed information about each restaurant including their signature dishes and Guy\'s reviews.',
+        },
+      },
+    ],
+  };
+}
+
+/**
  * FAQ schema for route pages
  */
 export function generateRouteFAQSchema(

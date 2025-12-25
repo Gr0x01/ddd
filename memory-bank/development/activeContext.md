@@ -6,7 +6,7 @@ maintainer: Claude
 status: Active
 ---
 
-> **Latest**: SEO Phase 1 complete - Meta tags optimized for homepage, city, and state pages.
+> **Latest**: SEO Phase 2 complete - FAQ schema and WebSite schema added to homepage.
 
 # Active Development Context
 
@@ -50,6 +50,11 @@ status: Active
 ---
 
 ## Recently Completed
+
+### SEO Phase 2: Schema Enhancement (Dec 25)
+- **Homepage FAQ schema**: 5 FAQs targeting show name variations ("What is Diners, Drive-ins and Dives?", "How many restaurants?", etc.)
+- **Homepage WebSite schema**: Added SearchAction for sitelinks search
+- **Already had**: Restaurant schema on restaurant pages, breadcrumb schema on all page types
 
 ### SEO Phase 1: Meta Optimization (Dec 25)
 - **Homepage**: New title "Diners, Drive-ins and Dives Restaurants | Guy Fieri Triple D Map"
@@ -160,10 +165,11 @@ npm run geocode                # Geocode restaurants
 ## Next Steps
 
 1. ~~**SEO Phase 1** - Implement meta tag optimizations (homepage, city, state pages)~~ ✅ Done
-2. **SEO Phase 2** - Add Restaurant schema, FAQ schema to homepage, breadcrumb schema
+2. ~~**SEO Phase 2** - Add Restaurant schema, FAQ schema to homepage, breadcrumb schema~~ ✅ Done
 3. **Monitor indexing** - Track Google Search Console + DataForSEO results
 4. **Run Playwright tests** - Verify all pages work correctly
 5. **Performance optimization** - Lighthouse audits
+6. **SEO Phase 3** - Content optimization (city/state intro text)
 
 ---
 

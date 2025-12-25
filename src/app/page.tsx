@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { db } from '@/lib/supabase';
+import { generateHomepageFAQSchema, generateWebSiteSchema, safeStringifySchema } from '@/lib/schema';
 import HomePage from './HomePage';
 
 export const revalidate = 3600;
@@ -41,12 +42,32 @@ export default async function Page() {
   // Iconic: hand-picked or highest-rated restaurants
   const iconicRestaurants = featuredRestaurants.slice(0, 10);
 
+  // Generate structured data for SEO
+  const faqSchema = generateHomepageFAQSchema(
+    stats.restaurants,
+    stats.openRestaurants,
+    stats.episodes
+  );
+  const websiteSchema = generateWebSiteSchema();
+
   return (
-    <HomePage
-      iconicRestaurants={iconicRestaurants}
-      stats={stats}
-      recentEpisodes={recentEpisodes}
-      curatedRoutes={curatedRoutes}
-    />
+    <>
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeStringifySchema(websiteSchema) }}
+      />
+
+      <HomePage
+        iconicRestaurants={iconicRestaurants}
+        stats={stats}
+        recentEpisodes={recentEpisodes}
+        curatedRoutes={curatedRoutes}
+      />
+    </>
   );
 }
